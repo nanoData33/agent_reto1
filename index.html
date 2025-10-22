@@ -5,118 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MedAI Evolution Assistant</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #e8f0ff, #ffffff);
       margin: 0;
-      padding: 0;
+      background: linear-gradient(to right, #eaf3ff, #ffffff);
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: auto;
+      overflow-y: hidden;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
     }
-
     header {
       background: linear-gradient(90deg, #004aad, #0078d7);
       color: white;
-      padding: 15px 30px;
+      padding: 15px 25px;
       font-size: 1.4em;
       display: flex;
       align-items: center;
       gap: 10px;
       font-weight: bold;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     }
-
     header img {
       width: 40px;
     }
-
     .hallway {
       display: flex;
-      justify-content: space-between;
-      flex: 1;
-      padding: 50px 10%;
-      perspective: 1000px;
-      position: relative;
-      overflow-y: auto;
-    }
-
-    .side {
-      display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      justify-content: start;
+      align-items: center;
       gap: 30px;
-      width: 35%;
+      padding: 50px;
     }
-
     .room {
       background: white;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 25px;
+      min-width: 200px;
+      text-align: center;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
-
     .room:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      transform: translateY(-6px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
     }
-
     .room h3 {
       margin: 0;
       color: #004aad;
     }
-
     .room p {
       margin: 5px 0;
       color: #333;
       font-size: 0.95em;
     }
-
-    /* Panel lateral */
-    #panel {
-      position: fixed;
-      top: 0;
-      right: -420px;
-      width: 400px;
-      height: 100%;
-      background: #f9fbff;
-      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-      transition: right 0.4s ease;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    #panel.active {
-      right: 0;
-    }
-
-    #panel h2 {
-      color: #004aad;
-      border-bottom: 2px solid #004aad;
-      padding-bottom: 10px;
-    }
-
-    #chart {
-      margin-top: 20px;
-      width: 100%;
-      height: 200px;
-    }
-
-    .close-btn {
-      background: #004aad;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      float: right;
-    }
-
-    /* Chat flotante */
     #chat-btn {
       position: fixed;
       bottom: 20px;
@@ -128,11 +72,10 @@
       width: 60px;
       height: 60px;
       font-size: 26px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
       cursor: pointer;
       transition: transform 0.3s;
     }
-
     #chat-btn:hover {
       transform: scale(1.1);
       background: #005bb5;
@@ -145,19 +88,7 @@
     MedAI Evolution Assistant
   </header>
 
-  <div class="hallway">
-    <div class="side" id="left-side"></div>
-    <div class="side" id="right-side"></div>
-  </div>
-
-  <div id="panel">
-    <button class="close-btn" onclick="closePanel()">Cerrar</button>
-    <h2 id="panel-name"></h2>
-    <p id="panel-diagnosis"></p>
-    <canvas id="chart"></canvas>
-    <div id="notes"></div>
-  </div>
-
+  <div class="hallway" id="hallway"></div>
   <button id="chat-btn" title="Abrir Chat">💬</button>
 
   <script>
@@ -168,15 +99,12 @@
     async function loadPatients() {
       const { data, error } = await supabase.from("vista_pacientes_completo").select("*");
       if (error) {
-        console.error("Error cargando pacientes:", error);
+        console.error("Error:", error);
         return;
       }
 
-      const left = document.getElementById("left-side");
-      const right = document.getElementById("right-side");
-      left.innerHTML = right.innerHTML = "";
-
-      data.forEach((p, i) => {
+      const hallway = document.getElementById("hallway");
+      data.forEach(p => {
         const room = document.createElement("div");
         room.className = "room";
         room.innerHTML = `
@@ -184,48 +112,13 @@
           <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
           <p><strong>${p.edad}</strong> años • ${p.sexo}</p>
         `;
-        room.onclick = () => openPanel(p);
-        (i % 2 === 0 ? left : right).appendChild(room);
+        room.onclick = () => window.open(`paciente.html?id=${p.patient_id}`, "_blank");
+        hallway.appendChild(room);
       });
-    }
-
-    function openPanel(p) {
-      document.getElementById("panel").classList.add("active");
-      document.getElementById("panel-name").textContent = p.nombre;
-      document.getElementById("panel-diagnosis").textContent = p.diagnostico_principal;
-
-      // Extrae evolución médica si existe
-      const evol = Array.isArray(p.evolucion_medica) ? p.evolucion_medica : JSON.parse(p.evolucion_medica || "[]");
-      const dates = evol.map(e => e.fecha);
-      const states = evol.map(e => e.valoracion_estado);
-      const notes = evol.map(e => `<p><strong>${e.fecha}</strong>: ${e.nota_medica}</p>`).join("");
-
-      document.getElementById("notes").innerHTML = `<h3>Notas médicas</h3>${notes}`;
-
-      const ctx = document.getElementById("chart");
-      if (window.chartInstance) window.chartInstance.destroy();
-      window.chartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: dates,
-          datasets: [{
-            label: "Valoración del estado",
-            data: states,
-            borderColor: "#0078d7",
-            fill: false,
-            tension: 0.3
-          }]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true, max: 5 } } }
-      });
-    }
-
-    function closePanel() {
-      document.getElementById("panel").classList.remove("active");
     }
 
     document.getElementById("chat-btn").onclick = () => {
-      alert("Aquí se integrará el chat con N8N o Telegram 💬");
+      alert("Aquí se conectará el chat médico de N8N 💬");
     };
 
     loadPatients();
