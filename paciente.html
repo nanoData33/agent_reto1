@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel Clínico Interactivo</title>
+  <title>Dashboard Clínico</title>
 
   <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,8 +14,8 @@
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
-      margin: 0;
       background: #f4f8ff;
+      margin: 0;
       color: #1a1a1a;
       overflow-x: hidden;
     }
@@ -23,76 +23,91 @@
     header {
       background: #004aad;
       color: white;
-      padding: 15px 35px;
+      padding: 12px 28px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
     }
 
     header h1 {
-      font-size: 1.7em;
       margin: 0;
+      font-size: 1.5em;
     }
 
     header button {
-      background: #ffffff22;
-      border: 1px solid #fff;
+      background: #ffffff33;
+      border: none;
       border-radius: 8px;
-      padding: 6px 14px;
       color: white;
+      padding: 6px 12px;
       cursor: pointer;
-      transition: 0.3s;
-    }
-
-    header button:hover {
-      background: #ffffff44;
     }
 
     .info {
+      background: white;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 10px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      padding: 10px 15px;
-      margin: 15px 30px;
-    }
-
-    .info-item {
-      background: #f1f6ff;
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 0.9em;
-    }
-
-    .charts {
-      display: grid;
-      grid-template-columns: 1.1fr 1fr 0.9fr;
-      gap: 15px;
-      margin: 0 30px 20px;
-    }
-
-    .chart-box {
-      background: white;
-      border-radius: 12px;
+      margin: 15px 25px;
       padding: 10px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .info div {
+      background: #f2f6ff;
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 0.85em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      grid-template-rows: 300px 280px;
+      gap: 15px;
+      margin: 0 25px 25px;
+    }
+
+    .box {
+      background: white;
+      border-radius: 10px;
+      padding: 8px 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-direction: column;
     }
 
     canvas {
       width: 100% !important;
-      height: 300px !important;
+      height: 240px !important;
+    }
+
+    h2 {
+      margin: 5px 0;
+      font-size: 1em;
+      color: #004aad;
+    }
+
+    .scroll {
+      overflow-y: auto;
+      flex: 1;
+      font-size: 0.85em;
+    }
+
+    .highlight {
+      background: #f8faff;
+      border-left: 3px solid #004aad;
+      padding: 5px;
+      border-radius: 5px;
+      margin-bottom: 5px;
     }
 
     footer {
       text-align: right;
-      font-size: 0.8em;
-      color: #555;
-      margin: 0 40px 10px;
+      margin: 5px 30px;
+      font-size: 0.75em;
+      color: #777;
     }
   </style>
 </head>
@@ -100,143 +115,156 @@
 <body>
   <header>
     <button onclick="window.location.href='index.html'">⬅ Volver</button>
-    <h1 id="nombre">Cargando...</h1>
-    <button id="pdfBtn">📄 Descargar PDF</button>
+    <h1 id="nombre">Cargando paciente...</h1>
+    <button id="pdfBtn">📄 Exportar PDF</button>
   </header>
 
-  <div id="content">
+  <div id="dashboard">
     <div class="info" id="info"></div>
 
-    <div class="charts">
-      <div class="chart-box"><canvas id="radarChart"></canvas></div>
-      <div class="chart-box"><canvas id="vitalChart"></canvas></div>
-      <div class="chart-box"><canvas id="toleranciaChart"></canvas></div>
+    <div class="grid">
+      <div class="box">
+        <h2>📈 Evolución clínica (Radar)</h2>
+        <canvas id="radarChart"></canvas>
+      </div>
+
+      <div class="box">
+        <h2>💊 Tratamientos</h2>
+        <div class="scroll" id="tratamientos"></div>
+      </div>
+
+      <div class="box">
+        <h2>🩺 Signos Vitales</h2>
+        <canvas id="vitalChart"></canvas>
+      </div>
+
+      <div class="box">
+        <h2>📋 Resumen de Alta</h2>
+        <div class="scroll" id="alta"></div>
+      </div>
     </div>
   </div>
 
-  <footer>© 2025 MedAI Assistant — Panel Clínico</footer>
+  <footer>© 2025 MedAI — Panel Clínico Interactivo</footer>
 
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
     const id = new URLSearchParams(window.location.search).get("id");
 
-    async function loadData() {
+    async function load() {
       const { data: p } = await supabase.from("paciente").select("*").eq("patient_id", id).single();
+      if (!p) return;
       document.getElementById("nombre").textContent = p.nombre;
 
       document.getElementById("info").innerHTML = `
-        <div class="info-item"><strong>Edad:</strong> ${p.edad}</div>
-        <div class="info-item"><strong>Sexo:</strong> ${p.sexo}</div>
-        <div class="info-item"><strong>Peso:</strong> ${p.peso_kg} kg</div>
-        <div class="info-item"><strong>Altura:</strong> ${p.altura_cm} cm</div>
-        <div class="info-item"><strong>IMC:</strong> ${p.imc}</div>
-        <div class="info-item"><strong>Motivo:</strong> ${p.motivo_ingreso}</div>
-        <div class="info-item"><strong>Servicio:</strong> ${p.servicio}</div>
-        <div class="info-item"><strong>Ingreso:</strong> ${p.fecha_ingreso}</div>
-      `;
+        <div><b>Edad:</b> ${p.edad}</div>
+        <div><b>Sexo:</b> ${p.sexo}</div>
+        <div><b>Peso:</b> ${p.peso_kg} kg</div>
+        <div><b>Altura:</b> ${p.altura_cm} cm</div>
+        <div><b>IMC:</b> ${p.imc}</div>
+        <div><b>Motivo:</b> ${p.motivo_ingreso}</div>
+        <div><b>Servicio:</b> ${p.servicio}</div>
+        <div><b>Dependencia:</b> ${p.nivel_dependencia || "-"}</div>
+        <div><b>Riesgo Caídas:</b> ${p.riesgo_caidas ? "Sí" : "No"}</div>
+        <div><b>Alergias:</b> ${p.alergias || "Ninguna"}</div>
+        <div><b>Comorbilidades:</b> ${p.comorbilidades || "Ninguna"}</div>
+        <div><b>Ingreso:</b> ${p.fecha_ingreso}</div>`;
 
-      const { data: evol } = await supabase
-        .from("evolucion_medica")
-        .select("*")
-        .eq("patient_id", id)
-        .order("fecha", { ascending: true });
-
-      if (!evol?.length) return;
-
-      const first = evol[0];
-      const last = evol[evol.length - 1];
+      const { data: evol } = await supabase.from("evolucion_medica").select("*").eq("patient_id", id).order("fecha", { ascending: true });
+      const { data: res } = await supabase.from("resultados_clinicos").select("*").eq("patient_id", id).order("fecha", { ascending: true });
+      const { data: trat } = await supabase.from("tratamientos").select("*").eq("patient_id", id).order("dia_estancia", { ascending: true });
+      const { data: alta } = await supabase.from("alta_resumen").select("*").eq("patient_id", id).single();
 
       // === Radar chart ===
-      new Chart(document.getElementById("radarChart"), {
-        type: "radar",
-        data: {
-          labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
-          datasets: [
-            {
-              label: `Ingreso (${first.fecha})`,
-              data: [first.dolor_nivel, first.movilidad, first.apetito, first.sueño_calidad, first.tolerancia_tratamiento],
-              backgroundColor: "rgba(255,99,132,0.2)",
-              borderColor: "#ff6384",
-              borderWidth: 2
-            },
-            {
-              label: `Actual (${last.fecha})`,
-              data: [last.dolor_nivel, last.movilidad, last.apetito, last.sueño_calidad, last.tolerancia_tratamiento],
-              backgroundColor: "rgba(54,162,235,0.2)",
-              borderColor: "#36a2eb",
-              borderWidth: 2
-            }
-          ]
-        },
-        options: {
-          plugins: { legend: { position: "bottom" } },
-          scales: { r: { beginAtZero: true, max: 10 } }
-        }
-      });
-
-      // === Vital chart (temperatura, FC, SpO₂) ===
-      const { data: res } = await supabase
-        .from("resultados_clinicos")
-        .select("*")
-        .eq("patient_id", id)
-        .order("fecha", { ascending: true });
-
-      new Chart(document.getElementById("vitalChart"), {
-        type: "line",
-        data: {
-          labels: res.map(r => r.fecha),
-          datasets: [
-            { label: "Temperatura", data: res.map(r => r.temperatura), borderColor: "#ff9f40", backgroundColor: "rgba(255,159,64,0.2)", tension: 0.3 },
-            { label: "FC", data: res.map(r => r.frecuencia_cardiaca), borderColor: "#4bc0c0", backgroundColor: "rgba(75,192,192,0.2)", tension: 0.3 },
-            { label: "SpO₂", data: res.map(r => r.spo2), borderColor: "#9966ff", backgroundColor: "rgba(153,102,255,0.2)", tension: 0.3 }
-          ]
-        },
-        options: {
-          plugins: { legend: { position: "bottom" } },
-          scales: { y: { beginAtZero: false, max: 100, title: { display: true, text: "Valores vitales" } } }
-        }
-      });
-
-      // === Gráfico tolerancia al tratamiento ===
-      new Chart(document.getElementById("toleranciaChart"), {
-        type: "bar",
-        data: {
-          labels: evol.map(e => e.fecha),
-          datasets: [
-            {
-              label: "Tolerancia al tratamiento",
-              data: evol.map(e => e.tolerancia_tratamiento),
-              backgroundColor: "rgba(0,75,200,0.3)",
-              borderColor: "#004aad",
-              borderWidth: 1.5
-            }
-          ]
-        },
-        options: {
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, max: 10, title: { display: true, text: "Nivel de tolerancia" } }
+      if (evol?.length > 0) {
+        const first = evol[0];
+        const last = evol[evol.length - 1];
+        new Chart(document.getElementById("radarChart"), {
+          type: "radar",
+          data: {
+            labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
+            datasets: [
+              {
+                label: `Ingreso (${first.fecha})`,
+                data: [first.dolor_nivel, first.movilidad, first.apetito, first.sueño_calidad, first.tolerancia_tratamiento],
+                backgroundColor: "rgba(255,99,132,0.2)",
+                borderColor: "#ff6384"
+              },
+              {
+                label: `Actual (${last.fecha})`,
+                data: [last.dolor_nivel, last.movilidad, last.apetito, last.sueño_calidad, last.tolerancia_tratamiento],
+                backgroundColor: "rgba(54,162,235,0.2)",
+                borderColor: "#36a2eb"
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: "bottom" } },
+            scales: { r: { beginAtZero: true, max: 10 } }
           }
-        }
-      });
+        });
+      }
+
+      // === Vital chart ===
+      if (res?.length > 0) {
+        new Chart(document.getElementById("vitalChart"), {
+          type: "line",
+          data: {
+            labels: res.map(r => r.fecha),
+            datasets: [
+              { label: "Temp °C", data: res.map(r => r.temperatura), borderColor: "#ff9f40", fill: false, tension: 0.3 },
+              { label: "FC", data: res.map(r => r.frecuencia_cardiaca), borderColor: "#4bc0c0", fill: false, tension: 0.3 },
+              { label: "SpO₂", data: res.map(r => r.spo2), borderColor: "#9966ff", fill: false, tension: 0.3 }
+            ]
+          },
+          options: {
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { position: "bottom" } },
+            scales: { y: { beginAtZero: false, max: 110 } }
+          }
+        });
+      }
+
+      // === Tratamientos ===
+      document.getElementById("tratamientos").innerHTML = trat?.length
+        ? trat.map(t => `
+          <div class="highlight">
+            <b>${t.tratamiento}</b> (${t.via_administracion})<br>
+            ${t.procedimientos || ""}<br>
+            ${t.cambio_tratamiento ? "<i>Cambio:</i> " + t.cambio_tratamiento + "<br>" : ""}
+            <small>${t.efectos_secundarios || ""}</small>
+          </div>`).join("")
+        : "<em>Sin tratamientos registrados</em>";
+
+      // === Alta ===
+      document.getElementById("alta").innerHTML = alta
+        ? `
+          <p><b>Fecha:</b> ${alta.fecha_alta}</p>
+          <p><b>Diagnóstico Principal:</b> ${alta.diagnostico_principal}</p>
+          <p><b>Secundarios:</b> ${alta.diagnosticos_secundarios || "-"}</p>
+          <p><b>Resumen:</b> ${alta.evolucion_resumen}</p>
+          <p><b>Tratamiento:</b> ${alta.tratamiento_alta}</p>
+          <p><b>Seguimiento:</b> ${alta.seguimiento_recomendado}</p>
+          <p><b>Riesgo Recaída:</b> ${(alta.riesgo_recaida_estimado*100).toFixed(1)}%</p>
+        `
+        : "<em>Sin informe de alta</em>";
     }
 
     document.getElementById("pdfBtn").addEventListener("click", async () => {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF("l", "pt", "a4");
-      const content = document.getElementById("content");
-      const canvas = await html2canvas(content, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      const canvas = await html2canvas(document.getElementById("dashboard"), { scale: 2 });
+      const img = canvas.toDataURL("image/png");
+      const width = pdf.internal.pageSize.getWidth();
+      const height = (canvas.height * width) / canvas.width;
+      pdf.addImage(img, "PNG", 0, 0, width, height);
       pdf.save("informe_paciente.pdf");
     });
 
-    loadData();
+    load();
   </script>
 </body>
 </html>
