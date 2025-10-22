@@ -215,6 +215,7 @@ input, textarea {
     <button onclick="document.getElementById('form-popup').style.display='none'">Cancelar</button>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 const supabaseUrl = "https://aczjgeleupwlvghjhkav.supabase.co";
@@ -250,25 +251,101 @@ function setTab(n){
   event.target.classList.add("active");
   renderTab();
 }
-function renderTab(){
-  if(!activo)return;
+  function renderTab(){
+  if(!activo) return;
   const c = document.getElementById("tab-content");
-  if(tab==="info"){
-    c.innerHTML = `<b>Edad:</b> ${activo.edad}<br>
-    <b>Sexo:</b> ${activo.sexo}<br>
-    <b>Motivo ingreso:</b> ${activo.motivo_ingreso||"-"}<br>
-    <b>Comorbilidades:</b> ${activo.comorbilidades||"-"}<br>
-    <b>Alergias:</b> ${activo.alergias||"-"}`;
-  } else if(tab==="evol"){
-    c.innerHTML = formatJSON(activo.evolucion_medica);
-  } else if(tab==="trat"){
-    c.innerHTML = formatJSON(activo.tratamientos);
-  } else if(tab==="res"){
-    c.innerHTML = formatJSON(activo.resultados_clinicos);
-  } else {
-    c.innerHTML = formatJSON(activo.alta_resumen);
+
+  if(tab === "info"){
+    c.innerHTML = `
+      <b>Edad:</b> ${activo.edad}<br>
+      <b>Sexo:</b> ${activo.sexo}<br>
+      <b>Motivo ingreso:</b> ${activo.motivo_ingreso || "-"}<br>
+      <b>Comorbilidades:</b> ${activo.comorbilidades || "-"}<br>
+      <b>Alergias:</b> ${activo.alergias || "-"}
+    `;
+  }
+
+  else if(tab === "evol"){
+    try {
+      const arr = JSON.parse(activo.evolucion_medica);
+      const fechas = arr.map(e => e.fecha);
+      const dolor = arr.map(e => e.dolor_nivel);
+      const movilidad = arr.map(e => e.movilidad);
+      const apetito = arr.map(e => e.apetito);
+      const sueno = arr.map(e => e.sueño_calidad);
+      const tolerancia = arr.map(e => e.tolerancia_tratamiento);
+      const recaida = arr.map(e => e.riesgo_recaida_estimado);
+
+      c.innerHTML = `
+        <canvas id="graficoEvolucion" style="width:100%;height:300px;"></canvas>
+        <h3>Notas médicas</h3>
+        ${arr.map(e => `
+          <div style="background:#f8fafc;border-left:5px solid #219ebc;padding:0.6rem;margin:0.5rem 0;border-radius:8px;">
+            <b>${e.fecha}</b> - <i>${e.estado_general}</i><br>
+            ${e.nota_medica}<br>
+            <small>👨‍⚕️ ${e.firma_medico}</small>
+          </div>
+        `).join("")}
+      `;
+
+      const ctx = document.getElementById("graficoEvolucion").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: fechas,
+          datasets: [
+            { label: "Dolor", data: dolor, borderColor:"#ef4444", fill:false },
+            { label: "Movilidad", data: movilidad, borderColor:"#10b981", fill:false },
+            { label: "Apetito", data: apetito, borderColor:"#f59e0b", fill:false },
+            { label: "Sueño", data: sueno, borderColor:"#3b82f6", fill:false },
+            { label: "Tolerancia", data: tolerancia, borderColor:"#6366f1", fill:false },
+            { label: "Riesgo Recaída", data: recaida, borderColor:"#a855f7", fill:false, borderDash:[5,5] }
+          ]
+        },
+        options: {
+          responsive:true,
+          plugins:{ legend:{ position:"bottom" }},
+          scales:{ y:{ beginAtZero:true, max:10 } }
+        }
+      });
+
+      // 👉 Aquí podrías avisar a n8n
+      const alerta = arr.find(e => e.riesgo_recaida_estimado > 0.6 || e.estado_general === "Crítico");
+      if(alerta){
+        fetch("https://tu-webhook-de-n8n.com/webhook/alerta-paciente", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ paciente: activo.nombre, alerta })
+        }).catch(()=>{});
+      }
+
+    } catch (e) {
+      c.innerHTML = "<i>Error al cargar evolución</i>";
+    }
+  }
+
+  else if(tab === "trat"){
+    c.innerHTML = formatList(activo.tratamientos);
+  }
+  else if(tab === "res"){
+    c.innerHTML = formatList(activo.resultados_clinicos);
+  }
+  else {
+    c.innerHTML = formatList(activo.alta_resumen);
   }
 }
+
+function formatList(obj){
+  if(!obj) return "<i>No disponible</i>";
+  try {
+    const arr = typeof obj === "string" ? JSON.parse(obj) : obj;
+    return "<ul>"+arr.map(x=>`<li>${Object.entries(x)
+      .map(([k,v])=>`<b>${k}</b>: ${v}`).join("<br>")}</li>`).join("")+"</ul>";
+  } catch {
+    return "<i>Error al leer datos</i>";
+  }
+}
+
 function formatJSON(obj){
   if(!obj)return "<i>No disponible</i>";
   try {
