@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ficha del Paciente</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f8ff;
+      margin: 0;
+      padding: 30px;
+      color: #333;
+    }
+    h1 {
+      color: #004aad;
+      border-bottom: 2px solid #004aad;
+      padding-bottom: 10px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    canvas {
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      display: block;
+    }
+    .back {
+      background: #004aad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button class="back" onclick="window.close()">⬅ Volver</button>
+  <h1 id="name"></h1>
+  <div class="card" id="info"></div>
+  <canvas id="lineChart"></canvas>
+  <canvas id="radarChart"></canvas>
+
+  <script>
+    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const params = new URLSearchParams(window.location.search);
+    const patientId = params.get("id");
+
+    async function loadPatient() {
+      const { data, error } = await supabase.from("vista_pacientes_completo").select("*").eq("patient_id", patientId).single();
+      if (error) return console.error(error);
+      document.getElementById("name").textContent = data.nombre;
+      document.getElementById("info").innerHTML = `
+        <strong>Diagnóstico:</strong> ${data.diagnostico_principal || "Sin diagnóstico"}<br>
+        <strong>Edad:</strong> ${data.edad} años<br>
+        <strong>Sexo:</strong> ${data.sexo}<br>
+      `;
+
+      const evol = Array.isArray(data.evolucion_medica) ? data.evolucion_medica : JSON.parse(data.evolucion_medica || "[]");
+
+      const fechas = evol.map(e => e.fecha);
+      const valoracion = evol.map(e => e.valoracion_estado);
+      const dolor = evol.map(e => e.dolor_nivel);
+      const movilidad = evol.map(e => e.movilidad);
+      const apetito = evol.map(e => e.apetito);
+      const sueño = evol.map(e => e.sueño_calidad);
+      const tolerancia = evol.map(e => e.tolerancia_tratamiento);
+
+      new Chart(document.getElementById("lineChart"), {
+        type: "line",
+        data: {
+          labels: fechas,
+          datasets: [{
+            label: "Valoración del estado",
+            data: valoracion,
+            borderColor: "#0078d7",
+            backgroundColor: "rgba(0,120,215,0.1)",
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { scales: { y: { beginAtZero: true, max: 5 } } }
+      });
+
+      new Chart(document.getElementById("radarChart"), {
+        type: "radar",
+        data: {
+          labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
+          datasets: [{
+            label: "Última valoración",
+            data: [
+              dolor.at(-1),
+              movilidad.at(-1),
+              apetito.at(-1),
+              sueño.at(-1),
+              tolerancia.at(-1)
+            ],
+            backgroundColor: "rgba(0,120,215,0.2)",
+            borderColor: "#004aad"
+          }]
+        },
+        options: { scales: { r: { beginAtZero: true, max: 10 } } }
+      });
+    }
+
+    loadPatient();
+  </script>
+</body>
+</html>
