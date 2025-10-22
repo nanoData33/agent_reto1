@@ -147,7 +147,7 @@ main {
   left: 50%;
   transform: translate(-50%, -50%) scale(0.9);
   background: var(--card);
-  width: 480px;
+  width: 520px;
   border-radius: 14px;
   box-shadow: 0 15px 45px rgba(0,0,0,0.35);
   padding: 1.5rem 1.8rem;
@@ -160,16 +160,8 @@ main {
   display: flex;
   transform: translate(-50%, -50%) scale(1);
 }
-.popup h2 {
-  margin: 0;
-  color: var(--primary);
-  font-weight: 600;
-}
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin: 1rem 0;
-}
+.popup h2 { margin: 0; color: var(--primary); font-weight: 600; }
+.tabs { display: flex; gap: 0.5rem; margin: 1rem 0; }
 .tab {
   background: #e5ebed;
   border: none;
@@ -179,18 +171,16 @@ main {
   font-weight: 500;
   transition: all 0.2s;
 }
-.tab:hover, .tab.active {
-  background: var(--accent);
-  color: white;
-}
+.tab:hover, .tab.active { background: var(--accent); color: white; }
 .content {
   background: #f7f9fa;
   border-radius: 10px;
   padding: 1rem;
   font-size: 0.85rem;
   box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
-  min-height: 130px;
+  min-height: 180px;
   overflow-y: auto;
+  max-height: 300px;
 }
 .close-btn, .ai-btn {
   border: none;
@@ -201,100 +191,10 @@ main {
   cursor: pointer;
   transition: background 0.2s;
 }
-.ai-btn {
-  background: var(--primary);
-  color: white;
-}
+.ai-btn { background: var(--primary); color: white; }
 .ai-btn:hover { background: var(--accent); }
-.close-btn {
-  background: var(--critical);
-  color: white;
-  align-self: flex-end;
-}
+.close-btn { background: var(--critical); color: white; align-self: flex-end; }
 .close-btn:hover { background: #a31d1d; }
-.chat-modal {
-  position: fixed;
-  right: -380px;
-  top: 0;
-  height: 100%;
-  width: 360px;
-  background: #ffffff;
-  box-shadow: -4px 0 20px rgba(0,0,0,0.25);
-  border-left: 4px solid var(--accent);
-  transition: right 0.4s ease;
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-}
-.chat-modal.active { right: 0; }
-.chat-header {
-  background: var(--primary);
-  color: white;
-  padding: 1rem;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.chat-header button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 1.3rem;
-  cursor: pointer;
-}
-.chat-body {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-  font-size: 0.9rem;
-  background: #f8f9fa;
-  display: flex;
-  flex-direction: column;
-}
-.chat-body p {
-  background: #e9f2f4;
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  margin: 0.5rem 0;
-  max-width: 80%;
-}
-.chat-body p.ai {
-  background: #dbeef5;
-  align-self: flex-start;
-}
-.chat-body p.user {
-  background: #c8e0e8;
-  align-self: flex-end;
-  margin-left: auto;
-}
-.chat-input {
-  display: flex;
-  border-top: 1px solid #ddd;
-  padding: 0.6rem;
-  background: white;
-  align-items: center;
-  gap: 0.5rem;
-}
-.chat-input input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 0.85rem;
-  padding: 0.4rem;
-}
-.chat-input button {
-  background: var(--accent);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  padding: 0.45rem 0.7rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.chat-input button:hover { background: #0284c7; }
-.mic-btn { background: var(--primary); }
-.mic-btn:hover { background: #1d4ed8; }
 </style>
 </head>
 <body>
@@ -326,49 +226,33 @@ main {
     </div>
   </div>
 </main>
+
 <div class="popup" id="popup">
   <h2 id="popup-name"></h2>
   <div class="tabs">
-    <button class="tab active" onclick="setTab('med')">Medicación</button>
+    <button class="tab active" onclick="setTab('info')">Datos</button>
+    <button class="tab" onclick="setTab('med')">Tratamientos</button>
     <button class="tab" onclick="setTab('tests')">Resultados</button>
+    <button class="tab" onclick="setTab('evol')">Evolución</button>
     <button class="tab" onclick="setTab('report')">Informe</button>
   </div>
   <div class="content" id="popup-content"></div>
   <button class="ai-btn" onclick="showPrediction()">Análisis Predictivo IA</button>
   <button class="close-btn" onclick="closePopup()">Cerrar</button>
 </div>
-<div class="chat-modal" id="chat">
-  <div class="chat-header">
-    MedAI Assistant
-    <button onclick="toggleChat()">×</button>
-  </div>
-  <div class="chat-body" id="chat-body">
-    <p class="ai">Hola, soy MedAI. Puedo generar resúmenes evolutivos o analizar evolución por voz.</p>
-  </div>
-  <div class="chat-input">
-    <button class="mic-btn" id="mic" onclick="toggleRecording()">🎙️</button>
-    <div id="recordDisplay"></div>
-    <input type="text" id="chat-input" placeholder="Escribe o graba tu consulta...">
-    <button onclick="sendMessage()">Enviar</button>
-  </div>
-</div>
+
 <script>
-const popup=document.getElementById('popup');const popupName=document.getElementById('popup-name');const popupContent=document.getElementById('popup-content');const chat=document.getElementById('chat');const chatBody=document.getElementById('chat-body');const input=document.getElementById('chat-input');const recordDisplay=document.getElementById('recordDisplay');let recording=false;let timer;let seconds=0;let pacientes=[];
-window.addEventListener("DOMContentLoaded",async()=>{try{const res=await fetch("pacientes_completo.json");pacientes=await res.json();console.log(`✅ ${pacientes.length} pacientes cargados desde JSON`);}catch(err){console.error("❌ Error cargando JSON:",err);}});
-function toggleChat(){chat.classList.toggle('active');}
-function sendMessage(){const text=input.value.trim();if(!text)return;addMessage(text,"user");input.value="";setTimeout(()=>addMessage("Generando resumen evolutivo basado en los últimos datos clínicos...","ai"),600);}
-function addMessage(text,sender){const p=document.createElement("p");p.textContent=text;p.className=sender;chatBody.appendChild(p);chatBody.scrollTop=chatBody.scrollHeight;}
-let currentPatient=null;
-function openPopup(nombre){popupName.textContent=nombre;popup.classList.add('active');currentPatient=pacientes.find(p=>(p.nombre||"").toLowerCase()===nombre.toLowerCase());if(currentPatient){renderMedicacion();}else{popupContent.innerHTML="<i>No se encontraron datos clínicos para este paciente.</i>";}}
-function closePopup(){popup.classList.remove('active');}
-function setTab(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');if(!currentPatient){popupContent.innerHTML="<i>Seleccione un paciente válido.</i>";return;}if(tab==='med')renderMedicacion();else if(tab==='tests')renderResultados();else renderInforme();}
-function renderMedicacion(){if(currentPatient?.tratamientos?.length){const html=currentPatient.tratamientos.map(t=>`• ${t.tratamiento} (${t.via_administracion||'vía desconocida'})`).join("<br>");popupContent.innerHTML=`<b>Tratamiento actual:</b><br>${html}`;}else{popupContent.innerHTML="<b>Tratamiento actual:</b><br><i>No hay tratamientos registrados.</i>";}}
-function renderResultados(){if(currentPatient?.resultados_clinicos?.length){const ult=currentPatient.resultados_clinicos.slice(-1)[0];popupContent.innerHTML=`<b>Últimos resultados (${ult.fecha||"sin fecha"}):</b><br>Temperatura: ${ult.temperatura||"-"} °C<br>Frecuencia cardíaca: ${ult.frecuencia_cardiaca||"-"} bpm<br>Saturación O₂: ${ult.spo2||"-"} %<br>PCR: ${ult.pcr_mg_l||"-"} mg/L<br>Estado general: ${ult.estado_general||"N/A"}`;}else{popupContent.innerHTML="<b>Últimos resultados:</b><br><i>No hay resultados disponibles.</i>";}}
-function renderInforme(){if(currentPatient?.alta_resumen?.length){const ar=currentPatient.alta_resumen.slice(-1)[0];popupContent.innerHTML=`<b>Informe clínico:</b><br>Diagnóstico principal: ${ar.diagnostico_principal||"-"}<br>Evolución: ${ar.evolucion_resumen||"-"}<br>Tratamiento al alta: ${ar.tratamiento_alta||"-"}<br>Seguimiento: ${ar.seguimiento_recomendado||"-"}<br><br><button class='ai-btn' onclick='alert("Informe descargado para ${currentPatient.nombre}.")'>Descargar PDF</button>`;}else{popupContent.innerHTML="<b>Informe clínico:</b><br><i>No hay informe disponible.</i>";}}
-function showPrediction(){popupContent.innerHTML=`<b>Predicción IA:</b><br>Alta estimada en ${(Math.random()*3+1).toFixed(1)} días.<br>Probabilidad de evolución favorable: <b>${(Math.random()*15+80).toFixed(1)}%</b>.<br><br>Recomendación: continuar fisioterapia y control diario.`;}
-function toggleRecording(){recording?stopRecording():startRecording();}
-function startRecording(){recording=true;seconds=0;recordDisplay.innerHTML=`<div class="recording"><div class="wave">${"<div></div>".repeat(5)}</div><span id="timer">0:00</span></div>`;timer=setInterval(()=>{seconds++;const mins=Math.floor(seconds/60);const secs=String(seconds%60).padStart(2,"0");document.getElementById("timer").textContent=`${mins}:${secs}`;},1000);}
-function stopRecording(){recording=false;clearInterval(timer);recordDisplay.innerHTML="";addMessage("Audio registrado (duración "+seconds+"s). Transcribiendo...","user");setTimeout(()=>addMessage("Análisis de voz completado. Evolución estable sin signos de empeoramiento.","ai"),800);}
+let pacientes=[];let currentPatient=null;
+window.addEventListener("DOMContentLoaded",async()=>{try{const res=await fetch("pacientes_completo.json");pacientes=await res.json();console.log(`✅ ${pacientes.length} pacientes cargados desde JSON`);}catch(e){console.error("❌ Error cargando JSON:",e);}});
+function openPopup(nombre){const popup=document.getElementById('popup');const popupName=document.getElementById('popup-name');popupName.textContent=nombre;popup.classList.add('active');currentPatient=pacientes.find(p=>(p.nombre||"").toLowerCase()===nombre.toLowerCase());setTab('info');}
+function closePopup(){document.getElementById('popup').classList.remove('active');}
+function setTab(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');const c=document.getElementById('popup-content');if(!currentPatient){c.innerHTML="<i>No hay datos.</i>";return;}
+if(tab==='info'){c.innerHTML=`<b>Edad:</b> ${currentPatient.edad||"-"} años<br><b>Sexo:</b> ${currentPatient.sexo||"-"}<br><b>Peso:</b> ${currentPatient.peso_kg||"-"} kg<br><b>Altura:</b> ${currentPatient.altura_cm||"-"} cm<br><b>IMC:</b> ${currentPatient.imc||"-"}<br><b>Motivo ingreso:</b> ${currentPatient.motivo_ingreso||"-"}<br><b>Fecha ingreso:</b> ${currentPatient.fecha_ingreso||"-"}<br><b>Servicio:</b> ${currentPatient.servicio||"-"}<br><b>Dependencia:</b> ${currentPatient.nivel_dependencia||"-"}<br><b>Riesgo caídas:</b> ${currentPatient.riesgo_caidas?"Sí":"No"}`;}
+else if(tab==='med'){if(currentPatient.tratamientos?.length){c.innerHTML=currentPatient.tratamientos.map(t=>`<b>Día ${t.dia_estancia}</b>: ${t.tratamiento} (${t.via_administracion||"vía desconocida"})<br>${t.cambio_tratamiento?"Cambio: "+t.cambio_tratamiento+"<br>":""}${t.procedimientos?"Procedimientos: "+t.procedimientos+"<br>":""}${t.efectos_secundarios?"Efectos: "+t.efectos_secundarios+"<br>":""}<hr>`).join("");}else c.innerHTML="<i>Sin tratamientos registrados.</i>";}
+else if(tab==='tests'){if(currentPatient.resultados_clinicos?.length){c.innerHTML=currentPatient.resultados_clinicos.map(r=>`📅 <b>${r.fecha}</b> - ${r.estado_general||"-"}<br>Temp: ${r.temperatura||"-"}°C, FC: ${r.frecuencia_cardiaca||"-"} bpm, O₂: ${r.spo2||"-"}%, PCR: ${r.pcr_mg_l||"-"} mg/L<br><i>${r.observaciones||""}</i><hr>`).join("");}else c.innerHTML="<i>No hay resultados clínicos.</i>";}
+else if(tab==='evol'){if(currentPatient.evolucion_medica?.length){c.innerHTML=currentPatient.evolucion_medica.map(e=>`📅 <b>${e.fecha}</b> - ${e.firma_medico||"-"}<br>${e.nota_medica||"-"}<hr>`).join("");}else c.innerHTML="<i>Sin evolución registrada.</i>";}
+else if(tab==='report'){if(currentPatient.alta_resumen?.length){const ar=currentPatient.alta_resumen.slice(-1)[0];c.innerHTML=`<b>Diagnóstico principal:</b> ${ar.diagnostico_principal||"-"}<br><b>Secundarios:</b> ${ar.diagnosticos_secundarios||"-"}<br><b>Evolución:</b> ${ar.evolucion_resumen||"-"}<br><b>Tratamiento al alta:</b> ${ar.tratamiento_alta||"-"}<br><b>Seguimiento:</b> ${ar.seguimiento_recomendado||"-"}<br><b>Riesgo de recaída:</b> ${ar.riesgo_recaida_estimado||"-"}%<br><i>Modelo:</i> ${ar.modelo_generador||"-"}`;}else c.innerHTML="<i>Sin informe de alta.</i>";}}
+function showPrediction(){const c=document.getElementById('popup-content');c.innerHTML=`<b>Predicción IA:</b><br>Alta estimada en ${(Math.random()*3+1).toFixed(1)} días.<br>Probabilidad de evolución favorable: <b>${(Math.random()*15+80).toFixed(1)}%</b>.<br><br>Recomendación: continuar fisioterapia y control diario.`;}
 </script>
 </body>
 </html>
