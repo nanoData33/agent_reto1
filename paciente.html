@@ -3,234 +3,262 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ficha Clínica del Paciente</title>
+  <title>Panel Clínico Interactivo</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
       background: #f5f9ff;
       margin: 0;
       color: #1a1a1a;
-      padding: 0;
+      overflow: hidden;
     }
 
     header {
       background: #004aad;
       color: white;
-      padding: 18px 30px;
+      padding: 15px 30px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      align-items: center;
     }
 
     header h1 {
       margin: 0;
-      font-size: 1.6em;
+      font-size: 1.5em;
     }
 
     header button {
       background: #ffffff22;
       border: 1px solid #fff;
       border-radius: 8px;
-      padding: 8px 16px;
+      padding: 6px 14px;
       color: white;
       cursor: pointer;
-      transition: 0.3s;
     }
 
-    header button:hover {
-      background: #ffffff44;
-    }
-
-    main {
-      padding: 25px 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-    }
-
-    .section {
-      background: white;
-      border-radius: 12px;
-      padding: 20px 25px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-
-    .section h2 {
-      margin-top: 0;
-      color: #004aad;
-      border-bottom: 2px solid #004aad30;
-      padding-bottom: 6px;
-    }
-
-    .info-grid {
+    .container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
+      grid-template-rows: auto 1fr;
+      height: calc(100vh - 60px);
+      padding: 10px 25px;
+      gap: 10px;
+    }
+
+    .info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      background: white;
+      border-radius: 10px;
+      padding: 10px 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .info-item {
-      background: #f6f9ff;
-      border-radius: 8px;
-      padding: 8px 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      border-bottom: 1px solid #ddd;
-      padding: 6px 10px;
-      text-align: left;
+      background: #f1f5ff;
+      border-radius: 6px;
+      padding: 6px 8px;
       font-size: 0.9em;
     }
 
-    th {
-      background: #f0f5ff;
-      color: #004aad;
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 15px;
+    }
+
+    .charts {
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    canvas {
+      flex: 1;
+      height: 270px !important;
+    }
+
+    .tabs {
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tab-buttons button {
+      background: #eef2ff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .tab-buttons button.active {
+      background: #004aad;
+      color: white;
+    }
+
+    .tab-content {
+      overflow-y: auto;
+      font-size: 0.9em;
+      height: 250px;
     }
 
     .highlight {
-      background: #e8f0ff;
+      background: #f7faff;
       border-left: 4px solid #004aad;
-      padding: 10px;
+      padding: 6px 8px;
+      margin-bottom: 8px;
       border-radius: 6px;
     }
 
-    footer {
-      text-align: right;
-      font-size: 0.8em;
-      color: #666;
-      padding: 10px 40px;
-    }
   </style>
 </head>
 <body>
   <header>
-    <button onclick="window.close()">⬅ Volver</button>
-    <h1 id="nombre">Paciente</h1>
-    <button id="pdfBtn">📄 Exportar PDF</button>
+    <button onclick="window.location.href='index.html'">⬅ Volver</button>
+    <h1 id="nombre">Cargando...</h1>
+    <button id="pdfBtn">📄 PDF</button>
   </header>
 
-  <main>
-    <section class="section" id="identificacion">
-      <h2>Datos personales</h2>
-      <div class="info-grid" id="info"></div>
-    </section>
+  <div class="container">
+    <div class="info" id="info"></div>
 
-    <section class="section" id="evolucion">
-      <h2>Evolución médica</h2>
-      <div id="notas"></div>
-    </section>
+    <div class="dashboard">
+      <div class="charts">
+        <canvas id="radarChart"></canvas>
+        <canvas id="vitalChart"></canvas>
+      </div>
 
-    <section class="section" id="resultados">
-      <h2>Resultados clínicos recientes</h2>
-      <table id="tabla-resultados">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Temp (°C)</th>
-            <th>FC</th>
-            <th>Presión</th>
-            <th>SpO₂</th>
-            <th>Leucos</th>
-            <th>PCR</th>
-            <th>Creat</th>
-            <th>Glucosa</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+      <div class="tabs">
+        <div class="tab-buttons">
+          <button class="active" onclick="showTab('evolucion')">Evolución</button>
+          <button onclick="showTab('tratamientos')">Tratamientos</button>
+          <button onclick="showTab('resultados')">Resultados</button>
+          <button onclick="showTab('alta')">Alta</button>
+        </div>
 
-    <section class="section" id="tratamientos">
-      <h2>Tratamientos y procedimientos</h2>
-      <div id="trat-list"></div>
-    </section>
+        <div class="tab-content" id="evolucion"></div>
+        <div class="tab-content" id="tratamientos" style="display:none"></div>
+        <div class="tab-content" id="resultados" style="display:none"></div>
+        <div class="tab-content" id="alta" style="display:none"></div>
+      </div>
+    </div>
+  </div>
 
-    <section class="section" id="alta">
-      <h2>Resumen de alta</h2>
-      <div id="alta-info"></div>
-    </section>
-  </main>
-
-  <footer>© 2025 MedAI Evolution Assistant</footer>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
     const id = new URLSearchParams(window.location.search).get("id");
 
     async function loadData() {
-      const { data: paciente } = await supabase.from("paciente").select("*").eq("patient_id", id).single();
-      document.getElementById("nombre").textContent = paciente.nombre;
-
+      const { data: p } = await supabase.from("paciente").select("*").eq("patient_id", id).single();
+      document.getElementById("nombre").textContent = p.nombre;
       document.getElementById("info").innerHTML = `
-        <div class="info-item"><strong>Edad:</strong> ${paciente.edad} años</div>
-        <div class="info-item"><strong>Sexo:</strong> ${paciente.sexo}</div>
-        <div class="info-item"><strong>Peso:</strong> ${paciente.peso_kg || "-"} kg</div>
-        <div class="info-item"><strong>Altura:</strong> ${paciente.altura_cm || "-"} cm</div>
-        <div class="info-item"><strong>IMC:</strong> ${paciente.imc || "-"} </div>
-        <div class="info-item"><strong>Servicio:</strong> ${paciente.servicio || "-"} </div>
-        <div class="info-item"><strong>Motivo ingreso:</strong> ${paciente.motivo_ingreso || "-"} </div>
-        <div class="info-item"><strong>Fecha ingreso:</strong> ${paciente.fecha_ingreso || "-"} </div>
-        <div class="info-item"><strong>Comorbilidades:</strong> ${paciente.comorbilidades || "Ninguna"} </div>
-        <div class="info-item"><strong>Alergias:</strong> ${paciente.alergias || "No registradas"} </div>
+        <div class="info-item"><strong>Edad:</strong> ${p.edad}</div>
+        <div class="info-item"><strong>Sexo:</strong> ${p.sexo}</div>
+        <div class="info-item"><strong>Peso:</strong> ${p.peso_kg} kg</div>
+        <div class="info-item"><strong>Altura:</strong> ${p.altura_cm} cm</div>
+        <div class="info-item"><strong>IMC:</strong> ${p.imc}</div>
+        <div class="info-item"><strong>Motivo:</strong> ${p.motivo_ingreso}</div>
+        <div class="info-item"><strong>Servicio:</strong> ${p.servicio}</div>
+        <div class="info-item"><strong>Ingreso:</strong> ${p.fecha_ingreso}</div>
       `;
 
+      // Evolución médica
       const { data: evol } = await supabase.from("evolucion_medica").select("*").eq("patient_id", id).order("fecha", { ascending: false });
-      document.getElementById("notas").innerHTML = evol.map(e => `
+      const evolContent = evol.map(e => `
         <div class="highlight">
           <strong>${e.fecha}</strong> — ${e.estado_general || "Sin estado"}<br>
           <em>${e.nota_medica}</em><br>
-          <small>Dolor: ${e.dolor_nivel}/10 | Movilidad: ${e.movilidad}/10 | Sueño: ${e.sueño_calidad}/10</small>
-        </div>
-      `).join("");
+          <small>Dolor ${e.dolor_nivel}/10 | Sueño ${e.sueño_calidad}/10 | Movilidad ${e.movilidad}/10</small>
+        </div>`).join("");
+      document.getElementById("evolucion").innerHTML = evolContent;
 
-      const { data: res } = await supabase.from("resultados_clinicos").select("*").eq("patient_id", id).order("fecha", { ascending: false }).limit(5);
-      document.querySelector("#tabla-resultados tbody").innerHTML = res.map(r => `
-        <tr>
-          <td>${r.fecha}</td>
-          <td>${r.temperatura || "-"}</td>
-          <td>${r.frecuencia_cardiaca || "-"}</td>
-          <td>${r.presion_arterial || "-"}</td>
-          <td>${r.spo2 || "-"}</td>
-          <td>${r.leucocitos || "-"}</td>
-          <td>${r.pcr_mg_l || "-"}</td>
-          <td>${r.creatinina_mg_dl || "-"}</td>
-          <td>${r.glucosa_mg_dl || "-"}</td>
-        </tr>
-      `).join("");
+      // Radar Chart
+      const first = evol[evol.length - 1], last = evol[0];
+      new Chart(document.getElementById("radarChart"), {
+        type: "radar",
+        data: {
+          labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
+          datasets: [
+            {
+              label: `Ingreso (${first.fecha})`,
+              data: [first.dolor_nivel, first.movilidad, first.apetito, first.sueño_calidad, first.tolerancia_tratamiento],
+              backgroundColor: "rgba(255,99,132,0.2)",
+              borderColor: "#ff6384"
+            },
+            {
+              label: `Actual (${last.fecha})`,
+              data: [last.dolor_nivel, last.movilidad, last.apetito, last.sueño_calidad, last.tolerancia_tratamiento],
+              backgroundColor: "rgba(54,162,235,0.2)",
+              borderColor: "#36a2eb"
+            }
+          ]
+        },
+        options: { scales: { r: { beginAtZero: true, max: 10 } } }
+      });
 
-      const { data: trat } = await supabase.from("tratamientos").select("*").eq("patient_id", id);
-      document.getElementById("trat-list").innerHTML = trat.map(t => `
+      // Resultados clínicos
+      const { data: res } = await supabase.from("resultados_clinicos").select("*").eq("patient_id", id).order("fecha", { ascending: true });
+      const vitalChart = new Chart(document.getElementById("vitalChart"), {
+        type: "line",
+        data: {
+          labels: res.map(r => r.fecha),
+          datasets: [
+            { label: "Temperatura", data: res.map(r => r.temperatura), borderColor: "#ff9f40" },
+            { label: "FC", data: res.map(r => r.frecuencia_cardiaca), borderColor: "#4bc0c0" },
+            { label: "SpO₂", data: res.map(r => r.spo2), borderColor: "#9966ff" }
+          ]
+        },
+        options: { plugins: { legend: { position: "bottom" } } }
+      });
+
+      document.getElementById("resultados").innerHTML = res.map(r => `
         <div class="highlight">
-          <strong>${t.tratamiento}</strong> (${t.via_administracion || "-"})<br>
-          ${t.procedimientos || ""}<br>
-          <small>Cambio: ${t.cambio_tratamiento || "-"} | Efectos: ${t.efectos_secundarios || "-"}</small>
+          <strong>${r.fecha}</strong> — Temp ${r.temperatura}°C, FC ${r.frecuencia_cardiaca}, SpO₂ ${r.spo2}%
         </div>
       `).join("");
 
+      // Tratamientos
+      const { data: trat } = await supabase.from("tratamientos").select("*").eq("patient_id", id);
+      document.getElementById("tratamientos").innerHTML = trat.map(t => `
+        <div class="highlight">
+          <strong>${t.tratamiento}</strong> (${t.via_administracion})<br>
+          ${t.procedimientos || ""}<br>
+          <small>${t.efectos_secundarios || ""}</small>
+        </div>`).join("");
+
+      // Alta
       const { data: alta } = await supabase.from("alta_resumen").select("*").eq("patient_id", id).single();
-      document.getElementById("alta-info").innerHTML = alta ? `
-        <p><strong>Fecha alta:</strong> ${alta.fecha_alta}</p>
-        <p><strong>Diagnóstico principal:</strong> ${alta.diagnostico_principal}</p>
-        <p><strong>Diagnósticos secundarios:</strong> ${alta.diagnosticos_secundarios}</p>
-        <p><strong>Evolución:</strong> ${alta.evolucion_resumen}</p>
-        <p><strong>Tratamiento de alta:</strong> ${alta.tratamiento_alta}</p>
+      document.getElementById("alta").innerHTML = alta ? `
+        <p><strong>Diagnóstico:</strong> ${alta.diagnostico_principal}</p>
+        <p><strong>Resumen:</strong> ${alta.evolucion_resumen}</p>
+        <p><strong>Tratamiento:</strong> ${alta.tratamiento_alta}</p>
         <p><strong>Seguimiento:</strong> ${alta.seguimiento_recomendado}</p>
-        <p><strong>Riesgo de recaída:</strong> ${(alta.riesgo_recaida_estimado * 100).toFixed(1)}%</p>
-        <p><strong>Modelo generador:</strong> ${alta.modelo_generador}</p>
-      ` : "<p>No hay resumen de alta disponible.</p>";
+      ` : "<em>Sin datos de alta</em>";
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(t => t.style.display = "none");
+      document.querySelectorAll(".tab-buttons button").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).style.display = "block";
+      event.target.classList.add("active");
     }
 
     loadData();
