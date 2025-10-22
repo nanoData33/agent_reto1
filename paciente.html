@@ -1,113 +1,121 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Clínico</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Clínico Interactivo</title>
 
   <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.0"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
-      background: #f4f8ff;
-      margin: 0;
+      background: #f6f9ff;
       color: #1a1a1a;
+      margin: 0;
       overflow-x: hidden;
     }
 
     header {
       background: #004aad;
       color: white;
-      padding: 12px 28px;
+      padding: 12px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 1.5em;
-    }
-
+    header h1 { margin: 0; font-size: 1.7em; }
     header button {
       background: #ffffff33;
-      border: none;
+      border: 1px solid #fff;
       border-radius: 8px;
       color: white;
       padding: 6px 12px;
       cursor: pointer;
     }
+    header button:hover { background: #ffffff55; }
 
     .info {
       background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin: 20px auto;
+      width: 90%;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      margin: 15px 25px;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
     }
 
-    .info div {
-      background: #f2f6ff;
-      border-radius: 6px;
-      padding: 5px 8px;
-      font-size: 0.85em;
+    .info-item {
+      background: #eef4ff;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.9em;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 2fr 1.2fr;
-      grid-template-rows: 300px 280px;
-      gap: 15px;
-      margin: 0 25px 25px;
+      grid-template-columns: 1.6fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+      width: 90%;
+      margin: auto;
     }
 
     .box {
       background: white;
-      border-radius: 10px;
-      padding: 8px 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 12px 15px;
       display: flex;
       flex-direction: column;
     }
 
-    canvas {
-      width: 100% !important;
-      height: 240px !important;
+    h2 {
+      color: #004aad;
+      font-size: 1em;
+      margin: 6px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
-    h2 {
-      margin: 5px 0;
-      font-size: 1em;
-      color: #004aad;
+    canvas {
+      width: 100% !important;
+      height: 300px !important;
     }
 
     .scroll {
       overflow-y: auto;
       flex: 1;
-      font-size: 0.85em;
+      font-size: 0.9em;
     }
 
     .highlight {
-      background: #f8faff;
+      background: #f7faff;
       border-left: 3px solid #004aad;
-      padding: 5px;
-      border-radius: 5px;
-      margin-bottom: 5px;
+      border-radius: 6px;
+      padding: 6px;
+      margin-bottom: 6px;
     }
 
     footer {
       text-align: right;
-      margin: 5px 30px;
-      font-size: 0.75em;
-      color: #777;
+      color: #666;
+      margin: 15px 40px;
+      font-size: 0.8em;
+    }
+
+    @media (max-width: 950px) {
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -124,7 +132,7 @@
 
     <div class="grid">
       <div class="box">
-        <h2>📈 Evolución clínica (Radar)</h2>
+        <h2>📈 Evolución clínica</h2>
         <canvas id="radarChart"></canvas>
       </div>
 
@@ -159,18 +167,19 @@
       document.getElementById("nombre").textContent = p.nombre;
 
       document.getElementById("info").innerHTML = `
-        <div><b>Edad:</b> ${p.edad}</div>
-        <div><b>Sexo:</b> ${p.sexo}</div>
-        <div><b>Peso:</b> ${p.peso_kg} kg</div>
-        <div><b>Altura:</b> ${p.altura_cm} cm</div>
-        <div><b>IMC:</b> ${p.imc}</div>
-        <div><b>Motivo:</b> ${p.motivo_ingreso}</div>
-        <div><b>Servicio:</b> ${p.servicio}</div>
-        <div><b>Dependencia:</b> ${p.nivel_dependencia || "-"}</div>
-        <div><b>Riesgo Caídas:</b> ${p.riesgo_caidas ? "Sí" : "No"}</div>
-        <div><b>Alergias:</b> ${p.alergias || "Ninguna"}</div>
-        <div><b>Comorbilidades:</b> ${p.comorbilidades || "Ninguna"}</div>
-        <div><b>Ingreso:</b> ${p.fecha_ingreso}</div>`;
+        <div class="info-item"><b>Edad:</b> ${p.edad}</div>
+        <div class="info-item"><b>Sexo:</b> ${p.sexo}</div>
+        <div class="info-item"><b>Peso:</b> ${p.peso_kg} kg</div>
+        <div class="info-item"><b>Altura:</b> ${p.altura_cm} cm</div>
+        <div class="info-item"><b>IMC:</b> ${p.imc}</div>
+        <div class="info-item"><b>Motivo:</b> ${p.motivo_ingreso}</div>
+        <div class="info-item"><b>Servicio:</b> ${p.servicio}</div>
+        <div class="info-item"><b>Dependencia:</b> ${p.nivel_dependencia}</div>
+        <div class="info-item"><b>Riesgo Caídas:</b> ${p.riesgo_caidas ? "Sí" : "No"}</div>
+        <div class="info-item"><b>Alergias:</b> ${p.alergias || "-"}</div>
+        <div class="info-item"><b>Comorbilidades:</b> ${p.comorbilidades || "-"}</div>
+        <div class="info-item"><b>Ingreso:</b> ${p.fecha_ingreso}</div>
+      `;
 
       const { data: evol } = await supabase.from("evolucion_medica").select("*").eq("patient_id", id).order("fecha", { ascending: true });
       const { data: res } = await supabase.from("resultados_clinicos").select("*").eq("patient_id", id).order("fecha", { ascending: true });
@@ -186,23 +195,14 @@
           data: {
             labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
             datasets: [
-              {
-                label: `Ingreso (${first.fecha})`,
-                data: [first.dolor_nivel, first.movilidad, first.apetito, first.sueño_calidad, first.tolerancia_tratamiento],
-                backgroundColor: "rgba(255,99,132,0.2)",
-                borderColor: "#ff6384"
-              },
-              {
-                label: `Actual (${last.fecha})`,
-                data: [last.dolor_nivel, last.movilidad, last.apetito, last.sueño_calidad, last.tolerancia_tratamiento],
-                backgroundColor: "rgba(54,162,235,0.2)",
-                borderColor: "#36a2eb"
-              }
+              { label: `Ingreso (${first.fecha})`, data: [first.dolor_nivel, first.movilidad, first.apetito, first.sueño_calidad, first.tolerancia_tratamiento], backgroundColor: "rgba(255,99,132,0.25)", borderColor: "#ff6384" },
+              { label: `Actual (${last.fecha})`, data: [last.dolor_nivel, last.movilidad, last.apetito, last.sueño_calidad, last.tolerancia_tratamiento], backgroundColor: "rgba(54,162,235,0.25)", borderColor: "#36a2eb" }
             ]
           },
           options: {
             responsive: true,
-            plugins: { legend: { position: "bottom" } },
+            interaction: { mode: "nearest" },
+            plugins: { legend: { position: "bottom" }, zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'r' } } },
             scales: { r: { beginAtZero: true, max: 10 } }
           }
         });
@@ -215,15 +215,16 @@
           data: {
             labels: res.map(r => r.fecha),
             datasets: [
-              { label: "Temp °C", data: res.map(r => r.temperatura), borderColor: "#ff9f40", fill: false, tension: 0.3 },
-              { label: "FC", data: res.map(r => r.frecuencia_cardiaca), borderColor: "#4bc0c0", fill: false, tension: 0.3 },
-              { label: "SpO₂", data: res.map(r => r.spo2), borderColor: "#9966ff", fill: false, tension: 0.3 }
+              { label: "Temperatura", data: res.map(r => r.temperatura), borderColor: "#ff9f40", fill: false, tension: 0.4 },
+              { label: "FC", data: res.map(r => r.frecuencia_cardiaca), borderColor: "#4bc0c0", fill: false, tension: 0.4 },
+              { label: "SpO₂", data: res.map(r => r.spo2), borderColor: "#9966ff", fill: false, tension: 0.4 }
             ]
           },
           options: {
+            responsive: true,
             interaction: { mode: 'index', intersect: false },
-            plugins: { legend: { position: "bottom" } },
-            scales: { y: { beginAtZero: false, max: 110 } }
+            plugins: { legend: { position: "bottom" }, zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' } } },
+            scales: { y: { beginAtZero: false } }
           }
         });
       }
