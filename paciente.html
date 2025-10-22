@@ -19,18 +19,25 @@
       border-bottom: 2px solid #004aad;
       padding-bottom: 10px;
     }
-    .card {
+    .info-block {
       background: white;
-      padding: 20px;
       border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
+    }
+    .charts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
     }
     canvas {
-      width: 100%;
-      max-width: 600px;
-      margin: 20px auto;
-      display: block;
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 550px;
     }
     .back {
       background: #004aad;
@@ -39,15 +46,20 @@
       border-radius: 8px;
       padding: 10px 20px;
       cursor: pointer;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
   <button class="back" onclick="window.close()">⬅ Volver</button>
   <h1 id="name"></h1>
-  <div class="card" id="info"></div>
-  <canvas id="lineChart"></canvas>
-  <canvas id="radarChart"></canvas>
+
+  <div class="info-block" id="info"></div>
+
+  <div class="charts">
+    <canvas id="lineChart"></canvas>
+    <canvas id="radarChart"></canvas>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
@@ -59,6 +71,7 @@
     async function loadPatient() {
       const { data, error } = await supabase.from("vista_pacientes_completo").select("*").eq("patient_id", patientId).single();
       if (error) return console.error(error);
+
       document.getElementById("name").textContent = data.nombre;
       document.getElementById("info").innerHTML = `
         <strong>Diagnóstico:</strong> ${data.diagnostico_principal || "Sin diagnóstico"}<br>
@@ -67,14 +80,13 @@
       `;
 
       const evol = Array.isArray(data.evolucion_medica) ? data.evolucion_medica : JSON.parse(data.evolucion_medica || "[]");
+      if (!evol.length) return;
 
       const fechas = evol.map(e => e.fecha);
       const valoracion = evol.map(e => e.valoracion_estado);
-      const dolor = evol.map(e => e.dolor_nivel);
-      const movilidad = evol.map(e => e.movilidad);
-      const apetito = evol.map(e => e.apetito);
-      const sueño = evol.map(e => e.sueño_calidad);
-      const tolerancia = evol.map(e => e.tolerancia_tratamiento);
+
+      const inicio = evol[0];
+      const fin = evol[evol.length - 1];
 
       new Chart(document.getElementById("lineChart"), {
         type: "line",
@@ -84,7 +96,7 @@
             label: "Valoración del estado",
             data: valoracion,
             borderColor: "#0078d7",
-            backgroundColor: "rgba(0,120,215,0.1)",
+            backgroundColor: "rgba(0,120,215,0.15)",
             fill: true,
             tension: 0.3
           }]
@@ -96,18 +108,20 @@
         type: "radar",
         data: {
           labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
-          datasets: [{
-            label: "Última valoración",
-            data: [
-              dolor.at(-1),
-              movilidad.at(-1),
-              apetito.at(-1),
-              sueño.at(-1),
-              tolerancia.at(-1)
-            ],
-            backgroundColor: "rgba(0,120,215,0.2)",
-            borderColor: "#004aad"
-          }]
+          datasets: [
+            {
+              label: `Ingreso (${inicio.fecha})`,
+              data: [inicio.dolor_nivel, inicio.movilidad, inicio.apetito, inicio.sueño_calidad, inicio.tolerancia_tratamiento],
+              backgroundColor: "rgba(255,99,132,0.2)",
+              borderColor: "#ff6384"
+            },
+            {
+              label: `Último (${fin.fecha})`,
+              data: [fin.dolor_nivel, fin.movilidad, fin.apetito, fin.sueño_calidad, fin.tolerancia_tratamiento],
+              backgroundColor: "rgba(0,120,215,0.2)",
+              borderColor: "#0078d7"
+            }
+          ]
         },
         options: { scales: { r: { beginAtZero: true, max: 10 } } }
       });
