@@ -3,73 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Informe Clínico Resumido</title>
+  <title>Informe Clínico de Alta</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8faff; color: #1a1a1a; }
-    header { background: #003b91; color: #fff; padding: 8px 18px; display: flex; justify-content: space-between; align-items: center; }
-    header h1 { font-size: 1.2em; margin: 0; }
-    header button { background: #fff; color: #003b91; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.85em; cursor: pointer; }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8faff;
+      color: #222;
+      margin: 0;
+    }
 
-    .container { width: 95%; margin: 12px auto; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 10px; }
-    .section { background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); padding: 10px 15px; font-size: 0.85em; }
+    header {
+      background: #003b91;
+      color: white;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-    h2 { font-size: 0.95em; color: #003b91; border-bottom: 1px solid #c6d6f5; margin-bottom: 6px; padding-bottom: 3px; }
+    header h1 { font-size: 1.3em; margin: 0; }
+    header button {
+      background: white;
+      color: #003b91;
+      border: none;
+      font-weight: 600;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
 
-    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 3px; }
-    .info-item { background: #eef3ff; padding: 3px 6px; border-radius: 3px; }
-    .info-item b { color: #003b91; }
+    main {
+      background: white;
+      width: 85%;
+      margin: 25px auto;
+      padding: 25px 35px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-radius: 6px;
+    }
 
-    .charts { display: flex; justify-content: space-between; gap: 10px; }
-    canvas { width: 100% !important; height: 160px !important; }
+    h2 {
+      color: #003b91;
+      border-bottom: 1px solid #d4def4;
+      font-size: 1.05em;
+      margin-top: 25px;
+      margin-bottom: 10px;
+      padding-bottom: 4px;
+    }
 
-    .scroll { max-height: 150px; overflow-y: auto; }
-    .treatment-item { border-left: 2px solid #003b91; padding-left: 5px; margin-bottom: 5px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 0.9em;
+    }
 
-    footer { text-align: right; font-size: 0.75em; color: #666; margin: 8px 15px; }
+    td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #e8eefc;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) { background: #f7f9ff; }
+
+    #radarChart {
+      width: 400px !important;
+      height: 300px !important;
+      margin: 10px auto;
+      display: block;
+    }
+
+    .section p {
+      margin: 4px 0;
+      line-height: 1.4em;
+      font-size: 0.9em;
+    }
+
+    footer {
+      text-align: right;
+      font-size: 0.75em;
+      color: #666;
+      margin: 15px 30px;
+    }
   </style>
 </head>
 
 <body>
   <header>
-    <h1 id="nombre">Paciente</h1>
-    <button id="pdfBtn">Descargar PDF</button>
+    <h1 id="nombre">Informe de Alta Médica</h1>
+    <button id="pdfBtn">Guardar PDF</button>
   </header>
 
-  <div id="dashboard">
-    <div class="container">
-      <div class="section" style="grid-column: 1 / span 2;">
-        <h2>Datos del Paciente</h2>
-        <div id="info" class="info-grid"></div>
-      </div>
+  <main id="dashboard">
+    <section>
+      <h2>Datos del Paciente</h2>
+      <table id="info"></table>
+    </section>
 
-      <div class="section">
-        <h2>Evolución Clínica</h2>
-        <canvas id="radarChart"></canvas>
-      </div>
+    <section>
+      <h2>Evolución Clínica</h2>
+      <canvas id="radarChart"></canvas>
+    </section>
 
-      <div class="section">
-        <h2>Signos Vitales</h2>
-        <canvas id="vitalChart"></canvas>
-      </div>
+    <section>
+      <h2>Tratamientos Administrados</h2>
+      <div id="tratamientos"></div>
+    </section>
 
-      <div class="section">
-        <h2>Tratamientos</h2>
-        <div id="tratamientos" class="scroll"></div>
-      </div>
+    <section>
+      <h2>Resumen de Alta</h2>
+      <div id="alta"></div>
+    </section>
+  </main>
 
-      <div class="section">
-        <h2>Resumen de Alta</h2>
-        <div id="alta" class="scroll"></div>
-      </div>
-    </div>
-  </div>
-
-  <footer>© 2025 Sistema Clínico — Informe resumido</footer>
+  <footer>© 2025 Sistema Clínico — Informe médico automatizado</footer>
 
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
@@ -81,26 +132,19 @@
       const { data: p } = await supabase.from("paciente").select("*").eq("patient_id", id).single();
       if (!p) return;
       document.getElementById("nombre").textContent = p.nombre;
+
       document.getElementById("info").innerHTML = `
-        <div class="info-item"><b>Edad:</b> ${p.edad}</div>
-        <div class="info-item"><b>Sexo:</b> ${p.sexo}</div>
-        <div class="info-item"><b>Peso:</b> ${p.peso_kg} kg</div>
-        <div class="info-item"><b>Altura:</b> ${p.altura_cm} cm</div>
-        <div class="info-item"><b>IMC:</b> ${p.imc}</div>
-        <div class="info-item"><b>Motivo:</b> ${p.motivo_ingreso}</div>
-        <div class="info-item"><b>Servicio:</b> ${p.servicio}</div>
-        <div class="info-item"><b>Dependencia:</b> ${p.nivel_dependencia}</div>
-        <div class="info-item"><b>Riesgo Caídas:</b> ${p.riesgo_caidas ? "Sí" : "No"}</div>
-        <div class="info-item"><b>Alergias:</b> ${p.alergias || "-"}</div>
-        <div class="info-item"><b>Comorbilidades:</b> ${p.comorbilidades || "-"}</div>
-        <div class="info-item"><b>Ingreso:</b> ${p.fecha_ingreso}</div>
+        <tr><td><b>Edad:</b> ${p.edad}</td><td><b>Sexo:</b> ${p.sexo}</td><td><b>IMC:</b> ${p.imc}</td></tr>
+        <tr><td><b>Peso:</b> ${p.peso_kg} kg</td><td><b>Altura:</b> ${p.altura_cm} cm</td><td><b>Ingreso:</b> ${p.fecha_ingreso}</td></tr>
+        <tr><td><b>Motivo:</b> ${p.motivo_ingreso}</td><td><b>Servicio:</b> ${p.servicio}</td><td><b>Dependencia:</b> ${p.nivel_dependencia}</td></tr>
+        <tr><td><b>Alergias:</b> ${p.alergias || "-"}</td><td><b>Comorbilidades:</b> ${p.comorbilidades || "-"}</td><td><b>Riesgo Caídas:</b> ${p.riesgo_caidas ? "Sí" : "No"}</td></tr>
       `;
 
       const { data: evol } = await supabase.from("evolucion_medica").select("*").eq("patient_id", id).order("fecha", { ascending: true });
-      const { data: res } = await supabase.from("resultados_clinicos").select("*").eq("patient_id", id).order("fecha", { ascending: true });
       const { data: trat } = await supabase.from("tratamientos").select("*").eq("patient_id", id).order("dia_estancia", { ascending: true });
       const { data: alta } = await supabase.from("alta_resumen").select("*").eq("patient_id", id).single();
 
+      // Radar chart (solo evolución)
       if (evol?.length > 0) {
         const first = evol[0], last = evol[evol.length - 1];
         new Chart(document.getElementById("radarChart"), {
@@ -108,59 +152,48 @@
           data: {
             labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
             datasets: [
-              { label: `Ingreso`, data: [first.dolor_nivel, first.movilidad, first.apetito, first.sueño_calidad, first.tolerancia_tratamiento], backgroundColor: "rgba(255,99,132,0.2)", borderColor: "#ff6384" },
-              { label: `Actual`, data: [last.dolor_nivel, last.movilidad, last.apetito, last.sueño_calidad, last.tolerancia_tratamiento], backgroundColor: "rgba(54,162,235,0.2)", borderColor: "#36a2eb" }
+              { label: `Ingreso`, data: [first.dolor_nivel, first.movilidad, first.apetito, first.sueño_calidad, first.tolerancia_tratamiento], backgroundColor: "rgba(255,99,132,0.2)", borderColor: "#ff6384", borderWidth: 1.5 },
+              { label: `Alta`, data: [last.dolor_nivel, last.movilidad, last.apetito, last.sueño_calidad, last.tolerancia_tratamiento], backgroundColor: "rgba(54,162,235,0.2)", borderColor: "#36a2eb", borderWidth: 1.5 }
             ]
           },
-          options: { plugins: { legend: { display: false } }, scales: { r: { max: 10, beginAtZero: true } } }
-        });
-      }
-
-      if (res?.length > 0) {
-        new Chart(document.getElementById("vitalChart"), {
-          type: "line",
-          data: {
-            labels: res.map(r => r.fecha),
-            datasets: [
-              { label: "Temp (°C)", data: res.map(r => r.temperatura), borderColor: "#ff9f40", tension: 0.3, fill: false },
-              { label: "FC", data: res.map(r => r.frecuencia_cardiaca), borderColor: "#4bc0c0", tension: 0.3, fill: false },
-              { label: "SpO₂", data: res.map(r => r.spo2), borderColor: "#9966ff", tension: 0.3, fill: false }
-            ]
-          },
-          options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+          options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: "bottom" } },
+            scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } }
+          }
         });
       }
 
       document.getElementById("tratamientos").innerHTML = trat?.length
         ? trat.map(t => `
-          <div class="treatment-item"><b>${t.tratamiento}</b> (${t.via_administracion})<br>
-          ${t.cambio_tratamiento ? "Cambio: " + t.cambio_tratamiento + "<br>" : ""}
-          ${t.efectos_secundarios ? "<i>Efectos:</i> " + t.efectos_secundarios : ""}</div>
-        `).join("")
-        : "<em>No hay tratamientos registrados</em>";
+            <p><b>${t.tratamiento}</b> (${t.via_administracion}) ${t.cambio_tratamiento ? "<br><i>Cambio:</i> "+t.cambio_tratamiento : ""} ${t.efectos_secundarios ? "<br><i>Efectos:</i> "+t.efectos_secundarios : ""}</p>
+          `).join("")
+        : "<p>No se registraron tratamientos durante la estancia.</p>";
 
       document.getElementById("alta").innerHTML = alta
         ? `
-          <b>Fecha:</b> ${alta.fecha_alta}<br>
-          <b>Diagnóstico:</b> ${alta.diagnostico_principal}<br>
-          <b>Secundarios:</b> ${alta.diagnosticos_secundarios || "-"}<br>
-          <b>Resumen:</b> ${alta.evolucion_resumen}<br>
-          <b>Tratamiento al alta:</b> ${alta.tratamiento_alta}<br>
-          <b>Seguimiento:</b> ${alta.seguimiento_recomendado}<br>
-          <b>Riesgo Recaída:</b> ${(alta.riesgo_recaida_estimado*100).toFixed(1)}%
+          <p><b>Fecha:</b> ${alta.fecha_alta}</p>
+          <p><b>Diagnóstico principal:</b> ${alta.diagnostico_principal}</p>
+          <p><b>Diagnósticos secundarios:</b> ${alta.diagnosticos_secundarios || "-"}</p>
+          <p><b>Resumen clínico:</b> ${alta.evolucion_resumen}</p>
+          <p><b>Tratamiento al alta:</b> ${alta.tratamiento_alta}</p>
+          <p><b>Seguimiento recomendado:</b> ${alta.seguimiento_recomendado}</p>
+          <p><b>Riesgo de recaída estimado:</b> ${(alta.riesgo_recaida_estimado * 100).toFixed(1)}%</p>
         `
-        : "<em>Sin informe de alta</em>";
+        : "<p>No se ha emitido informe de alta.</p>";
     }
 
     document.getElementById("pdfBtn").addEventListener("click", async () => {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF("p", "pt", "a4");
-      const canvas = await html2canvas(document.getElementById("dashboard"), { scale: 2 });
-      const img = canvas.toDataURL("image/png");
+      const dashboard = document.getElementById("dashboard");
+      const canvas = await html2canvas(dashboard, { scale: 1.8, useCORS: true });
+      const img = canvas.toDataURL("image/png", 1.0);
       const width = pdf.internal.pageSize.getWidth();
       const height = (canvas.height * width) / canvas.width;
       pdf.addImage(img, "PNG", 0, 0, width, height);
-      pdf.save("informe_resumido.pdf");
+      pdf.save("informe_alta.pdf");
     });
 
     load();
