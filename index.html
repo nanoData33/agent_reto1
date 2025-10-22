@@ -5,97 +5,239 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MedAI Evolution Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body { margin: 0; font-family: "Inter", sans-serif; background: #f5f7f9; color: #1b1f23; }
+:root {
+  --bg: #f4f6f8;
+  --primary: #1d3557;
+  --accent: #219ebc;
+  --card: #fff;
+  --border: #d1d9e0;
+  --shadow: rgba(0,0,0,0.1);
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--bg);
+  margin: 0;
+  color: #222;
+}
+
 header {
-  background: linear-gradient(90deg, #1d3557, #219ebc);
-  color: white; padding: 1rem 2rem;
-  display: flex; align-items: center; gap: 0.8rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.2);
 }
-header img { width: 42px; height: 42px; }
-main { display: flex; justify-content: center; align-items: flex-start; padding: 2rem; flex-wrap: wrap; gap: 1.2rem; }
+header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; }
+header button {
+  background: #38bdf8;
+  border: none; color: white; padding: 0.5rem 1rem;
+  border-radius: 8px; font-weight: 600; cursor: pointer;
+}
+header button:hover { background: #0ea5e9; }
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+}
 .card {
-  background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  width: 200px; padding: 1rem; cursor: pointer; transition: 0.3s;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 3px 10px var(--shadow);
+  padding: 1rem;
+  width: 240px;
+  transition: all 0.25s;
+  cursor: pointer;
 }
-.card:hover { transform: scale(1.05); border: 1px solid #219ebc; }
+.card:hover { transform: scale(1.03); border-color: var(--accent); }
+.card h3 { margin: 0 0 0.3rem 0; color: var(--primary); }
+.card small { color: #666; }
+
+/* Popup */
 .popup {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  background: white; padding: 1.5rem; border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 90%; max-width: 400px;
-  display: none; z-index: 999;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 550px;
+  display: none;
+  z-index: 10;
 }
 .popup.active { display: block; }
-.popup h2 { margin-top: 0; color: #1d3557; }
-.close-btn {
-  background: #dc2626; color: white; border: none; padding: 0.5rem 0.8rem;
-  border-radius: 6px; font-weight: 600; cursor: pointer;
+.tabs { display: flex; gap: 0.5rem; margin: 1rem 0; }
+.tab {
+  border: none;
+  background: #e2e8f0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
 }
-.close-btn:hover { background: #b91c1c; }
+.tab.active { background: var(--accent); color: white; }
+.content { font-size: 0.9rem; background: #f8fafc; padding: 0.8rem; border-radius: 6px; }
+.popup button { margin-top: 1rem; }
+.close-btn {
+  background: #dc2626; color: white; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;
+}
+.pdf-btn {
+  background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;
+  margin-right: 0.5rem;
+}
+.form-popup {
+  display: none;
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.form-popup input, .form-popup textarea {
+  width: 100%; margin-bottom: 0.8rem; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc;
+}
 </style>
 </head>
-<body>
 
+<body>
 <header>
-  <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="MedAI Logo">
-  <h1>MedAI Evolution Assistant</h1>
+  <h1>🏥 MedAI Evolution Assistant</h1>
+  <button onclick="showForm()">+ Nuevo Paciente</button>
 </header>
 
 <main id="hall"></main>
 
+<!-- Popup detalle -->
 <div class="popup" id="popup">
   <h2 id="popup-name"></h2>
-  <p><b>Edad:</b> <span id="popup-edad"></span></p>
-  <p><b>Sexo:</b> <span id="popup-sexo"></span></p>
-  <p><b>Motivo ingreso:</b> <span id="popup-motivo"></span></p>
-  <p><b>Comorbilidades:</b> <span id="popup-comor"></span></p>
-  <p><b>Alergias:</b> <span id="popup-alerg"></span></p>
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('info')">Info</button>
+    <button class="tab" onclick="setTab('evol')">Evolución</button>
+    <button class="tab" onclick="setTab('res')">Resultados</button>
+    <button class="tab" onclick="setTab('inf')">Informe</button>
+  </div>
+  <div class="content" id="popup-content"></div>
+  <button class="pdf-btn" onclick="downloadPDF()">Descargar PDF</button>
   <button class="close-btn" onclick="closePopup()">Cerrar</button>
 </div>
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<!-- Formulario alta -->
+<div class="form-popup" id="form-popup">
+  <h2>Nuevo Paciente</h2>
+  <input id="nombre" placeholder="Nombre completo">
+  <input id="edad" type="number" placeholder="Edad">
+  <input id="sexo" placeholder="Sexo (M/F)">
+  <input id="motivo" placeholder="Motivo de ingreso">
+  <textarea id="comorb" placeholder="Comorbilidades"></textarea>
+  <textarea id="alerg" placeholder="Alergias"></textarea>
+  <button onclick="addPatient()">Guardar</button>
+  <button onclick="document.getElementById('form-popup').style.display='none'">Cancelar</button>
+</div>
+
 <script>
 const supabaseUrl = "https://aczjgeleupwlvghjhkav.supabase.co";
 const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
 const supabase = window.supabase.createClient(supabaseUrl, anonKey);
 
+let pacientes = [];
+let currentPatient = null;
+let activeTab = "info";
+
+// Cargar pacientes
 async function loadPatients() {
   const { data, error } = await supabase.from("vista_pacientes_completo").select("*");
-  if (error) {
-    console.error(error);
-    document.getElementById("hall").innerHTML = "<p>Error al cargar pacientes.</p>";
-    return;
-  }
-  const hall = document.getElementById("hall");
-  hall.innerHTML = data.map(p => `
-    <div class="card" onclick="showDetails('${p.patient_id}')">
+  if (error) return console.error(error);
+  pacientes = data;
+  document.getElementById("hall").innerHTML = data.map(p => `
+    <div class="card" onclick="openPopup('${p.patient_id}')">
       <h3>${p.nombre}</h3>
-      <p><b>Edad:</b> ${p.edad}</p>
-      <p><b>Sexo:</b> ${p.sexo}</p>
-    </div>
-  `).join("");
-  window.pacientes = data;
+      <small>${p.motivo_ingreso || "Sin motivo"}</small>
+      <p><b>${p.edad} años</b> • ${p.sexo}</p>
+    </div>`).join("");
 }
 
-function showDetails(id) {
-  const p = window.pacientes.find(x => x.patient_id === id);
-  if (!p) return;
-  document.getElementById("popup-name").textContent = p.nombre;
-  document.getElementById("popup-edad").textContent = p.edad || "-";
-  document.getElementById("popup-sexo").textContent = p.sexo || "-";
-  document.getElementById("popup-motivo").textContent = p.motivo_ingreso || "-";
-  document.getElementById("popup-comor").textContent = p.comorbilidades || "-";
-  document.getElementById("popup-alerg").textContent = p.alergias || "-";
+// Mostrar popup
+function openPopup(id) {
+  currentPatient = pacientes.find(p => p.patient_id === id);
   document.getElementById("popup").classList.add("active");
+  renderTab();
 }
-
 function closePopup() {
   document.getElementById("popup").classList.remove("active");
+}
+function setTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
+  renderTab();
+}
+
+// Renderizar contenido según pestaña
+function renderTab() {
+  const p = currentPatient;
+  const c = document.getElementById("popup-content");
+  if (!p) return;
+  if (activeTab === "info") {
+    c.innerHTML = `
+      <b>Edad:</b> ${p.edad} <br>
+      <b>Sexo:</b> ${p.sexo} <br>
+      <b>Motivo:</b> ${p.motivo_ingreso || "-"} <br>
+      <b>Comorbilidades:</b> ${p.comorbilidades || "-"} <br>
+      <b>Alergias:</b> ${p.alergias || "-"}
+    `;
+  } else if (activeTab === "evol") {
+    c.innerHTML = `<i>Evolución médica:</i><br>${p.evolucion || "Sin registros"}`;
+  } else if (activeTab === "res") {
+    c.innerHTML = `<i>Últimos resultados:</i><br>${p.resultados || "No disponibles"}`;
+  } else {
+    c.innerHTML = `<i>Informe clínico:</i><br>${p.informe || "No disponible"}`;
+  }
+  document.getElementById("popup-name").textContent = p.nombre;
+}
+
+// Descargar PDF
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const p = currentPatient;
+  const doc = new jsPDF();
+  doc.text(`Informe Clínico - ${p.nombre}`, 15, 20);
+  doc.text(`Edad: ${p.edad}`, 15, 30);
+  doc.text(`Sexo: ${p.sexo}`, 15, 40);
+  doc.text(`Motivo ingreso: ${p.motivo_ingreso || "-"}`, 15, 50);
+  doc.text(`Comorbilidades: ${p.comorbilidades || "-"}`, 15, 60);
+  doc.text(`Alergias: ${p.alergias || "-"}`, 15, 70);
+  doc.text(`Evolución: ${p.evolucion || "-"}`, 15, 80);
+  doc.save(`Informe_${p.nombre}.pdf`);
+}
+
+// Alta de paciente
+function showForm() {
+  document.getElementById("form-popup").style.display = "block";
+}
+async function addPatient() {
+  const nombre = document.getElementById("nombre").value;
+  const edad = parseInt(document.getElementById("edad").value);
+  const sexo = document.getElementById("sexo").value;
+  const motivo = document.getElementById("motivo").value;
+  const comorb = document.getElementById("comorb").value;
+  const alerg = document.getElementById("alerg").value;
+
+  if (!nombre) return alert("Introduce el nombre del paciente");
+  const { error } = await supabase.from("paciente").insert([{ nombre, edad, sexo, motivo_ingreso: motivo, comorbilidades: comorb, alergias: alerg }]);
+  if (error) { alert("Error al guardar"); console.error(error); }
+  else { alert("Paciente guardado"); document.getElementById("form-popup").style.display="none"; loadPatients(); }
 }
 
 loadPatients();
 </script>
-
 </body>
 </html>
