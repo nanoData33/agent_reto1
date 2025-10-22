@@ -157,25 +157,1976 @@ button {
   <button class="close-btn" onclick="closePopup()">Cerrar</button>
 </div>
 
+<!-- 🔽 Pega aquí tu JSON completo entre estas etiquetas -->
+<script id="data-json" type="application/json">
+[
+[
+  {
+    "patient_id": "P001",
+    "nombre": "Laura Martínez",
+    "edad": 45,
+    "sexo": "F",
+    "peso_kg": 68.0,
+    "altura_cm": 165.0,
+    "imc": 24.9,
+    "comorbilidades": "Hipertensión, Migrañas",
+    "alergias": "Penicilina",
+    "motivo_ingreso": "Dolor torácico agudo",
+    "fecha_ingreso": "2025-10-10",
+    "servicio": "Cardiología",
+    "nivel_dependencia": "Baja",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 6,
+        "fecha": "2025-10-11",
+        "temperatura": 37.1,
+        "frecuencia_cardiaca": 78,
+        "presion_arterial": "125/80",
+        "spo2": 98,
+        "leucocitos": 7.5,
+        "pcr_mg_l": 2.3,
+        "creatinina_mg_dl": 0.9,
+        "glucosa_mg_dl": 95.0,
+        "estado_general": "Estable",
+        "observaciones": "Buena evolución post crisis"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 1,
+        "fecha": "2025-10-10",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor torácico persistente, ECG con leves alteraciones.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 2,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.75,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 2,
+        "fecha": "2025-10-12",
+        "dia_estancia": 3,
+        "nota_medica": "Mejoría tras nitroglicerina, sin nuevos episodios.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 4,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.55,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 3,
+        "fecha": "2025-10-14",
+        "dia_estancia": 5,
+        "nota_medica": "Estable, presión normalizada.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 4,
+        "fecha": "2025-10-16",
+        "dia_estancia": 7,
+        "nota_medica": "Asintomática, alta prevista en 48h.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 9,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 5
+      },
+      {
+        "id": 42,
+        "fecha": "2025-10-10",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor torácico persistente, ECG con leves alteraciones.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 2,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.75,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 43,
+        "fecha": "2025-10-12",
+        "dia_estancia": 3,
+        "nota_medica": "Mejoría tras nitroglicerina, sin nuevos episodios.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 4,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.55,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 44,
+        "fecha": "2025-10-14",
+        "dia_estancia": 5,
+        "nota_medica": "Estable, presión normalizada.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 45,
+        "fecha": "2025-10-16",
+        "dia_estancia": 7,
+        "nota_medica": "Asintomática, alta prevista en 48h.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 9,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 5
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 5,
+        "dia_estancia": 1,
+        "tratamiento": "Nitroglicerina",
+        "via_administracion": "Sublingual",
+        "cambio_tratamiento": "Aumentar dosis",
+        "procedimientos": "ECG, Troponina",
+        "fecha_cambio": "2025-10-11",
+        "efectos_secundarios": "Cefalea leve"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 3,
+        "fecha_alta": "2025-10-13",
+        "diagnostico_principal": "Angina de pecho estable",
+        "diagnosticos_secundarios": "Hipertensión",
+        "evolucion_resumen": "Estable tras control farmacológico",
+        "tratamiento_alta": "Nitroglicerina sublingual PRN",
+        "seguimiento_recomendado": "Revisión cardiológica en 1 mes",
+        "riesgo_recaida_estimado": 0.15,
+        "modelo_generador": "ModeloCardio-v2"
+      }
+    ]
+  },
+  {
+    "patient_id": "P002",
+    "nombre": "Carlos Pérez",
+    "edad": 62,
+    "sexo": "M",
+    "peso_kg": 82.0,
+    "altura_cm": 178.0,
+    "imc": 25.9,
+    "comorbilidades": "Diabetes tipo 2, Hipercolesterolemia",
+    "alergias": "Ninguna",
+    "motivo_ingreso": "Descompensación metabólica",
+    "fecha_ingreso": "2025-10-09",
+    "servicio": "Endocrinología",
+    "nivel_dependencia": "Media",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 7,
+        "fecha": "2025-10-10",
+        "temperatura": 36.9,
+        "frecuencia_cardiaca": 82,
+        "presion_arterial": "130/85",
+        "spo2": 97,
+        "leucocitos": 9.1,
+        "pcr_mg_l": 4.8,
+        "creatinina_mg_dl": 1.1,
+        "glucosa_mg_dl": 160.0,
+        "estado_general": "Mejorando",
+        "observaciones": "Responde al tratamiento insulínico"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 5,
+        "fecha": "2025-10-09",
+        "dia_estancia": 1,
+        "nota_medica": "Hiperglucemia de 290 mg/dL al ingreso.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Crítico",
+        "dolor_nivel": 3,
+        "movilidad": 4,
+        "apetito": 3,
+        "sueño_calidad": 5,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 6,
+        "fecha": "2025-10-11",
+        "dia_estancia": 3,
+        "nota_medica": "Control parcial de glucosa con insulina.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 2,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.5,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 7,
+        "fecha": "2025-10-14",
+        "dia_estancia": 6,
+        "nota_medica": "Glucosa normalizada, apetito recuperado.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Estable",
+        "dolor_nivel": 1,
+        "movilidad": 8,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.25,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 8,
+        "fecha": "2025-10-16",
+        "dia_estancia": 8,
+        "nota_medica": "Buen control metabólico, alta mañana.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 9,
+        "sueño_calidad": 9,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.15,
+        "valoracion_estado": 5
+      },
+      {
+        "id": 46,
+        "fecha": "2025-10-09",
+        "dia_estancia": 1,
+        "nota_medica": "Hiperglucemia de 290 mg/dL al ingreso.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Crítico",
+        "dolor_nivel": 3,
+        "movilidad": 4,
+        "apetito": 3,
+        "sueño_calidad": 5,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 47,
+        "fecha": "2025-10-11",
+        "dia_estancia": 3,
+        "nota_medica": "Control parcial de glucosa con insulina.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 2,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.5,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 48,
+        "fecha": "2025-10-14",
+        "dia_estancia": 6,
+        "nota_medica": "Glucosa normalizada, apetito recuperado.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Estable",
+        "dolor_nivel": 1,
+        "movilidad": 8,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.25,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 49,
+        "fecha": "2025-10-16",
+        "dia_estancia": 8,
+        "nota_medica": "Buen control metabólico, alta mañana.",
+        "firma_medico": "Dra. Nieto",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 9,
+        "sueño_calidad": 9,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.15,
+        "valoracion_estado": 5
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 6,
+        "dia_estancia": 2,
+        "tratamiento": "Insulina glargina",
+        "via_administracion": "Subcutánea",
+        "cambio_tratamiento": "Ninguno",
+        "procedimientos": "Control glucémico",
+        "fecha_cambio": NaN,
+        "efectos_secundarios": "Ninguno"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 4,
+        "fecha_alta": "2025-10-12",
+        "diagnostico_principal": "Descompensación diabética",
+        "diagnosticos_secundarios": "Hipercolesterolemia",
+        "evolucion_resumen": "Estabilizado con insulina",
+        "tratamiento_alta": "Insulina glargina SC diaria",
+        "seguimiento_recomendado": "Controles glucémicos semanales",
+        "riesgo_recaida_estimado": 0.25,
+        "modelo_generador": "EndoCare-ML"
+      }
+    ]
+  },
+  {
+    "patient_id": "P003",
+    "nombre": "Marta Gómez",
+    "edad": 33,
+    "sexo": "F",
+    "peso_kg": 55.0,
+    "altura_cm": 160.0,
+    "imc": 21.5,
+    "comorbilidades": "Asma",
+    "alergias": "Látex",
+    "motivo_ingreso": "Crisis asmática",
+    "fecha_ingreso": "2025-10-11",
+    "servicio": "Neumología",
+    "nivel_dependencia": "Baja",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 8,
+        "fecha": "2025-10-11",
+        "temperatura": 37.5,
+        "frecuencia_cardiaca": 90,
+        "presion_arterial": "120/70",
+        "spo2": 95,
+        "leucocitos": 8.3,
+        "pcr_mg_l": 3.2,
+        "creatinina_mg_dl": 0.8,
+        "glucosa_mg_dl": 85.0,
+        "estado_general": "Estable",
+        "observaciones": "Sin dificultad respiratoria"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 9,
+        "fecha": "2025-10-11",
+        "dia_estancia": 1,
+        "nota_medica": "Crisis asmática controlada con broncodilatador.",
+        "firma_medico": "Dr. Pardo",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.65,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 10,
+        "fecha": "2025-10-12",
+        "dia_estancia": 2,
+        "nota_medica": "Saturación estable al 96%.",
+        "firma_medico": "Dr. Pardo",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.45,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 11,
+        "fecha": "2025-10-14",
+        "dia_estancia": 4,
+        "nota_medica": "Sin disnea, alta en 24h probable.",
+        "firma_medico": "Dr. Pardo",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 7,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 50,
+        "fecha": "2025-10-11",
+        "dia_estancia": 1,
+        "nota_medica": "Crisis asmática controlada con broncodilatador.",
+        "firma_medico": "Dr. Pardo",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.65,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 51,
+        "fecha": "2025-10-12",
+        "dia_estancia": 2,
+        "nota_medica": "Saturación estable al 96%.",
+        "firma_medico": "Dr. Pardo",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.45,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 52,
+        "fecha": "2025-10-14",
+        "dia_estancia": 4,
+        "nota_medica": "Sin disnea, alta en 24h probable.",
+        "firma_medico": "Dr. Pardo",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 7,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 4
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 7,
+        "dia_estancia": 1,
+        "tratamiento": "Salbutamol",
+        "via_administracion": "Inhalatoria",
+        "cambio_tratamiento": "Añadir corticoide",
+        "procedimientos": "Espirometría",
+        "fecha_cambio": "2025-10-11",
+        "efectos_secundarios": "Temblor leve"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 5,
+        "fecha_alta": "2025-10-13",
+        "diagnostico_principal": "Crisis asmática leve",
+        "diagnosticos_secundarios": NaN,
+        "evolucion_resumen": "Sin recurrencias",
+        "tratamiento_alta": "Salbutamol inhalador",
+        "seguimiento_recomendado": "Control en neumología en 3 meses",
+        "riesgo_recaida_estimado": 0.1,
+        "modelo_generador": "NeumoAI"
+      }
+    ]
+  },
+  {
+    "patient_id": "P004",
+    "nombre": "José Ramírez",
+    "edad": 70,
+    "sexo": "M",
+    "peso_kg": 76.0,
+    "altura_cm": 170.0,
+    "imc": 26.3,
+    "comorbilidades": "EPOC, Hipertensión",
+    "alergias": "Sulfas",
+    "motivo_ingreso": "Disnea progresiva",
+    "fecha_ingreso": "2025-10-07",
+    "servicio": "Neumología",
+    "nivel_dependencia": "Alta",
+    "riesgo_caidas": true,
+    "resultados_clinicos": [
+      {
+        "id": 9,
+        "fecha": "2025-10-08",
+        "temperatura": 36.8,
+        "frecuencia_cardiaca": 88,
+        "presion_arterial": "140/90",
+        "spo2": 93,
+        "leucocitos": 11.2,
+        "pcr_mg_l": 7.5,
+        "creatinina_mg_dl": 1.3,
+        "glucosa_mg_dl": 105.0,
+        "estado_general": "Delicado",
+        "observaciones": "Necesita oxigenoterapia continua"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 12,
+        "fecha": "2025-10-07",
+        "dia_estancia": 1,
+        "nota_medica": "EPOC exacerbado, disnea en reposo.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Crítico",
+        "dolor_nivel": 9,
+        "movilidad": 2,
+        "apetito": 2,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 4,
+        "riesgo_recaida_estimado": 0.85,
+        "valoracion_estado": 1
+      },
+      {
+        "id": 13,
+        "fecha": "2025-10-09",
+        "dia_estancia": 3,
+        "nota_medica": "Mejora leve tras broncodilatador.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 6,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 5,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 14,
+        "fecha": "2025-10-12",
+        "dia_estancia": 6,
+        "nota_medica": "SatO₂ 94%, tos productiva moderada.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Estable",
+        "dolor_nivel": 4,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.5,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 15,
+        "fecha": "2025-10-15",
+        "dia_estancia": 9,
+        "nota_medica": "Buen progreso, tolera fisioterapia.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.3,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 53,
+        "fecha": "2025-10-07",
+        "dia_estancia": 1,
+        "nota_medica": "EPOC exacerbado, disnea en reposo.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Crítico",
+        "dolor_nivel": 9,
+        "movilidad": 2,
+        "apetito": 2,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 4,
+        "riesgo_recaida_estimado": 0.85,
+        "valoracion_estado": 1
+      },
+      {
+        "id": 54,
+        "fecha": "2025-10-09",
+        "dia_estancia": 3,
+        "nota_medica": "Mejora leve tras broncodilatador.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 6,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 5,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 55,
+        "fecha": "2025-10-12",
+        "dia_estancia": 6,
+        "nota_medica": "SatO₂ 94%, tos productiva moderada.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Estable",
+        "dolor_nivel": 4,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.5,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 56,
+        "fecha": "2025-10-15",
+        "dia_estancia": 9,
+        "nota_medica": "Buen progreso, tolera fisioterapia.",
+        "firma_medico": "Dra. Moreno",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.3,
+        "valoracion_estado": 4
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 8,
+        "dia_estancia": 3,
+        "tratamiento": "Corticoides IV",
+        "via_administracion": "Intravenosa",
+        "cambio_tratamiento": "Disminuir dosis",
+        "procedimientos": "Radiografía torácica",
+        "fecha_cambio": "2025-10-09",
+        "efectos_secundarios": "Retención de líquidos"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 6,
+        "fecha_alta": "2025-10-11",
+        "diagnostico_principal": "Exacerbación de EPOC",
+        "diagnosticos_secundarios": "Hipertensión",
+        "evolucion_resumen": "Mejoría clínica lenta pero constante",
+        "tratamiento_alta": "Corticoides orales y broncodilatador",
+        "seguimiento_recomendado": "Revisión en 15 días",
+        "riesgo_recaida_estimado": 0.35,
+        "modelo_generador": "PulmoPredictor"
+      }
+    ]
+  },
+  {
+    "patient_id": "P005",
+    "nombre": "Ana Torres",
+    "edad": 28,
+    "sexo": "F",
+    "peso_kg": 60.0,
+    "altura_cm": 170.0,
+    "imc": 20.8,
+    "comorbilidades": "Ninguna",
+    "alergias": "Marisco",
+    "motivo_ingreso": "Dolor abdominal intenso",
+    "fecha_ingreso": "2025-10-12",
+    "servicio": "Digestivo",
+    "nivel_dependencia": "Baja",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 10,
+        "fecha": "2025-10-13",
+        "temperatura": 37.3,
+        "frecuencia_cardiaca": 76,
+        "presion_arterial": "110/70",
+        "spo2": 99,
+        "leucocitos": 7.0,
+        "pcr_mg_l": 1.5,
+        "creatinina_mg_dl": 0.7,
+        "glucosa_mg_dl": 90.0,
+        "estado_general": "Estable",
+        "observaciones": "Mejoría digestiva"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 16,
+        "fecha": "2025-10-12",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor abdominal intenso, probable gastritis.",
+        "firma_medico": "Dr. Vega",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 3,
+        "apetito": 3,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.6,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 17,
+        "fecha": "2025-10-13",
+        "dia_estancia": 2,
+        "nota_medica": "Buena respuesta a omeprazol y dieta.",
+        "firma_medico": "Dr. Vega",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 6,
+        "apetito": 6,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 18,
+        "fecha": "2025-10-14",
+        "dia_estancia": 3,
+        "nota_medica": "Asintomática, tolerando dieta sólida.",
+        "firma_medico": "Dr. Vega",
+        "estado_general": "Estable",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 9,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.1,
+        "valoracion_estado": 5
+      },
+      {
+        "id": 57,
+        "fecha": "2025-10-12",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor abdominal intenso, probable gastritis.",
+        "firma_medico": "Dr. Vega",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 3,
+        "apetito": 3,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.6,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 58,
+        "fecha": "2025-10-13",
+        "dia_estancia": 2,
+        "nota_medica": "Buena respuesta a omeprazol y dieta.",
+        "firma_medico": "Dr. Vega",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 6,
+        "apetito": 6,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 59,
+        "fecha": "2025-10-14",
+        "dia_estancia": 3,
+        "nota_medica": "Asintomática, tolerando dieta sólida.",
+        "firma_medico": "Dr. Vega",
+        "estado_general": "Estable",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 9,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.1,
+        "valoracion_estado": 5
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 9,
+        "dia_estancia": 2,
+        "tratamiento": "Omeprazol",
+        "via_administracion": "Oral",
+        "cambio_tratamiento": "Suspender antiespasmódico",
+        "procedimientos": "Ecografía abdominal",
+        "fecha_cambio": "2025-10-13",
+        "efectos_secundarios": "Ninguno"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 7,
+        "fecha_alta": "2025-10-14",
+        "diagnostico_principal": "Gastritis aguda",
+        "diagnosticos_secundarios": NaN,
+        "evolucion_resumen": "Asintomática al alta",
+        "tratamiento_alta": "Omeprazol 20mg diarios",
+        "seguimiento_recomendado": "Dieta blanda 2 semanas",
+        "riesgo_recaida_estimado": 0.05,
+        "modelo_generador": "DigestAI"
+      }
+    ]
+  },
+  {
+    "patient_id": "P006",
+    "nombre": "David Navarro",
+    "edad": 55,
+    "sexo": "M",
+    "peso_kg": 95.0,
+    "altura_cm": 180.0,
+    "imc": 29.3,
+    "comorbilidades": "Obesidad, Apnea del sueño",
+    "alergias": "Ninguna",
+    "motivo_ingreso": "Fatiga y ronquidos severos",
+    "fecha_ingreso": "2025-10-08",
+    "servicio": "Medicina Interna",
+    "nivel_dependencia": "Media",
+    "riesgo_caidas": true,
+    "resultados_clinicos": [
+      {
+        "id": 11,
+        "fecha": "2025-10-09",
+        "temperatura": 36.5,
+        "frecuencia_cardiaca": 72,
+        "presion_arterial": "125/80",
+        "spo2": 97,
+        "leucocitos": 8.0,
+        "pcr_mg_l": 3.0,
+        "creatinina_mg_dl": 0.9,
+        "glucosa_mg_dl": 110.0,
+        "estado_general": "Estable",
+        "observaciones": "Ronquido disminuido"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 19,
+        "fecha": "2025-10-08",
+        "dia_estancia": 1,
+        "nota_medica": "Fatiga y ronquidos severos, obesidad.",
+        "firma_medico": "Dr. Díaz",
+        "estado_general": "Crítico",
+        "dolor_nivel": 6,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 20,
+        "fecha": "2025-10-10",
+        "dia_estancia": 3,
+        "nota_medica": "Inicio de CPAP, mejor saturación.",
+        "firma_medico": "Dr. Díaz",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.55,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 21,
+        "fecha": "2025-10-12",
+        "dia_estancia": 5,
+        "nota_medica": "Sueño reparador, menos fatiga.",
+        "firma_medico": "Dr. Díaz",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.3,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 60,
+        "fecha": "2025-10-08",
+        "dia_estancia": 1,
+        "nota_medica": "Fatiga y ronquidos severos, obesidad.",
+        "firma_medico": "Dr. Díaz",
+        "estado_general": "Crítico",
+        "dolor_nivel": 6,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 61,
+        "fecha": "2025-10-10",
+        "dia_estancia": 3,
+        "nota_medica": "Inicio de CPAP, mejor saturación.",
+        "firma_medico": "Dr. Díaz",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 5,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.55,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 62,
+        "fecha": "2025-10-12",
+        "dia_estancia": 5,
+        "nota_medica": "Sueño reparador, menos fatiga.",
+        "firma_medico": "Dr. Díaz",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.3,
+        "valoracion_estado": 4
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 10,
+        "dia_estancia": 4,
+        "tratamiento": "CPAP nocturno",
+        "via_administracion": "Dispositivo",
+        "cambio_tratamiento": "Ninguno",
+        "procedimientos": "Polisomnografía",
+        "fecha_cambio": NaN,
+        "efectos_secundarios": "Leve sequedad nasal"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 8,
+        "fecha_alta": "2025-10-12",
+        "diagnostico_principal": "Síndrome de apnea del sueño",
+        "diagnosticos_secundarios": "Obesidad grado I",
+        "evolucion_resumen": "Buena adherencia a CPAP",
+        "tratamiento_alta": "CPAP nocturna",
+        "seguimiento_recomendado": "Revisión en unidad de sueño",
+        "riesgo_recaida_estimado": 0.2,
+        "modelo_generador": "SleepNet"
+      }
+    ]
+  },
+  {
+    "patient_id": "P007",
+    "nombre": "Elena López",
+    "edad": 39,
+    "sexo": "F",
+    "peso_kg": 58.0,
+    "altura_cm": 162.0,
+    "imc": 22.1,
+    "comorbilidades": "Hipotiroidismo",
+    "alergias": "Aspirina",
+    "motivo_ingreso": "Palpitaciones y ansiedad",
+    "fecha_ingreso": "2025-10-10",
+    "servicio": "Psiquiatría",
+    "nivel_dependencia": "Baja",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 12,
+        "fecha": "2025-10-11",
+        "temperatura": 36.7,
+        "frecuencia_cardiaca": 70,
+        "presion_arterial": "118/75",
+        "spo2": 99,
+        "leucocitos": 6.8,
+        "pcr_mg_l": 2.1,
+        "creatinina_mg_dl": 0.8,
+        "glucosa_mg_dl": 88.0,
+        "estado_general": "Estable",
+        "observaciones": "Control emocional adecuado"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 22,
+        "fecha": "2025-10-10",
+        "dia_estancia": 1,
+        "nota_medica": "Ansiedad intensa, palpitaciones frecuentes.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 5,
+        "apetito": 4,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.65,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 23,
+        "fecha": "2025-10-12",
+        "dia_estancia": 3,
+        "nota_medica": "Reducción de ataques, más tranquila.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 7,
+        "apetito": 6,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.4,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 24,
+        "fecha": "2025-10-14",
+        "dia_estancia": 5,
+        "nota_medica": "Estable emocionalmente, sin crisis.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 8,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 63,
+        "fecha": "2025-10-10",
+        "dia_estancia": 1,
+        "nota_medica": "Ansiedad intensa, palpitaciones frecuentes.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 5,
+        "apetito": 4,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 6,
+        "riesgo_recaida_estimado": 0.65,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 64,
+        "fecha": "2025-10-12",
+        "dia_estancia": 3,
+        "nota_medica": "Reducción de ataques, más tranquila.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 7,
+        "apetito": 6,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.4,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 65,
+        "fecha": "2025-10-14",
+        "dia_estancia": 5,
+        "nota_medica": "Estable emocionalmente, sin crisis.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 8,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 4
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 11,
+        "dia_estancia": 1,
+        "tratamiento": "Sertralina",
+        "via_administracion": "Oral",
+        "cambio_tratamiento": "Ninguno",
+        "procedimientos": "Evaluación psiquiátrica",
+        "fecha_cambio": NaN,
+        "efectos_secundarios": "Somnolencia inicial"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 9,
+        "fecha_alta": "2025-10-13",
+        "diagnostico_principal": "Trastorno de ansiedad generalizada",
+        "diagnosticos_secundarios": NaN,
+        "evolucion_resumen": "Control adecuado con fármacos y terapia",
+        "tratamiento_alta": "Sertralina 50mg/día",
+        "seguimiento_recomendado": "Seguimiento mensual",
+        "riesgo_recaida_estimado": 0.3,
+        "modelo_generador": "MindTrack"
+      }
+    ]
+  },
+  {
+    "patient_id": "P008",
+    "nombre": "Javier Ruiz",
+    "edad": 47,
+    "sexo": "M",
+    "peso_kg": 74.0,
+    "altura_cm": 175.0,
+    "imc": 24.2,
+    "comorbilidades": "Ninguna",
+    "alergias": "Ibuprofeno",
+    "motivo_ingreso": "Dolor lumbar agudo",
+    "fecha_ingreso": "2025-10-11",
+    "servicio": "Traumatología",
+    "nivel_dependencia": "Media",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 13,
+        "fecha": "2025-10-12",
+        "temperatura": 37.0,
+        "frecuencia_cardiaca": 80,
+        "presion_arterial": "120/80",
+        "spo2": 98,
+        "leucocitos": 7.2,
+        "pcr_mg_l": 2.4,
+        "creatinina_mg_dl": 0.9,
+        "glucosa_mg_dl": 95.0,
+        "estado_general": "Estable",
+        "observaciones": "Dolor controlado con analgesia"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 25,
+        "fecha": "2025-10-11",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor lumbar agudo, movilidad limitada.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 2,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 26,
+        "fecha": "2025-10-13",
+        "dia_estancia": 3,
+        "nota_medica": "Inicia fisioterapia, mejora leve.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 4,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.55,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 27,
+        "fecha": "2025-10-15",
+        "dia_estancia": 5,
+        "nota_medica": "Deambulación parcial sin ayuda.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Estable",
+        "dolor_nivel": 3,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 28,
+        "fecha": "2025-10-17",
+        "dia_estancia": 7,
+        "nota_medica": "Buen rango de movimiento, alta prevista.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.15,
+        "valoracion_estado": 5
+      },
+      {
+        "id": 66,
+        "fecha": "2025-10-11",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor lumbar agudo, movilidad limitada.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 2,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 67,
+        "fecha": "2025-10-13",
+        "dia_estancia": 3,
+        "nota_medica": "Inicia fisioterapia, mejora leve.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 4,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.55,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 68,
+        "fecha": "2025-10-15",
+        "dia_estancia": 5,
+        "nota_medica": "Deambulación parcial sin ayuda.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Estable",
+        "dolor_nivel": 3,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 7,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 69,
+        "fecha": "2025-10-17",
+        "dia_estancia": 7,
+        "nota_medica": "Buen rango de movimiento, alta prevista.",
+        "firma_medico": "Dr. Torres",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.15,
+        "valoracion_estado": 5
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 12,
+        "dia_estancia": 1,
+        "tratamiento": "Diclofenaco",
+        "via_administracion": "Oral",
+        "cambio_tratamiento": "Cambiar por paracetamol",
+        "procedimientos": "RM lumbar",
+        "fecha_cambio": "2025-10-12",
+        "efectos_secundarios": "Náuseas leves"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 10,
+        "fecha_alta": "2025-10-14",
+        "diagnostico_principal": "Lumbalgia aguda",
+        "diagnosticos_secundarios": NaN,
+        "evolucion_resumen": "Dolor controlado con analgésicos",
+        "tratamiento_alta": "Paracetamol 1g/8h",
+        "seguimiento_recomendado": "Revisión en 10 días",
+        "riesgo_recaida_estimado": 0.1,
+        "modelo_generador": "TraumaNet"
+      }
+    ]
+  },
+  {
+    "patient_id": "P009",
+    "nombre": "Lucía Fernández",
+    "edad": 65,
+    "sexo": "F",
+    "peso_kg": 70.0,
+    "altura_cm": 160.0,
+    "imc": 27.3,
+    "comorbilidades": "Artrosis, Hipertensión",
+    "alergias": "Penicilina",
+    "motivo_ingreso": "Caída en domicilio",
+    "fecha_ingreso": "2025-10-06",
+    "servicio": "Geriatría",
+    "nivel_dependencia": "Alta",
+    "riesgo_caidas": true,
+    "resultados_clinicos": [
+      {
+        "id": 14,
+        "fecha": "2025-10-07",
+        "temperatura": 36.9,
+        "frecuencia_cardiaca": 78,
+        "presion_arterial": "135/85",
+        "spo2": 96,
+        "leucocitos": 8.9,
+        "pcr_mg_l": 5.2,
+        "creatinina_mg_dl": 1.0,
+        "glucosa_mg_dl": 100.0,
+        "estado_general": "Estable",
+        "observaciones": "Inicia rehabilitación"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 29,
+        "fecha": "2025-10-06",
+        "dia_estancia": 1,
+        "nota_medica": "Caída, fractura leve de cadera.",
+        "firma_medico": "Dra. Gómez",
+        "estado_general": "Crítico",
+        "dolor_nivel": 9,
+        "movilidad": 1,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.8,
+        "valoracion_estado": 1
+      },
+      {
+        "id": 30,
+        "fecha": "2025-10-09",
+        "dia_estancia": 4,
+        "nota_medica": "Dolor controlado, fisioterapia asistida.",
+        "firma_medico": "Dra. Gómez",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 6,
+        "movilidad": 4,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.6,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 31,
+        "fecha": "2025-10-13",
+        "dia_estancia": 8,
+        "nota_medica": "Camina con ayuda, buen apetito.",
+        "firma_medico": "Dra. Gómez",
+        "estado_general": "Estable",
+        "dolor_nivel": 3,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 70,
+        "fecha": "2025-10-06",
+        "dia_estancia": 1,
+        "nota_medica": "Caída, fractura leve de cadera.",
+        "firma_medico": "Dra. Gómez",
+        "estado_general": "Crítico",
+        "dolor_nivel": 9,
+        "movilidad": 1,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.8,
+        "valoracion_estado": 1
+      },
+      {
+        "id": 71,
+        "fecha": "2025-10-09",
+        "dia_estancia": 4,
+        "nota_medica": "Dolor controlado, fisioterapia asistida.",
+        "firma_medico": "Dra. Gómez",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 6,
+        "movilidad": 4,
+        "apetito": 5,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.6,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 72,
+        "fecha": "2025-10-13",
+        "dia_estancia": 8,
+        "nota_medica": "Camina con ayuda, buen apetito.",
+        "firma_medico": "Dra. Gómez",
+        "estado_general": "Estable",
+        "dolor_nivel": 3,
+        "movilidad": 7,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.35,
+        "valoracion_estado": 4
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 13,
+        "dia_estancia": 2,
+        "tratamiento": "Paracetamol",
+        "via_administracion": "Oral",
+        "cambio_tratamiento": "Añadir fisioterapia",
+        "procedimientos": "Sesiones de rehabilitación",
+        "fecha_cambio": "2025-10-08",
+        "efectos_secundarios": "Ninguno"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 11,
+        "fecha_alta": "2025-10-10",
+        "diagnostico_principal": "Fractura leve de cadera",
+        "diagnosticos_secundarios": "Artrosis",
+        "evolucion_resumen": "Recuperación funcional progresiva",
+        "tratamiento_alta": "Fisioterapia domiciliaria",
+        "seguimiento_recomendado": "Revisión traumatológica en 1 mes",
+        "riesgo_recaida_estimado": 0.4,
+        "modelo_generador": "GeriatrIA"
+      }
+    ]
+  },
+  {
+    "patient_id": "P010",
+    "nombre": "Miguel Ortega",
+    "edad": 51,
+    "sexo": "M",
+    "peso_kg": 88.0,
+    "altura_cm": 176.0,
+    "imc": 28.4,
+    "comorbilidades": "Diabetes tipo 2",
+    "alergias": "Ninguna",
+    "motivo_ingreso": "Infección urinaria",
+    "fecha_ingreso": "2025-10-09",
+    "servicio": "Urología",
+    "nivel_dependencia": "Media",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 15,
+        "fecha": "2025-10-10",
+        "temperatura": 37.8,
+        "frecuencia_cardiaca": 84,
+        "presion_arterial": "125/80",
+        "spo2": 97,
+        "leucocitos": 10.1,
+        "pcr_mg_l": 8.4,
+        "creatinina_mg_dl": 1.2,
+        "glucosa_mg_dl": 155.0,
+        "estado_general": "Delicado",
+        "observaciones": "Requiere antibióticos IV"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 32,
+        "fecha": "2025-10-09",
+        "dia_estancia": 1,
+        "nota_medica": "Infección urinaria febril.",
+        "firma_medico": "Dr. Serrano",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 4,
+        "apetito": 3,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 33,
+        "fecha": "2025-10-11",
+        "dia_estancia": 3,
+        "nota_medica": "Mejoría tras antibiótico, fiebre remitida.",
+        "firma_medico": "Dr. Serrano",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 6,
+        "apetito": 6,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.4,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 34,
+        "fecha": "2025-10-14",
+        "dia_estancia": 6,
+        "nota_medica": "Asintomático, alta en 48h.",
+        "firma_medico": "Dr. Serrano",
+        "estado_general": "Estable",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.15,
+        "valoracion_estado": 5
+      },
+      {
+        "id": 73,
+        "fecha": "2025-10-09",
+        "dia_estancia": 1,
+        "nota_medica": "Infección urinaria febril.",
+        "firma_medico": "Dr. Serrano",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 4,
+        "apetito": 3,
+        "sueño_calidad": 3,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 74,
+        "fecha": "2025-10-11",
+        "dia_estancia": 3,
+        "nota_medica": "Mejoría tras antibiótico, fiebre remitida.",
+        "firma_medico": "Dr. Serrano",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 6,
+        "apetito": 6,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.4,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 75,
+        "fecha": "2025-10-14",
+        "dia_estancia": 6,
+        "nota_medica": "Asintomático, alta en 48h.",
+        "firma_medico": "Dr. Serrano",
+        "estado_general": "Estable",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.15,
+        "valoracion_estado": 5
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 14,
+        "dia_estancia": 3,
+        "tratamiento": "Ceftriaxona",
+        "via_administracion": "Intravenosa",
+        "cambio_tratamiento": "Mantener",
+        "procedimientos": "Urocultivo",
+        "fecha_cambio": NaN,
+        "efectos_secundarios": "Molestia local leve"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 12,
+        "fecha_alta": "2025-10-12",
+        "diagnostico_principal": "Infección urinaria bacteriana",
+        "diagnosticos_secundarios": "Diabetes tipo 2",
+        "evolucion_resumen": "Afebril y sin dolor",
+        "tratamiento_alta": "Cefalexina oral 7 días",
+        "seguimiento_recomendado": "Control en atención primaria",
+        "riesgo_recaida_estimado": 0.18,
+        "modelo_generador": "UroML"
+      }
+    ]
+  },
+  {
+    "patient_id": "P011",
+    "nombre": "Paula Sánchez",
+    "edad": 22,
+    "sexo": "F",
+    "peso_kg": 50.0,
+    "altura_cm": 163.0,
+    "imc": 18.8,
+    "comorbilidades": "Trastorno de ansiedad",
+    "alergias": "Ninguna",
+    "motivo_ingreso": "Crisis de pánico",
+    "fecha_ingreso": "2025-10-13",
+    "servicio": "Psiquiatría",
+    "nivel_dependencia": "Baja",
+    "riesgo_caidas": false,
+    "resultados_clinicos": [
+      {
+        "id": 16,
+        "fecha": "2025-10-14",
+        "temperatura": 36.6,
+        "frecuencia_cardiaca": 68,
+        "presion_arterial": "110/70",
+        "spo2": 100,
+        "leucocitos": 6.2,
+        "pcr_mg_l": 1.1,
+        "creatinina_mg_dl": 0.8,
+        "glucosa_mg_dl": 80.0,
+        "estado_general": "Estable",
+        "observaciones": "Sin síntomas agudos"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 35,
+        "fecha": "2025-10-13",
+        "dia_estancia": 1,
+        "nota_medica": "Crisis de pánico, ansiedad intensa.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 5,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 36,
+        "fecha": "2025-10-14",
+        "dia_estancia": 2,
+        "nota_medica": "Reducción parcial de síntomas.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 6,
+        "apetito": 5,
+        "sueño_calidad": 5,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.45,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 37,
+        "fecha": "2025-10-16",
+        "dia_estancia": 4,
+        "nota_medica": "Anímicamente estable, alta próxima.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 76,
+        "fecha": "2025-10-13",
+        "dia_estancia": 1,
+        "nota_medica": "Crisis de pánico, ansiedad intensa.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Crítico",
+        "dolor_nivel": 8,
+        "movilidad": 5,
+        "apetito": 3,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.7,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 77,
+        "fecha": "2025-10-14",
+        "dia_estancia": 2,
+        "nota_medica": "Reducción parcial de síntomas.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 5,
+        "movilidad": 6,
+        "apetito": 5,
+        "sueño_calidad": 5,
+        "tolerancia_tratamiento": 7,
+        "riesgo_recaida_estimado": 0.45,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 78,
+        "fecha": "2025-10-16",
+        "dia_estancia": 4,
+        "nota_medica": "Anímicamente estable, alta próxima.",
+        "firma_medico": "Dra. Llorens",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.2,
+        "valoracion_estado": 4
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 15,
+        "dia_estancia": 1,
+        "tratamiento": "Alprazolam",
+        "via_administracion": "Oral",
+        "cambio_tratamiento": "Reducir dosis",
+        "procedimientos": "Terapia cognitiva",
+        "fecha_cambio": "2025-10-14",
+        "efectos_secundarios": "Somnolencia"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 13,
+        "fecha_alta": "2025-10-15",
+        "diagnostico_principal": "Trastorno de pánico",
+        "diagnosticos_secundarios": NaN,
+        "evolucion_resumen": "Estable emocionalmente",
+        "tratamiento_alta": "Alprazolam 0.25mg noche",
+        "seguimiento_recomendado": "Seguimiento psicológico quincenal",
+        "riesgo_recaida_estimado": 0.22,
+        "modelo_generador": "MindTrack"
+      }
+    ]
+  },
+  {
+    "patient_id": "P012",
+    "nombre": "Ricardo Domínguez",
+    "edad": 74,
+    "sexo": "M",
+    "peso_kg": 68.0,
+    "altura_cm": 168.0,
+    "imc": 24.1,
+    "comorbilidades": "Cardiopatía isquémica",
+    "alergias": "Ninguna",
+    "motivo_ingreso": "Dolor precordial",
+    "fecha_ingreso": "2025-10-08",
+    "servicio": "Cardiología",
+    "nivel_dependencia": "Alta",
+    "riesgo_caidas": true,
+    "resultados_clinicos": [
+      {
+        "id": 17,
+        "fecha": "2025-10-09",
+        "temperatura": 37.2,
+        "frecuencia_cardiaca": 88,
+        "presion_arterial": "145/90",
+        "spo2": 95,
+        "leucocitos": 9.0,
+        "pcr_mg_l": 4.0,
+        "creatinina_mg_dl": 1.0,
+        "glucosa_mg_dl": 105.0,
+        "estado_general": "Estable",
+        "observaciones": "Angina controlada"
+      }
+    ],
+    "evolucion_medica": [
+      {
+        "id": 38,
+        "fecha": "2025-10-08",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor precordial, signos de isquemia leve.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.75,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 39,
+        "fecha": "2025-10-10",
+        "dia_estancia": 3,
+        "nota_medica": "Angina controlada, ECG estable.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 6,
+        "apetito": 6,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.5,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 40,
+        "fecha": "2025-10-12",
+        "dia_estancia": 5,
+        "nota_medica": "Sin dolor, esfuerzo leve tolerado.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.25,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 41,
+        "fecha": "2025-10-15",
+        "dia_estancia": 8,
+        "nota_medica": "Alta prevista con tratamiento de mantenimiento.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 9,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.1,
+        "valoracion_estado": 5
+      },
+      {
+        "id": 79,
+        "fecha": "2025-10-08",
+        "dia_estancia": 1,
+        "nota_medica": "Dolor precordial, signos de isquemia leve.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Crítico",
+        "dolor_nivel": 7,
+        "movilidad": 3,
+        "apetito": 4,
+        "sueño_calidad": 4,
+        "tolerancia_tratamiento": 5,
+        "riesgo_recaida_estimado": 0.75,
+        "valoracion_estado": 2
+      },
+      {
+        "id": 80,
+        "fecha": "2025-10-10",
+        "dia_estancia": 3,
+        "nota_medica": "Angina controlada, ECG estable.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Mejorando",
+        "dolor_nivel": 4,
+        "movilidad": 6,
+        "apetito": 6,
+        "sueño_calidad": 6,
+        "tolerancia_tratamiento": 8,
+        "riesgo_recaida_estimado": 0.5,
+        "valoracion_estado": 3
+      },
+      {
+        "id": 81,
+        "fecha": "2025-10-12",
+        "dia_estancia": 5,
+        "nota_medica": "Sin dolor, esfuerzo leve tolerado.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Estable",
+        "dolor_nivel": 2,
+        "movilidad": 8,
+        "apetito": 7,
+        "sueño_calidad": 8,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.25,
+        "valoracion_estado": 4
+      },
+      {
+        "id": 82,
+        "fecha": "2025-10-15",
+        "dia_estancia": 8,
+        "nota_medica": "Alta prevista con tratamiento de mantenimiento.",
+        "firma_medico": "Dr. Salas",
+        "estado_general": "Alta prevista",
+        "dolor_nivel": 1,
+        "movilidad": 9,
+        "apetito": 8,
+        "sueño_calidad": 9,
+        "tolerancia_tratamiento": 9,
+        "riesgo_recaida_estimado": 0.1,
+        "valoracion_estado": 5
+      }
+    ],
+    "tratamientos": [
+      {
+        "id": 16,
+        "dia_estancia": 2,
+        "tratamiento": "AAS 100 mg",
+        "via_administracion": "Oral",
+        "cambio_tratamiento": "Añadir betabloqueante",
+        "procedimientos": "Prueba de esfuerzo",
+        "fecha_cambio": "2025-10-09",
+        "efectos_secundarios": "Ninguno"
+      }
+    ],
+    "alta_resumen": [
+      {
+        "id": 14,
+        "fecha_alta": "2025-10-10",
+        "diagnostico_principal": "Angina de esfuerzo",
+        "diagnosticos_secundarios": "Cardiopatía isquémica",
+        "evolucion_resumen": "Sin nuevos episodios",
+        "tratamiento_alta": "AAS + betabloqueante",
+        "seguimiento_recomendado": "Control cardiológico en 2 semanas",
+        "riesgo_recaida_estimado": 0.28,
+        "modelo_generador": "CardioPredict"
+      }
+    ]
+  }
+]
+]
+</script>
+<!-- 🔼 FIN del JSON -->
+
 <script>
 let pacientes = [];
 let currentPatient = null;
 
-window.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener("DOMContentLoaded", () => {
+  const raw = document.getElementById("data-json").textContent.trim();
   try {
-    const res = await fetch("pacientes_completo.json");
-    pacientes = await res.json();
-
-    const floor = document.getElementById("floor");
-    floor.innerHTML = pacientes.map(p => `
-      <div class="room" onclick="openPopup('${p.paciente.nombre}')">
-        <h3>${p.paciente.nombre}</h3>
-        <div class="status stable">Paciente</div>
-      </div>
-    `).join("");
-  } catch (err) {
-    console.error("Error cargando JSON:", err);
+    pacientes = JSON.parse(raw);
+  } catch (e) {
+    console.error("Error al parsear JSON:", e);
   }
+
+  const floor = document.getElementById("floor");
+  if (!pacientes.length) {
+    floor.innerHTML = "<p>No hay datos disponibles.</p>";
+    return;
+  }
+  floor.innerHTML = pacientes.map(p => `
+    <div class="room" onclick="openPopup('${p.paciente.nombre}')">
+      <h3>${p.paciente.nombre}</h3>
+      <div class="status stable">Paciente</div>
+    </div>
+  `).join("");
 });
 
 function openPopup(nombre) {
