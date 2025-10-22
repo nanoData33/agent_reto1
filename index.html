@@ -1,396 +1,234 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MedAI Evolution Assistant</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedAI Evolution Assistant</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e8f0ff, #ffffff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-<style>
-:root {
-  --azul-oscuro: #003049;
-  --azul-claro: #219ebc;
-  --gris-fondo: #f6f8fa;
-  --gris-claro: #e0e0e0;
-  --blanco: #ffffff;
-}
-body {
-  font-family: "Inter", sans-serif;
-  margin: 0;
-  background: var(--gris-fondo);
-  color: #222;
-}
-header {
-  background: linear-gradient(90deg, var(--azul-oscuro), var(--azul-claro));
-  color: white;
-  padding: 1.2rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.2);
-}
-header h1 {
-  margin: 0;
-  font-size: 1.6rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-header button {
-  background: #38bdf8;
-  border: none;
-  color: white;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
-}
-header button:hover { background: #0ea5e9; }
+    header {
+      background: linear-gradient(90deg, #004aad, #0078d7);
+      color: white;
+      padding: 15px 30px;
+      font-size: 1.4em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
 
-main {
-  padding: 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-.card {
-  background: var(--blanco);
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  padding: 1rem 1.3rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 1px solid var(--gris-claro);
-}
-.card:hover {
-  transform: translateY(-6px);
-  border-color: var(--azul-claro);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-}
-.card h3 { color: var(--azul-oscuro); margin: 0.3rem 0; }
-.card small { color: #666; }
+    header img {
+      width: 40px;
+    }
 
-/* Panel paciente */
-.panel {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-.panel.active { display: flex; }
-.panel-content {
-  background: var(--blanco);
-  width: 90%;
-  max-width: 900px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.panel-header {
-  background: var(--azul-oscuro);
-  color: white;
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.tabs {
-  display: flex;
-  border-bottom: 2px solid var(--gris-claro);
-}
-.tab {
-  flex: 1;
-  padding: 0.8rem;
-  text-align: center;
-  cursor: pointer;
-  font-weight: 600;
-  border-bottom: 3px solid transparent;
-  transition: 0.3s;
-}
-.tab:hover { background: #f0f0f0; }
-.tab.active {
-  color: var(--azul-claro);
-  border-bottom: 3px solid var(--azul-claro);
-}
-.content {
-  padding: 1.2rem;
-  overflow-y: auto;
-  flex: 1;
-}
-button.close-btn {
-  background: #dc2626;
-  border: none;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-button.pdf-btn {
-  background: var(--azul-oscuro);
-  border: none;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-right: 0.5rem;
-}
+    .hallway {
+      display: flex;
+      justify-content: space-between;
+      flex: 1;
+      padding: 50px 10%;
+      perspective: 1000px;
+      position: relative;
+      overflow-y: auto;
+    }
 
-/* Formulario */
-#form-popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-.form-box {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-}
-input, textarea {
-  width: 100%;
-  margin-bottom: 0.8rem;
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-</style>
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      width: 35%;
+    }
+
+    .room {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .room:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .room h3 {
+      margin: 0;
+      color: #004aad;
+    }
+
+    .room p {
+      margin: 5px 0;
+      color: #333;
+      font-size: 0.95em;
+    }
+
+    /* Panel lateral */
+    #panel {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: 400px;
+      height: 100%;
+      background: #f9fbff;
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+      transition: right 0.4s ease;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    #panel.active {
+      right: 0;
+    }
+
+    #panel h2 {
+      color: #004aad;
+      border-bottom: 2px solid #004aad;
+      padding-bottom: 10px;
+    }
+
+    #chart {
+      margin-top: 20px;
+      width: 100%;
+      height: 200px;
+    }
+
+    .close-btn {
+      background: #004aad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      float: right;
+    }
+
+    /* Chat flotante */
+    #chat-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0078d7;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 26px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #chat-btn:hover {
+      transform: scale(1.1);
+      background: #005bb5;
+    }
+  </style>
 </head>
-
 <body>
-<header>
-  <h1>🏥 MedAI Evolution Assistant</h1>
-  <button onclick="showForm()">+ Nuevo Paciente</button>
-</header>
+  <header>
+    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="logo" />
+    MedAI Evolution Assistant
+  </header>
 
-<main id="hall"></main>
-
-<!-- Panel paciente -->
-<div class="panel" id="panel">
-  <div class="panel-content">
-    <div class="panel-header">
-      <h2 id="paciente-nombre"></h2>
-      <div>
-        <button class="pdf-btn" onclick="downloadPDF()">Descargar PDF</button>
-        <button class="close-btn" onclick="closePanel()">Cerrar</button>
-      </div>
-    </div>
-    <div class="tabs">
-      <div class="tab active" onclick="setTab('info')">Datos</div>
-      <div class="tab" onclick="setTab('evol')">Evolución</div>
-      <div class="tab" onclick="setTab('trat')">Tratamientos</div>
-      <div class="tab" onclick="setTab('res')">Resultados</div>
-      <div class="tab" onclick="setTab('alta')">Alta</div>
-    </div>
-    <div class="content" id="tab-content"></div>
+  <div class="hallway">
+    <div class="side" id="left-side"></div>
+    <div class="side" id="right-side"></div>
   </div>
-</div>
 
-<!-- Formulario alta paciente -->
-<div id="form-popup">
-  <div class="form-box">
-    <h3>Registrar Paciente</h3>
-    <input id="nombre" placeholder="Nombre completo">
-    <input id="edad" type="number" placeholder="Edad">
-    <input id="sexo" placeholder="Sexo (M/F)">
-    <input id="motivo" placeholder="Motivo de ingreso">
-    <textarea id="comorb" placeholder="Comorbilidades"></textarea>
-    <textarea id="alerg" placeholder="Alergias"></textarea>
-    <button onclick="addPatient()">Guardar</button>
-    <button onclick="document.getElementById('form-popup').style.display='none'">Cancelar</button>
+  <div id="panel">
+    <button class="close-btn" onclick="closePanel()">Cerrar</button>
+    <h2 id="panel-name"></h2>
+    <p id="panel-diagnosis"></p>
+    <canvas id="chart"></canvas>
+    <div id="notes"></div>
   </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-const supabaseUrl = "https://aczjgeleupwlvghjhkav.supabase.co";
-const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
-const supabase = window.supabase.createClient(supabaseUrl, anonKey);
+  <button id="chat-btn" title="Abrir Chat">💬</button>
 
-let pacientes = [], activo = null, tab = "info";
+  <script>
+    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function loadPatients() {
-  const { data, error } = await supabase.from("vista_pacientes_completo").select("*");
-  if (error) { console.error(error); return; }
-  pacientes = data;
-  document.getElementById("hall").innerHTML = data.map(p => `
-    <div class="card" onclick="openPanel('${p.patient_id}')">
-      <h3>${p.nombre}</h3>
-      <small>${p.motivo_ingreso || "Sin motivo"}</small>
-      <p><b>${p.edad} años</b> • ${p.sexo}</p>
-    </div>`).join("");
-}
-
-function openPanel(id){
-  activo = pacientes.find(p=>p.patient_id===id);
-  document.getElementById("panel").classList.add("active");
-  document.getElementById("paciente-nombre").textContent = activo.nombre;
-  renderTab();
-}
-function closePanel(){
-  document.getElementById("panel").classList.remove("active");
-}
-function setTab(n){
-  tab = n;
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  event.target.classList.add("active");
-  renderTab();
-}
-  function renderTab(){
-  if(!activo) return;
-  const c = document.getElementById("tab-content");
-
-  if(tab === "info"){
-    c.innerHTML = `
-      <b>Edad:</b> ${activo.edad}<br>
-      <b>Sexo:</b> ${activo.sexo}<br>
-      <b>Motivo ingreso:</b> ${activo.motivo_ingreso || "-"}<br>
-      <b>Comorbilidades:</b> ${activo.comorbilidades || "-"}<br>
-      <b>Alergias:</b> ${activo.alergias || "-"}
-    `;
-  }
-
-  else if(tab === "evol"){
-    try {
-      const arr = JSON.parse(activo.evolucion_medica);
-      const fechas = arr.map(e => e.fecha);
-      const dolor = arr.map(e => e.dolor_nivel);
-      const movilidad = arr.map(e => e.movilidad);
-      const apetito = arr.map(e => e.apetito);
-      const sueno = arr.map(e => e.sueño_calidad);
-      const tolerancia = arr.map(e => e.tolerancia_tratamiento);
-      const recaida = arr.map(e => e.riesgo_recaida_estimado);
-
-      c.innerHTML = `
-        <canvas id="graficoEvolucion" style="width:100%;height:300px;"></canvas>
-        <h3>Notas médicas</h3>
-        ${arr.map(e => `
-          <div style="background:#f8fafc;border-left:5px solid #219ebc;padding:0.6rem;margin:0.5rem 0;border-radius:8px;">
-            <b>${e.fecha}</b> - <i>${e.estado_general}</i><br>
-            ${e.nota_medica}<br>
-            <small>👨‍⚕️ ${e.firma_medico}</small>
-          </div>
-        `).join("")}
-      `;
-
-      const ctx = document.getElementById("graficoEvolucion").getContext("2d");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: fechas,
-          datasets: [
-            { label: "Dolor", data: dolor, borderColor:"#ef4444", fill:false },
-            { label: "Movilidad", data: movilidad, borderColor:"#10b981", fill:false },
-            { label: "Apetito", data: apetito, borderColor:"#f59e0b", fill:false },
-            { label: "Sueño", data: sueno, borderColor:"#3b82f6", fill:false },
-            { label: "Tolerancia", data: tolerancia, borderColor:"#6366f1", fill:false },
-            { label: "Riesgo Recaída", data: recaida, borderColor:"#a855f7", fill:false, borderDash:[5,5] }
-          ]
-        },
-        options: {
-          responsive:true,
-          plugins:{ legend:{ position:"bottom" }},
-          scales:{ y:{ beginAtZero:true, max:10 } }
-        }
-      });
-
-      // 👉 Aquí podrías avisar a n8n
-      const alerta = arr.find(e => e.riesgo_recaida_estimado > 0.6 || e.estado_general === "Crítico");
-      if(alerta){
-        fetch("https://tu-webhook-de-n8n.com/webhook/alerta-paciente", {
-          method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ paciente: activo.nombre, alerta })
-        }).catch(()=>{});
+    async function loadPatients() {
+      const { data, error } = await supabase.from("vista_pacientes_completo").select("*");
+      if (error) {
+        console.error("Error cargando pacientes:", error);
+        return;
       }
 
-    } catch (e) {
-      c.innerHTML = "<i>Error al cargar evolución</i>";
+      const left = document.getElementById("left-side");
+      const right = document.getElementById("right-side");
+      left.innerHTML = right.innerHTML = "";
+
+      data.forEach((p, i) => {
+        const room = document.createElement("div");
+        room.className = "room";
+        room.innerHTML = `
+          <h3>${p.nombre}</h3>
+          <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
+          <p><strong>${p.edad}</strong> años • ${p.sexo}</p>
+        `;
+        room.onclick = () => openPanel(p);
+        (i % 2 === 0 ? left : right).appendChild(room);
+      });
     }
-  }
 
-  else if(tab === "trat"){
-    c.innerHTML = formatList(activo.tratamientos);
-  }
-  else if(tab === "res"){
-    c.innerHTML = formatList(activo.resultados_clinicos);
-  }
-  else {
-    c.innerHTML = formatList(activo.alta_resumen);
-  }
-}
+    function openPanel(p) {
+      document.getElementById("panel").classList.add("active");
+      document.getElementById("panel-name").textContent = p.nombre;
+      document.getElementById("panel-diagnosis").textContent = p.diagnostico_principal;
 
-function formatList(obj){
-  if(!obj) return "<i>No disponible</i>";
-  try {
-    const arr = typeof obj === "string" ? JSON.parse(obj) : obj;
-    return "<ul>"+arr.map(x=>`<li>${Object.entries(x)
-      .map(([k,v])=>`<b>${k}</b>: ${v}`).join("<br>")}</li>`).join("")+"</ul>";
-  } catch {
-    return "<i>Error al leer datos</i>";
-  }
-}
+      // Extrae evolución médica si existe
+      const evol = Array.isArray(p.evolucion_medica) ? p.evolucion_medica : JSON.parse(p.evolucion_medica || "[]");
+      const dates = evol.map(e => e.fecha);
+      const states = evol.map(e => e.valoracion_estado);
+      const notes = evol.map(e => `<p><strong>${e.fecha}</strong>: ${e.nota_medica}</p>`).join("");
 
-function formatJSON(obj){
-  if(!obj)return "<i>No disponible</i>";
-  try {
-    const arr = typeof obj==="string"?JSON.parse(obj):obj;
-    return "<ul>"+arr.map(x=>`<li>${Object.entries(x).map(([k,v])=>`<b>${k}</b>: ${v}`).join("<br>")}</li>`).join("")+"</ul>";
-  } catch(e){
-    return "<i>Error al parsear datos</i>";
-  }
-}
+      document.getElementById("notes").innerHTML = `<h3>Notas médicas</h3>${notes}`;
 
-function downloadPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const p = activo;
-  doc.text(`Informe clínico - ${p.nombre}`, 15, 20);
-  doc.text(`Edad: ${p.edad}`, 15, 30);
-  doc.text(`Sexo: ${p.sexo}`, 15, 40);
-  doc.text(`Motivo: ${p.motivo_ingreso || "-"}`, 15, 50);
-  doc.text(`Comorbilidades: ${p.comorbilidades || "-"}`, 15, 60);
-  doc.text(`Alergias: ${p.alergias || "-"}`, 15, 70);
-  doc.text(`Evolución médica:`, 15, 80);
-  doc.text(JSON.stringify(p.evolucion_medica).slice(0,500), 15, 90);
-  doc.save(`Informe_${p.nombre}.pdf`);
-}
+      const ctx = document.getElementById("chart");
+      if (window.chartInstance) window.chartInstance.destroy();
+      window.chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: dates,
+          datasets: [{
+            label: "Valoración del estado",
+            data: states,
+            borderColor: "#0078d7",
+            fill: false,
+            tension: 0.3
+          }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true, max: 5 } } }
+      });
+    }
 
-function showForm(){
-  document.getElementById("form-popup").style.display="flex";
-}
-async function addPatient(){
-  const nombre=document.getElementById("nombre").value;
-  const edad=parseInt(document.getElementById("edad").value);
-  const sexo=document.getElementById("sexo").value;
-  const motivo=document.getElementById("motivo").value;
-  const comorb=document.getElementById("comorb").value;
-  const alerg=document.getElementById("alerg").value;
-  if(!nombre)return alert("Introduce el nombre");
-  const {error}=await supabase.from("paciente").insert([{nombre,edad,sexo,motivo_ingreso:motivo,comorbilidades:comorb,alergias:alerg}]);
-  if(error) alert("Error al guardar");
-  else {
-    alert("Paciente añadido correctamente");
-    document.getElementById("form-popup").style.display="none";
+    function closePanel() {
+      document.getElementById("panel").classList.remove("active");
+    }
+
+    document.getElementById("chat-btn").onclick = () => {
+      alert("Aquí se integrará el chat con N8N o Telegram 💬");
+    };
+
     loadPatients();
-  }
-}
-loadPatients();
-</script>
+  </script>
 </body>
 </html>
