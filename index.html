@@ -4,106 +4,170 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MedAI Evolution Assistant</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 :root {
-  --bg: #f4f6f8;
-  --primary: #1d3557;
-  --accent: #219ebc;
-  --card: #fff;
-  --border: #d1d9e0;
-  --shadow: rgba(0,0,0,0.1);
+  --azul-oscuro: #003049;
+  --azul-claro: #219ebc;
+  --gris-fondo: #f6f8fa;
+  --gris-claro: #e0e0e0;
+  --blanco: #ffffff;
 }
-
 body {
   font-family: "Inter", sans-serif;
-  background: var(--bg);
   margin: 0;
+  background: var(--gris-fondo);
   color: #222;
 }
-
 header {
-  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background: linear-gradient(90deg, var(--azul-oscuro), var(--azul-claro));
   color: white;
-  padding: 1rem 2rem;
+  padding: 1.2rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 3px 12px rgba(0,0,0,0.2);
 }
-header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; }
+header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 header button {
   background: #38bdf8;
-  border: none; color: white; padding: 0.5rem 1rem;
-  border-radius: 8px; font-weight: 600; cursor: pointer;
+  border: none;
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
 }
 header button:hover { background: #0ea5e9; }
 
 main {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   padding: 2rem;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 .card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 3px 10px var(--shadow);
-  padding: 1rem;
-  width: 240px;
-  transition: all 0.25s;
+  background: var(--blanco);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  padding: 1rem 1.3rem;
+  transition: all 0.3s ease;
   cursor: pointer;
+  border: 1px solid var(--gris-claro);
 }
-.card:hover { transform: scale(1.03); border-color: var(--accent); }
-.card h3 { margin: 0 0 0.3rem 0; color: var(--primary); }
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--azul-claro);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+.card h3 { color: var(--azul-oscuro); margin: 0.3rem 0; }
 .card small { color: #666; }
 
-/* Popup */
-.popup {
+/* Panel paciente */
+.panel {
   position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--card);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-  width: 90%;
-  max-width: 550px;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
   display: none;
-  z-index: 10;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
 }
-.popup.active { display: block; }
-.tabs { display: flex; gap: 0.5rem; margin: 1rem 0; }
+.panel.active { display: flex; }
+.panel-content {
+  background: var(--blanco);
+  width: 90%;
+  max-width: 900px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel-header {
+  background: var(--azul-oscuro);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--gris-claro);
+}
 .tab {
+  flex: 1;
+  padding: 0.8rem;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: 0.3s;
+}
+.tab:hover { background: #f0f0f0; }
+.tab.active {
+  color: var(--azul-claro);
+  border-bottom: 3px solid var(--azul-claro);
+}
+.content {
+  padding: 1.2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+button.close-btn {
+  background: #dc2626;
   border: none;
-  background: #e2e8f0;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-weight: 500;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
 }
-.tab.active { background: var(--accent); color: white; }
-.content { font-size: 0.9rem; background: #f8fafc; padding: 0.8rem; border-radius: 6px; }
-.popup button { margin-top: 1rem; }
-.close-btn {
-  background: #dc2626; color: white; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;
-}
-.pdf-btn {
-  background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;
+button.pdf-btn {
+  background: var(--azul-oscuro);
+  border: none;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
   margin-right: 0.5rem;
 }
-.form-popup {
+
+/* Formulario */
+#form-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
   display: none;
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  justify-content: center;
+  align-items: center;
 }
-.form-popup input, .form-popup textarea {
-  width: 100%; margin-bottom: 0.8rem; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc;
+.form-box {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+input, textarea {
+  width: 100%;
+  margin-bottom: 0.8rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 </style>
 </head>
@@ -116,31 +180,40 @@ main {
 
 <main id="hall"></main>
 
-<!-- Popup detalle -->
-<div class="popup" id="popup">
-  <h2 id="popup-name"></h2>
-  <div class="tabs">
-    <button class="tab active" onclick="setTab('info')">Info</button>
-    <button class="tab" onclick="setTab('evol')">Evolución</button>
-    <button class="tab" onclick="setTab('res')">Resultados</button>
-    <button class="tab" onclick="setTab('inf')">Informe</button>
+<!-- Panel paciente -->
+<div class="panel" id="panel">
+  <div class="panel-content">
+    <div class="panel-header">
+      <h2 id="paciente-nombre"></h2>
+      <div>
+        <button class="pdf-btn" onclick="downloadPDF()">Descargar PDF</button>
+        <button class="close-btn" onclick="closePanel()">Cerrar</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="setTab('info')">Datos</div>
+      <div class="tab" onclick="setTab('evol')">Evolución</div>
+      <div class="tab" onclick="setTab('trat')">Tratamientos</div>
+      <div class="tab" onclick="setTab('res')">Resultados</div>
+      <div class="tab" onclick="setTab('alta')">Alta</div>
+    </div>
+    <div class="content" id="tab-content"></div>
   </div>
-  <div class="content" id="popup-content"></div>
-  <button class="pdf-btn" onclick="downloadPDF()">Descargar PDF</button>
-  <button class="close-btn" onclick="closePopup()">Cerrar</button>
 </div>
 
-<!-- Formulario alta -->
-<div class="form-popup" id="form-popup">
-  <h2>Nuevo Paciente</h2>
-  <input id="nombre" placeholder="Nombre completo">
-  <input id="edad" type="number" placeholder="Edad">
-  <input id="sexo" placeholder="Sexo (M/F)">
-  <input id="motivo" placeholder="Motivo de ingreso">
-  <textarea id="comorb" placeholder="Comorbilidades"></textarea>
-  <textarea id="alerg" placeholder="Alergias"></textarea>
-  <button onclick="addPatient()">Guardar</button>
-  <button onclick="document.getElementById('form-popup').style.display='none'">Cancelar</button>
+<!-- Formulario alta paciente -->
+<div id="form-popup">
+  <div class="form-box">
+    <h3>Registrar Paciente</h3>
+    <input id="nombre" placeholder="Nombre completo">
+    <input id="edad" type="number" placeholder="Edad">
+    <input id="sexo" placeholder="Sexo (M/F)">
+    <input id="motivo" placeholder="Motivo de ingreso">
+    <textarea id="comorb" placeholder="Comorbilidades"></textarea>
+    <textarea id="alerg" placeholder="Alergias"></textarea>
+    <button onclick="addPatient()">Guardar</button>
+    <button onclick="document.getElementById('form-popup').style.display='none'">Cancelar</button>
+  </div>
 </div>
 
 <script>
@@ -148,95 +221,98 @@ const supabaseUrl = "https://aczjgeleupwlvghjhkav.supabase.co";
 const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
 const supabase = window.supabase.createClient(supabaseUrl, anonKey);
 
-let pacientes = [];
-let currentPatient = null;
-let activeTab = "info";
+let pacientes = [], activo = null, tab = "info";
 
-// Cargar pacientes
 async function loadPatients() {
   const { data, error } = await supabase.from("vista_pacientes_completo").select("*");
-  if (error) return console.error(error);
+  if (error) { console.error(error); return; }
   pacientes = data;
   document.getElementById("hall").innerHTML = data.map(p => `
-    <div class="card" onclick="openPopup('${p.patient_id}')">
+    <div class="card" onclick="openPanel('${p.patient_id}')">
       <h3>${p.nombre}</h3>
       <small>${p.motivo_ingreso || "Sin motivo"}</small>
       <p><b>${p.edad} años</b> • ${p.sexo}</p>
     </div>`).join("");
 }
 
-// Mostrar popup
-function openPopup(id) {
-  currentPatient = pacientes.find(p => p.patient_id === id);
-  document.getElementById("popup").classList.add("active");
+function openPanel(id){
+  activo = pacientes.find(p=>p.patient_id===id);
+  document.getElementById("panel").classList.add("active");
+  document.getElementById("paciente-nombre").textContent = activo.nombre;
   renderTab();
 }
-function closePopup() {
-  document.getElementById("popup").classList.remove("active");
+function closePanel(){
+  document.getElementById("panel").classList.remove("active");
 }
-function setTab(tab) {
-  activeTab = tab;
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+function setTab(n){
+  tab = n;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   event.target.classList.add("active");
   renderTab();
 }
-
-// Renderizar contenido según pestaña
-function renderTab() {
-  const p = currentPatient;
-  const c = document.getElementById("popup-content");
-  if (!p) return;
-  if (activeTab === "info") {
-    c.innerHTML = `
-      <b>Edad:</b> ${p.edad} <br>
-      <b>Sexo:</b> ${p.sexo} <br>
-      <b>Motivo:</b> ${p.motivo_ingreso || "-"} <br>
-      <b>Comorbilidades:</b> ${p.comorbilidades || "-"} <br>
-      <b>Alergias:</b> ${p.alergias || "-"}
-    `;
-  } else if (activeTab === "evol") {
-    c.innerHTML = `<i>Evolución médica:</i><br>${p.evolucion || "Sin registros"}`;
-  } else if (activeTab === "res") {
-    c.innerHTML = `<i>Últimos resultados:</i><br>${p.resultados || "No disponibles"}`;
+function renderTab(){
+  if(!activo)return;
+  const c = document.getElementById("tab-content");
+  if(tab==="info"){
+    c.innerHTML = `<b>Edad:</b> ${activo.edad}<br>
+    <b>Sexo:</b> ${activo.sexo}<br>
+    <b>Motivo ingreso:</b> ${activo.motivo_ingreso||"-"}<br>
+    <b>Comorbilidades:</b> ${activo.comorbilidades||"-"}<br>
+    <b>Alergias:</b> ${activo.alergias||"-"}`;
+  } else if(tab==="evol"){
+    c.innerHTML = formatJSON(activo.evolucion_medica);
+  } else if(tab==="trat"){
+    c.innerHTML = formatJSON(activo.tratamientos);
+  } else if(tab==="res"){
+    c.innerHTML = formatJSON(activo.resultados_clinicos);
   } else {
-    c.innerHTML = `<i>Informe clínico:</i><br>${p.informe || "No disponible"}`;
+    c.innerHTML = formatJSON(activo.alta_resumen);
   }
-  document.getElementById("popup-name").textContent = p.nombre;
+}
+function formatJSON(obj){
+  if(!obj)return "<i>No disponible</i>";
+  try {
+    const arr = typeof obj==="string"?JSON.parse(obj):obj;
+    return "<ul>"+arr.map(x=>`<li>${Object.entries(x).map(([k,v])=>`<b>${k}</b>: ${v}`).join("<br>")}</li>`).join("")+"</ul>";
+  } catch(e){
+    return "<i>Error al parsear datos</i>";
+  }
 }
 
-// Descargar PDF
-function downloadPDF() {
+function downloadPDF(){
   const { jsPDF } = window.jspdf;
-  const p = currentPatient;
   const doc = new jsPDF();
-  doc.text(`Informe Clínico - ${p.nombre}`, 15, 20);
+  const p = activo;
+  doc.text(`Informe clínico - ${p.nombre}`, 15, 20);
   doc.text(`Edad: ${p.edad}`, 15, 30);
   doc.text(`Sexo: ${p.sexo}`, 15, 40);
-  doc.text(`Motivo ingreso: ${p.motivo_ingreso || "-"}`, 15, 50);
+  doc.text(`Motivo: ${p.motivo_ingreso || "-"}`, 15, 50);
   doc.text(`Comorbilidades: ${p.comorbilidades || "-"}`, 15, 60);
   doc.text(`Alergias: ${p.alergias || "-"}`, 15, 70);
-  doc.text(`Evolución: ${p.evolucion || "-"}`, 15, 80);
+  doc.text(`Evolución médica:`, 15, 80);
+  doc.text(JSON.stringify(p.evolucion_medica).slice(0,500), 15, 90);
   doc.save(`Informe_${p.nombre}.pdf`);
 }
 
-// Alta de paciente
-function showForm() {
-  document.getElementById("form-popup").style.display = "block";
+function showForm(){
+  document.getElementById("form-popup").style.display="flex";
 }
-async function addPatient() {
-  const nombre = document.getElementById("nombre").value;
-  const edad = parseInt(document.getElementById("edad").value);
-  const sexo = document.getElementById("sexo").value;
-  const motivo = document.getElementById("motivo").value;
-  const comorb = document.getElementById("comorb").value;
-  const alerg = document.getElementById("alerg").value;
-
-  if (!nombre) return alert("Introduce el nombre del paciente");
-  const { error } = await supabase.from("paciente").insert([{ nombre, edad, sexo, motivo_ingreso: motivo, comorbilidades: comorb, alergias: alerg }]);
-  if (error) { alert("Error al guardar"); console.error(error); }
-  else { alert("Paciente guardado"); document.getElementById("form-popup").style.display="none"; loadPatients(); }
+async function addPatient(){
+  const nombre=document.getElementById("nombre").value;
+  const edad=parseInt(document.getElementById("edad").value);
+  const sexo=document.getElementById("sexo").value;
+  const motivo=document.getElementById("motivo").value;
+  const comorb=document.getElementById("comorb").value;
+  const alerg=document.getElementById("alerg").value;
+  if(!nombre)return alert("Introduce el nombre");
+  const {error}=await supabase.from("paciente").insert([{nombre,edad,sexo,motivo_ingreso:motivo,comorbilidades:comorb,alergias:alerg}]);
+  if(error) alert("Error al guardar");
+  else {
+    alert("Paciente añadido correctamente");
+    document.getElementById("form-popup").style.display="none";
+    loadPatients();
+  }
 }
-
 loadPatients();
 </script>
 </body>
