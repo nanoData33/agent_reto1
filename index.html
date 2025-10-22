@@ -8,26 +8,23 @@
 <style>
 :root {
   --bg: #f2f4f5;
-  --corridor: #cdd4d8;
   --card: #ffffff;
   --text: #1b1f23;
   --primary: #1d3557;
   --accent: #219ebc;
+  --border: #c5ccd1;
   --stable: #16a34a;
   --warning: #facc15;
   --critical: #dc2626;
-  --border: #c5ccd1;
-  --dark: #0f172a;
 }
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
   background: var(--bg);
   color: var(--text);
-  overflow-x: hidden;
 }
 header {
-  background: linear-gradient(90deg, var(--dark), var(--primary));
+  background: linear-gradient(90deg, var(--primary), var(--accent));
   color: white;
   padding: 1rem 2rem;
   display: flex;
@@ -40,68 +37,24 @@ header {
   align-items: center;
   gap: 0.8rem;
 }
-.brand img {
-  width: 42px;
-  height: 42px;
-  filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
-}
-.brand h1 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-.chat-trigger {
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.45rem 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.25s;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
-}
-.chat-trigger:hover { background: #0284c7; }
+.brand img { width: 42px; height: 42px; }
 main {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 90px);
-  position: relative;
+  min-height: calc(100vh - 90px);
 }
 .floor {
-  width: 94%;
-  height: 520px;
-  position: relative;
-}
-.corridor {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 95%;
-  height: 120px;
-  background: linear-gradient(90deg, #d9dee2, #b8c0c7);
-  border-radius: 45px;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
-  border: 4px solid var(--border);
-}
-.rooms {
-  position: absolute;
-  width: 100%;
   display: flex;
-  justify-content: space-evenly;
-  z-index: 5;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2rem;
+  padding: 2rem;
+  max-width: 1000px;
 }
-.rooms.top { top: 60px; }
-.rooms.bottom { bottom: 60px; }
 .room {
-  width: 145px;
-  height: 95px;
+  width: 180px;
+  height: 110px;
   background: var(--card);
   border: 2px solid var(--border);
   border-radius: 12px;
@@ -112,23 +65,10 @@ main {
   align-items: center;
   cursor: pointer;
   transition: all 0.25s ease;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeIn 0.7s ease forwards;
-}
-@keyframes fadeIn {
-  to { opacity: 1; transform: translateY(0); }
 }
 .room:hover {
   transform: scale(1.05);
   border-color: var(--accent);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-}
-.room h3 {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--primary);
 }
 .status {
   margin-top: 6px;
@@ -156,12 +96,8 @@ main {
   transition: all 0.25s ease;
   z-index: 200;
 }
-.popup.active {
-  display: flex;
-  transform: translate(-50%, -50%) scale(1);
-}
-.popup h2 { margin: 0; color: var(--primary); font-weight: 600; }
-.tabs { display: flex; gap: 0.5rem; margin: 1rem 0; }
+.popup.active { display: flex; transform: translate(-50%, -50%) scale(1); }
+.tabs { display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap; }
 .tab {
   background: #e5ebed;
   border: none;
@@ -169,7 +105,6 @@ main {
   padding: 0.45rem 0.9rem;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s;
 }
 .tab:hover, .tab.active { background: var(--accent); color: white; }
 .content {
@@ -179,17 +114,16 @@ main {
   font-size: 0.85rem;
   box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
   min-height: 180px;
+  max-height: 320px;
   overflow-y: auto;
-  max-height: 300px;
 }
-.close-btn, .ai-btn {
+button {
   border: none;
   border-radius: 8px;
   padding: 0.5rem 0.8rem;
   margin-top: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
 }
 .ai-btn { background: var(--primary); color: white; }
 .ai-btn:hover { background: var(--accent); }
@@ -203,38 +137,20 @@ main {
     <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="MedAI Logo">
     <h1>MedAI Evolution Assistant</h1>
   </div>
-  <button class="chat-trigger" onclick="toggleChat()">Asistente IA</button>
 </header>
+
 <main>
-  <div class="floor">
-    <div class="rooms top">
-      <div class="room" onclick="openPopup('María López')"><h3>Hab 101</h3><div class="status warning">Pendiente</div></div>
-      <div class="room" onclick="openPopup('Juan Pérez')"><h3>Hab 102</h3><div class="status stable">Estable</div></div>
-      <div class="room" onclick="openPopup('Lucía Torres')"><h3>Hab 103</h3><div class="status stable">Recuperación</div></div>
-      <div class="room" onclick="openPopup('Pablo Ruiz')"><h3>Hab 104</h3><div class="status warning">En pruebas</div></div>
-      <div class="room" onclick="openPopup('Sara Gómez')"><h3>Hab 105</h3><div class="status stable">Alta prevista</div></div>
-      <div class="room" onclick="openPopup('Alba Vidal')"><h3>Hab 106</h3><div class="status stable">Estable</div></div>
-    </div>
-    <div class="corridor"></div>
-    <div class="rooms bottom">
-      <div class="room" onclick="openPopup('Pedro Ruiz')"><h3>Hab 201</h3><div class="status critical">Crítico</div></div>
-      <div class="room" onclick="openPopup('Ana Gil')"><h3>Hab 202</h3><div class="status stable">Alta prevista</div></div>
-      <div class="room" onclick="openPopup('Javier Mora')"><h3>Hab 203</h3><div class="status stable">Estable</div></div>
-      <div class="room" onclick="openPopup('Elena Vidal')"><h3>Hab 204</h3><div class="status stable">Recuperación</div></div>
-      <div class="room" onclick="openPopup('Laura Ríos')"><h3>Hab 205</h3><div class="status warning">Pendiente</div></div>
-      <div class="room" onclick="openPopup('Beatriz León')"><h3>Hab 206</h3><div class="status critical">Crítico</div></div>
-    </div>
-  </div>
+  <div class="floor" id="floor"></div>
 </main>
 
 <div class="popup" id="popup">
   <h2 id="popup-name"></h2>
   <div class="tabs">
     <button class="tab active" onclick="setTab('info')">Datos</button>
-    <button class="tab" onclick="setTab('med')">Tratamientos</button>
-    <button class="tab" onclick="setTab('tests')">Resultados</button>
+    <button class="tab" onclick="setTab('trat')">Tratamientos</button>
+    <button class="tab" onclick="setTab('res')">Resultados</button>
     <button class="tab" onclick="setTab('evol')">Evolución</button>
-    <button class="tab" onclick="setTab('report')">Informe</button>
+    <button class="tab" onclick="setTab('alta')">Alta</button>
   </div>
   <div class="content" id="popup-content"></div>
   <button class="ai-btn" onclick="showPrediction()">Análisis Predictivo IA</button>
@@ -242,17 +158,113 @@ main {
 </div>
 
 <script>
-let pacientes=[];let currentPatient=null;
-window.addEventListener("DOMContentLoaded",async()=>{try{const res=await fetch("pacientes_completo.json");pacientes=await res.json();console.log(`✅ ${pacientes.length} pacientes cargados desde JSON`);}catch(e){console.error("❌ Error cargando JSON:",e);}});
-function openPopup(nombre){const popup=document.getElementById('popup');const popupName=document.getElementById('popup-name');popupName.textContent=nombre;popup.classList.add('active');currentPatient=pacientes.find(p=>(p.nombre||"").toLowerCase()===nombre.toLowerCase());setTab('info');}
-function closePopup(){document.getElementById('popup').classList.remove('active');}
-function setTab(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');const c=document.getElementById('popup-content');if(!currentPatient){c.innerHTML="<i>No hay datos.</i>";return;}
-if(tab==='info'){c.innerHTML=`<b>Edad:</b> ${currentPatient.edad||"-"} años<br><b>Sexo:</b> ${currentPatient.sexo||"-"}<br><b>Peso:</b> ${currentPatient.peso_kg||"-"} kg<br><b>Altura:</b> ${currentPatient.altura_cm||"-"} cm<br><b>IMC:</b> ${currentPatient.imc||"-"}<br><b>Motivo ingreso:</b> ${currentPatient.motivo_ingreso||"-"}<br><b>Fecha ingreso:</b> ${currentPatient.fecha_ingreso||"-"}<br><b>Servicio:</b> ${currentPatient.servicio||"-"}<br><b>Dependencia:</b> ${currentPatient.nivel_dependencia||"-"}<br><b>Riesgo caídas:</b> ${currentPatient.riesgo_caidas?"Sí":"No"}`;}
-else if(tab==='med'){if(currentPatient.tratamientos?.length){c.innerHTML=currentPatient.tratamientos.map(t=>`<b>Día ${t.dia_estancia}</b>: ${t.tratamiento} (${t.via_administracion||"vía desconocida"})<br>${t.cambio_tratamiento?"Cambio: "+t.cambio_tratamiento+"<br>":""}${t.procedimientos?"Procedimientos: "+t.procedimientos+"<br>":""}${t.efectos_secundarios?"Efectos: "+t.efectos_secundarios+"<br>":""}<hr>`).join("");}else c.innerHTML="<i>Sin tratamientos registrados.</i>";}
-else if(tab==='tests'){if(currentPatient.resultados_clinicos?.length){c.innerHTML=currentPatient.resultados_clinicos.map(r=>`📅 <b>${r.fecha}</b> - ${r.estado_general||"-"}<br>Temp: ${r.temperatura||"-"}°C, FC: ${r.frecuencia_cardiaca||"-"} bpm, O₂: ${r.spo2||"-"}%, PCR: ${r.pcr_mg_l||"-"} mg/L<br><i>${r.observaciones||""}</i><hr>`).join("");}else c.innerHTML="<i>No hay resultados clínicos.</i>";}
-else if(tab==='evol'){if(currentPatient.evolucion_medica?.length){c.innerHTML=currentPatient.evolucion_medica.map(e=>`📅 <b>${e.fecha}</b> - ${e.firma_medico||"-"}<br>${e.nota_medica||"-"}<hr>`).join("");}else c.innerHTML="<i>Sin evolución registrada.</i>";}
-else if(tab==='report'){if(currentPatient.alta_resumen?.length){const ar=currentPatient.alta_resumen.slice(-1)[0];c.innerHTML=`<b>Diagnóstico principal:</b> ${ar.diagnostico_principal||"-"}<br><b>Secundarios:</b> ${ar.diagnosticos_secundarios||"-"}<br><b>Evolución:</b> ${ar.evolucion_resumen||"-"}<br><b>Tratamiento al alta:</b> ${ar.tratamiento_alta||"-"}<br><b>Seguimiento:</b> ${ar.seguimiento_recomendado||"-"}<br><b>Riesgo de recaída:</b> ${ar.riesgo_recaida_estimado||"-"}%<br><i>Modelo:</i> ${ar.modelo_generador||"-"}`;}else c.innerHTML="<i>Sin informe de alta.</i>";}}
-function showPrediction(){const c=document.getElementById('popup-content');c.innerHTML=`<b>Predicción IA:</b><br>Alta estimada en ${(Math.random()*3+1).toFixed(1)} días.<br>Probabilidad de evolución favorable: <b>${(Math.random()*15+80).toFixed(1)}%</b>.<br><br>Recomendación: continuar fisioterapia y control diario.`;}
+let pacientes = [];
+let currentPatient = null;
+
+window.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("pacientes_completo.json");
+    pacientes = await res.json();
+
+    const floor = document.getElementById("floor");
+    floor.innerHTML = pacientes.map(p => `
+      <div class="room" onclick="openPopup('${p.paciente.nombre}')">
+        <h3>${p.paciente.nombre}</h3>
+        <div class="status stable">Paciente</div>
+      </div>
+    `).join("");
+  } catch (err) {
+    console.error("Error cargando JSON:", err);
+  }
+});
+
+function openPopup(nombre) {
+  const popup = document.getElementById('popup');
+  const popupName = document.getElementById('popup-name');
+  popupName.textContent = nombre;
+  popup.classList.add('active');
+  currentPatient = pacientes.find(p => (p.paciente.nombre || "").toLowerCase() === nombre.toLowerCase());
+  setTab('info');
+}
+
+function closePopup() {
+  document.getElementById('popup').classList.remove('active');
+}
+
+function setTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  const c = document.getElementById('popup-content');
+  if (!currentPatient) {
+    c.innerHTML = "<i>No hay datos.</i>";
+    return;
+  }
+
+  if (tab === 'info') {
+    const p = currentPatient.paciente;
+    c.innerHTML = `
+      <b>Edad:</b> ${p.edad || "-"}<br>
+      <b>Sexo:</b> ${p.sexo || "-"}<br>
+      <b>Peso:</b> ${p.peso_kg || "-"} kg<br>
+      <b>Altura:</b> ${p.altura_cm || "-"} cm<br>
+      <b>IMC:</b> ${p.imc || "-"}<br>
+      <b>Motivo ingreso:</b> ${p.motivo_ingreso || "-"}<br>
+      <b>Fecha ingreso:</b> ${p.fecha_ingreso || "-"}<br>
+      <b>Servicio:</b> ${p.servicio || "-"}<br>
+      <b>Nivel dependencia:</b> ${p.nivel_dependencia || "-"}<br>
+      <b>Riesgo caídas:</b> ${p.riesgo_caidas ? "Sí" : "No"}
+    `;
+  }
+
+  else if (tab === 'trat') {
+    const t = currentPatient.tratamientos;
+    c.innerHTML = t?.length ? t.map(x => `
+      <b>Día ${x.dia_estancia}</b>: ${x.tratamiento}<br>
+      Vía: ${x.via_administracion || "-"}<br>
+      ${x.cambio_tratamiento ? `Cambio: ${x.cambio_tratamiento}<br>` : ""}
+      ${x.procedimientos ? `Procedimientos: ${x.procedimientos}<br>` : ""}
+      ${x.efectos_secundarios ? `Efectos: ${x.efectos_secundarios}<br>` : ""}
+      <hr>
+    `).join("") : "<i>No hay tratamientos.</i>";
+  }
+
+  else if (tab === 'res') {
+    const r = currentPatient.resultados_clinicos;
+    c.innerHTML = r?.length ? r.map(x => `
+      <b>${x.fecha}</b> - ${x.estado_general || ""}<br>
+      Temp: ${x.temperatura || "-"} °C, FC: ${x.frecuencia_cardiaca || "-"} bpm, O₂: ${x.spo2 || "-"}%<br>
+      ${x.presion_arterial ? "PA: "+x.presion_arterial+"<br>" : ""}
+      ${x.observaciones ? "<i>"+x.observaciones+"</i><br>" : ""}
+      <hr>
+    `).join("") : "<i>No hay resultados clínicos.</i>";
+  }
+
+  else if (tab === 'evol') {
+    const e = currentPatient.evolucion_medica;
+    c.innerHTML = e?.length ? e.map(x => `
+      <b>${x.fecha}</b> - ${x.firma_medico || ""}<br>${x.nota_medica || ""}<hr>
+    `).join("") : "<i>Sin evolución médica.</i>";
+  }
+
+  else if (tab === 'alta') {
+    const a = currentPatient.alta_resumen;
+    c.innerHTML = a?.length ? a.map(x => `
+      <b>Fecha alta:</b> ${x.fecha_alta || "-"}<br>
+      <b>Diagnóstico principal:</b> ${x.diagnostico_principal || "-"}<br>
+      <b>Secundarios:</b> ${x.diagnosticos_secundarios || "-"}<br>
+      <b>Evolución:</b> ${x.evolucion_resumen || "-"}<br>
+      <b>Tratamiento al alta:</b> ${x.tratamiento_alta || "-"}<br>
+      <b>Seguimiento:</b> ${x.seguimiento_recomendado || "-"}<br>
+      <b>Riesgo recaída:</b> ${x.riesgo_recaida_estimado || "-"}%<br>
+      <b>Modelo generador:</b> ${x.modelo_generador || "-"}<hr>
+    `).join("") : "<i>Sin informe de alta.</i>";
+  }
+}
+
+function showPrediction() {
+  const c = document.getElementById('popup-content');
+  c.innerHTML += `<br><b>Predicción IA:</b> Paciente con evolución estable.`;
+}
 </script>
 </body>
 </html>
