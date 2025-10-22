@@ -6,7 +6,6 @@
 <title>MedAI Evolution Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* === (Tu mismo CSS, idéntico al original, sin tocar nada) === */
 :root {
   --bg: #f2f4f5;
   --corridor: #cdd4d8;
@@ -20,15 +19,338 @@
   --border: #c5ccd1;
   --dark: #0f172a;
 }
-body { margin: 0; font-family: "Inter", sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-/* header, main, etc... (todo tu CSS igual, sin recorte por brevedad) */
-header {background: linear-gradient(90deg, var(--dark), var(--primary)); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 14px rgba(0,0,0,0.25);}
-.brand {display: flex; align-items: center; gap: 0.8rem;}
-.brand img {width: 42px; height: 42px; filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));}
-.brand h1 {margin: 0; font-size: 1.4rem; font-weight: 600; letter-spacing: 0.5px;}
-.chat-trigger {background: var(--accent); color: white; border: none; border-radius: 8px; padding: 0.45rem 1rem; font-weight: 500; cursor: pointer; transition: background 0.25s; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 3px 10px rgba(0,0,0,0.25);}
+
+/* === BASE === */
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* === HEADER === */
+header {
+  background: linear-gradient(90deg, var(--dark), var(--primary));
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.brand img {
+  width: 42px;
+  height: 42px;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
+}
+.brand h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.chat-trigger {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.25s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+}
 .chat-trigger:hover { background: #0284c7; }
-/* (resto de tu CSS exactamente igual) */
+
+/* === PLANTA === */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 90px);
+  position: relative;
+}
+.floor {
+  width: 94%;
+  height: 520px;
+  position: relative;
+}
+
+/* Pasillo */
+.corridor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 95%;
+  height: 120px;
+  background: linear-gradient(90deg, #d9dee2, #b8c0c7);
+  border-radius: 45px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+  border: 4px solid var(--border);
+}
+
+/* Filas */
+.rooms {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  z-index: 5;
+}
+.rooms.top { top: 60px; }
+.rooms.bottom { bottom: 60px; }
+
+/* Habitaciones */
+.room {
+  width: 145px;
+  height: 95px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.7s ease forwards;
+}
+@keyframes fadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+.room:hover {
+  transform: scale(1.05);
+  border-color: var(--accent);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+.room h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.status {
+  margin-top: 6px;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+}
+.stable { background: var(--stable); }
+.warning { background: var(--warning); color: #222; }
+.critical { background: var(--critical); }
+
+/* === POPUP PACIENTE === */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: var(--card);
+  width: 480px;
+  border-radius: 14px;
+  box-shadow: 0 15px 45px rgba(0,0,0,0.35);
+  padding: 1.5rem 1.8rem;
+  display: none;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  z-index: 200;
+}
+.popup.active {
+  display: flex;
+  transform: translate(-50%, -50%) scale(1);
+}
+.popup h2 {
+  margin: 0;
+  color: var(--primary);
+  font-weight: 600;
+}
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.tab {
+  background: #e5ebed;
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.tab:hover, .tab.active {
+  background: var(--accent);
+  color: white;
+}
+.content {
+  background: #f7f9fa;
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 0.85rem;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
+  min-height: 130px;
+  overflow-y: auto;
+}
+.close-btn, .ai-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  margin-top: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ai-btn {
+  background: var(--primary);
+  color: white;
+}
+.ai-btn:hover { background: var(--accent); }
+.close-btn {
+  background: var(--critical);
+  color: white;
+  align-self: flex-end;
+}
+.close-btn:hover { background: #a31d1d; }
+
+/* === CHAT MODAL === */
+.chat-modal {
+  position: fixed;
+  right: -380px;
+  top: 0;
+  height: 100%;
+  width: 360px;
+  background: #ffffff;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.25);
+  border-left: 4px solid var(--accent);
+  transition: right 0.4s ease;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+}
+.chat-modal.active { right: 0; }
+
+.chat-header {
+  background: var(--primary);
+  color: white;
+  padding: 1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-header button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+.chat-body p {
+  background: #e9f2f4;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  max-width: 80%;
+}
+.chat-body p.ai {
+  background: #dbeef5;
+  align-self: flex-start;
+}
+.chat-body p.user {
+  background: #c8e0e8;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+/* === AUDIO RECORD === */
+.recording {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #eaf6fb;
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+.recording span { min-width: 40px; text-align: right; }
+.wave {
+  display: flex;
+  align-items: flex-end;
+  height: 20px;
+  gap: 2px;
+}
+.wave div {
+  width: 3px;
+  height: 8px;
+  background: var(--accent);
+  animation: waveAnim 1s infinite ease-in-out;
+}
+.wave div:nth-child(2) { animation-delay: 0.1s; }
+.wave div:nth-child(3) { animation-delay: 0.2s; }
+.wave div:nth-child(4) { animation-delay: 0.3s; }
+.wave div:nth-child(5) { animation-delay: 0.4s; }
+@keyframes waveAnim {
+  0%, 100% { height: 8px; }
+  50% { height: 18px; }
+}
+
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+  padding: 0.6rem;
+  background: white;
+  align-items: center;
+  gap: 0.5rem;
+}
+.chat-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.85rem;
+  padding: 0.4rem;
+}
+.chat-input button {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.chat-input button:hover { background: #0284c7; }
+.mic-btn {
+  background: var(--primary);
+}
+.mic-btn:hover { background: #1d4ed8; }
 </style>
 </head>
 <body>
@@ -43,9 +365,25 @@ header {background: linear-gradient(90deg, var(--dark), var(--primary)); color: 
 
 <main>
   <div class="floor">
-    <div class="rooms top" id="rooms-top"></div>
+    <div class="rooms top">
+      <div class="room" onclick="openPopup('María López')"><h3>Hab 101</h3><div class="status warning">Pendiente</div></div>
+      <div class="room" onclick="openPopup('Juan Pérez')"><h3>Hab 102</h3><div class="status stable">Estable</div></div>
+      <div class="room" onclick="openPopup('Lucía Torres')"><h3>Hab 103</h3><div class="status stable">Recuperación</div></div>
+      <div class="room" onclick="openPopup('Pablo Ruiz')"><h3>Hab 104</h3><div class="status warning">En pruebas</div></div>
+      <div class="room" onclick="openPopup('Sara Gómez')"><h3>Hab 105</h3><div class="status stable">Alta prevista</div></div>
+      <div class="room" onclick="openPopup('Alba Vidal')"><h3>Hab 106</h3><div class="status stable">Estable</div></div>
+    </div>
+
     <div class="corridor"></div>
-    <div class="rooms bottom" id="rooms-bottom"></div>
+
+    <div class="rooms bottom">
+      <div class="room" onclick="openPopup('Pedro Ruiz')"><h3>Hab 201</h3><div class="status critical">Crítico</div></div>
+      <div class="room" onclick="openPopup('Ana Gil')"><h3>Hab 202</h3><div class="status stable">Alta prevista</div></div>
+      <div class="room" onclick="openPopup('Javier Mora')"><h3>Hab 203</h3><div class="status stable">Estable</div></div>
+      <div class="room" onclick="openPopup('Elena Vidal')"><h3>Hab 204</h3><div class="status stable">Recuperación</div></div>
+      <div class="room" onclick="openPopup('Laura Ríos')"><h3>Hab 205</h3><div class="status warning">Pendiente</div></div>
+      <div class="room" onclick="openPopup('Beatriz León')"><h3>Hab 206</h3><div class="status critical">Crítico</div></div>
+    </div>
   </div>
 </main>
 
@@ -57,7 +395,9 @@ header {background: linear-gradient(90deg, var(--dark), var(--primary)); color: 
     <button class="tab" onclick="setTab('tests')">Resultados</button>
     <button class="tab" onclick="setTab('report')">Informe</button>
   </div>
-  <div class="content" id="popup-content"></div>
+  <div class="content" id="popup-content">
+    <b>Tratamiento actual:</b><br>Paracetamol 1g/8h<br>Omeprazol 20mg/día<br>Enoxaparina 40mg sc
+  </div>
   <button class="ai-btn" onclick="showPrediction()">Análisis Predictivo IA</button>
   <button class="close-btn" onclick="closePopup()">Cerrar</button>
 </div>
@@ -78,138 +418,46 @@ header {background: linear-gradient(90deg, var(--dark), var(--primary)); color: 
     <button onclick="sendMessage()">Enviar</button>
   </div>
 </div>
-
 <script>
-/* ================================
-   CONFIGURACIÓN Y VARIABLES
-================================ */
-const DATA_URL = "https://github.com/nanoData33/agent_reto1/blob/main/pacientes_completo.json"; // ⚠️ cámbialo por tu URL RAW real
-let pacientes = [];
-let popup = document.getElementById('popup');
-let popupName = document.getElementById('popup-name');
-let popupContent = document.getElementById('popup-content');
-let chat = document.getElementById('chat');
-let chatBody = document.getElementById('chat-body');
-let input = document.getElementById('chat-input');
-let recordDisplay = document.getElementById('recordDisplay');
-let currentPatient = null;
+// === VARIABLES BASE (idénticas a las tuyas) ===
+const popup = document.getElementById('popup');
+const popupName = document.getElementById('popup-name');
+const popupContent = document.getElementById('popup-content');
+const chat = document.getElementById('chat');
+const chatBody = document.getElementById('chat-body');
+const input = document.getElementById('chat-input');
+const recordDisplay = document.getElementById('recordDisplay');
 
-/* ================================
-   1️⃣ CARGAR DATOS JSON DESDE GITHUB
-================================ */
-async function cargarPacientes() {
+let recording = false;
+let timer;
+let seconds = 0;
+
+// === NUEVO: CARGAR DATOS DESDE JSON REMOTO ===
+const DATA_URL = "https://raw.githubusercontent.com/tuusuario/turepo/main/pacientes_completo.json"; // ⚠️ cambia por tu enlace raw real
+let pacientes = [];
+
+// Carga del JSON al iniciar
+window.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetch(DATA_URL);
     pacientes = await res.json();
-    console.log("✅ Pacientes cargados:", pacientes.length);
-    renderHabitaciones();
-  } catch (e) {
-    console.error("❌ Error cargando JSON:", e);
+    console.log(`✅ ${pacientes.length} pacientes cargados desde JSON`);
+  } catch (err) {
+    console.error("❌ Error cargando JSON:", err);
   }
-}
+});
 
-/* ================================
-   2️⃣ RENDERIZAR HABITACIONES DINÁMICAS
-================================ */
-function renderHabitaciones() {
-  const top = document.getElementById("rooms-top");
-  const bottom = document.getElementById("rooms-bottom");
-  top.innerHTML = "";
-  bottom.innerHTML = "";
-
-  pacientes.forEach((p, i) => {
-    const div = document.createElement("div");
-    div.className = "room";
-    div.innerHTML = `
-      <h3>Hab ${100 + i + 1}</h3>
-      <div class="status ${getEstadoClass(p)}">${getEstadoTexto(p)}</div>`;
-    div.onclick = () => openPopup(p.patient_id);
-    if (i < pacientes.length / 2) top.appendChild(div);
-    else bottom.appendChild(div);
-  });
-}
-
-function getEstadoClass(p) {
-  const estado = (p.alta_resumen?.[0]?.estado_general || "").toLowerCase();
-  if (p.riesgo_caidas) return "warning";
-  if (estado.includes("crítico")) return "critical";
-  if (estado.includes("pendiente")) return "warning";
-  return "stable";
-}
-function getEstadoTexto(p) {
-  if (p.alta_resumen?.length) return "Alta prevista";
-  if (p.resultados_clinicos?.length && p.resultados_clinicos[0].estado_general)
-    return p.resultados_clinicos[0].estado_general;
-  return "Estable";
-}
-
-/* ================================
-   3️⃣ POPUP PACIENTE
-================================ */
-function openPopup(patientId) {
-  currentPatient = pacientes.find(p => p.patient_id === patientId);
-  if (!currentPatient) return;
-  popupName.textContent = currentPatient.nombre;
-  setTab('med');
-  popup.classList.add("active");
-}
-function closePopup() { popup.classList.remove("active"); }
-
-function setTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-
-  if (!currentPatient) return;
-
-  if (tab === 'med') {
-    const meds = currentPatient.tratamientos?.map(
-      t => `• ${t.tratamiento} (${t.via_administracion || 'vía desconocida'})`
-    ).join("<br>") || "Sin tratamientos registrados.";
-    popupContent.innerHTML = `<b>Tratamiento actual:</b><br>${meds}`;
-  } 
-  else if (tab === 'tests') {
-    const res = currentPatient.resultados_clinicos?.slice(-1)[0];
-    if (res)
-      popupContent.innerHTML = `<b>Últimos resultados (${res.fecha}):</b><br>
-        Temperatura: ${res.temperatura}°C<br>
-        Frecuencia cardíaca: ${res.frecuencia_cardiaca} bpm<br>
-        Saturación O₂: ${res.spo2}%<br>
-        PCR: ${res.pcr_mg_l} mg/L<br>
-        Estado general: ${res.estado_general}`;
-    else popupContent.innerHTML = "Sin resultados recientes.";
-  } 
-  else {
-    const ar = currentPatient.alta_resumen?.slice(-1)[0];
-    popupContent.innerHTML = ar ? `
-      <b>Informe clínico:</b><br>
-      Diagnóstico principal: ${ar.diagnostico_principal}<br>
-      Evolución: ${ar.evolucion_resumen}<br>
-      Tratamiento al alta: ${ar.tratamiento_alta}<br>
-      Seguimiento: ${ar.seguimiento_recomendado}<br>
-      <br><button class='ai-btn' onclick='alert("Informe descargado para ${currentPatient.nombre}.")'>Descargar PDF</button>`
-      : "Sin informe disponible.";
-  }
-}
-
-function showPrediction() {
-  if (!currentPatient) return;
-  popupContent.innerHTML = `<b>Predicción IA:</b><br>
-    Alta estimada en ${(Math.random() * 3 + 1).toFixed(1)} días.<br>
-    Probabilidad de evolución favorable: <b>${(Math.random() * 15 + 80).toFixed(1)}%</b>.<br><br>
-    Recomendación: continuar seguimiento clínico y fisioterapia.`;
-}
-
-/* ================================
-   4️⃣ CHAT INTERACTIVO (igual que el tuyo)
-================================ */
+// === CHAT ===
 function toggleChat() { chat.classList.toggle('active'); }
+
 function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
   addMessage(text, "user");
   input.value = "";
-  setTimeout(() => addMessage("Procesando datos del paciente seleccionado...", "ai"), 600);
+  setTimeout(() => addMessage("Generando resumen evolutivo basado en los últimos datos clínicos...", "ai"), 600);
 }
+
 function addMessage(text, sender) {
   const p = document.createElement("p");
   p.textContent = text;
@@ -218,11 +466,98 @@ function addMessage(text, sender) {
   chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-/* === GRABACIÓN SIMULADA === */
-let recording = false, timer, seconds = 0;
+// === POPUP ===
+let currentPatient = null;
+
+function openPopup(nombre) {
+  popupName.textContent = nombre;
+  popup.classList.add('active');
+
+  // Buscar paciente por nombre en JSON
+  currentPatient = pacientes.find(p => (p.nombre || "").toLowerCase() === nombre.toLowerCase());
+  if (currentPatient) {
+    renderMedicacion();
+  } else {
+    popupContent.innerHTML = "<i>No se encontraron datos clínicos para este paciente.</i>";
+  }
+}
+
+function closePopup() { popup.classList.remove('active'); }
+
+function setTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (!currentPatient) {
+    popupContent.innerHTML = "<i>Seleccione un paciente válido.</i>";
+    return;
+  }
+
+  if (tab === 'med') renderMedicacion();
+  else if (tab === 'tests') renderResultados();
+  else renderInforme();
+}
+
+// === RENDERIZADORES (sustituyen texto estático por JSON) ===
+function renderMedicacion() {
+  if (currentPatient?.tratamientos?.length) {
+    const html = currentPatient.tratamientos.map(t =>
+      `• ${t.tratamiento} (${t.via_administracion || 'vía desconocida'})`
+    ).join("<br>");
+    popupContent.innerHTML = `<b>Tratamiento actual:</b><br>${html}`;
+  } else {
+    popupContent.innerHTML = "<b>Tratamiento actual:</b><br><i>No hay tratamientos registrados.</i>";
+  }
+}
+
+function renderResultados() {
+  if (currentPatient?.resultados_clinicos?.length) {
+    const ult = currentPatient.resultados_clinicos.slice(-1)[0];
+    popupContent.innerHTML = `
+      <b>Últimos resultados (${ult.fecha || "sin fecha"}):</b><br>
+      Temperatura: ${ult.temperatura || "-"} °C<br>
+      Frecuencia cardíaca: ${ult.frecuencia_cardiaca || "-"} bpm<br>
+      Saturación O₂: ${ult.spo2 || "-"} %<br>
+      PCR: ${ult.pcr_mg_l || "-"} mg/L<br>
+      Estado general: ${ult.estado_general || "N/A"}
+    `;
+  } else {
+    popupContent.innerHTML = "<b>Últimos resultados:</b><br><i>No hay resultados disponibles.</i>";
+  }
+}
+
+function renderInforme() {
+  if (currentPatient?.alta_resumen?.length) {
+    const ar = currentPatient.alta_resumen.slice(-1)[0];
+    popupContent.innerHTML = `
+      <b>Informe clínico:</b><br>
+      Diagnóstico principal: ${ar.diagnostico_principal || "-"}<br>
+      Evolución: ${ar.evolucion_resumen || "-"}<br>
+      Tratamiento al alta: ${ar.tratamiento_alta || "-"}<br>
+      Seguimiento: ${ar.seguimiento_recomendado || "-"}<br>
+      <br><button class='ai-btn' onclick='alert("Informe descargado para ${currentPatient.nombre}.")'>Descargar PDF</button>
+    `;
+  } else {
+    popupContent.innerHTML = "<b>Informe clínico:</b><br><i>No hay informe disponible.</i>";
+  }
+}
+
+// === IA ===
+function showPrediction() {
+  popupContent.innerHTML = `
+    <b>Predicción IA:</b><br>
+    Alta estimada en ${(Math.random() * 3 + 1).toFixed(1)} días.<br>
+    Probabilidad de evolución favorable: <b>${(Math.random() * 15 + 80).toFixed(1)}%</b>.<br><br>
+    Recomendación: continuar fisioterapia y control diario.
+  `;
+}
+
+// === AUDIO RECORDING (idéntico al tuyo) ===
 function toggleRecording() { recording ? stopRecording() : startRecording(); }
+
 function startRecording() {
-  recording = true; seconds = 0;
+  recording = true;
+  seconds = 0;
   recordDisplay.innerHTML = `
     <div class="recording">
       <div class="wave">${"<div></div>".repeat(5)}</div>
@@ -235,17 +570,14 @@ function startRecording() {
     document.getElementById("timer").textContent = `${mins}:${secs}`;
   }, 1000);
 }
-function stopRecording() {
-  recording = false; clearInterval(timer);
-  recordDisplay.innerHTML = "";
-  addMessage(`Audio registrado (${seconds}s). Analizando...`, "user");
-  setTimeout(() => addMessage("Evolución estable sin signos de empeoramiento.", "ai"), 800);
-}
 
-/* ================================
-   INICIALIZACIÓN
-================================ */
-cargarPacientes();
+function stopRecording() {
+  recording = false;
+  clearInterval(timer);
+  recordDisplay.innerHTML = "";
+  addMessage("Audio registrado (duración " + seconds + "s). Transcribiendo...", "user");
+  setTimeout(() => addMessage("Análisis de voz completado. Evolución estable sin signos de empeoramiento.", "ai"), 800);
+}
 </script>
 
 </body>
