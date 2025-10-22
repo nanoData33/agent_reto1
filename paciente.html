@@ -3,37 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel del Paciente</title>
+  <title>Ficha Clínica del Paciente</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f9ff;
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #f5f9ff, #eef3ff);
       color: #1a1a1a;
-      overflow: hidden;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: start;
+      padding: 0;
     }
 
     header {
-      width: 100%;
-      padding: 20px 40px;
       background: #004aad;
       color: white;
+      padding: 18px 30px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     }
 
     header h1 {
       margin: 0;
-      font-size: 1.8em;
+      font-size: 1.6em;
     }
 
     header button {
@@ -43,216 +36,204 @@
       padding: 8px 16px;
       color: white;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: 0.3s;
     }
 
     header button:hover {
       background: #ffffff44;
     }
 
-    .dashboard {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      grid-template-rows: auto 1fr;
+    main {
+      padding: 25px 40px;
+      display: flex;
+      flex-direction: column;
       gap: 25px;
-      padding: 30px;
-      width: 95%;
-      height: calc(100vh - 80px);
-      box-sizing: border-box;
     }
 
-    .card {
+    .section {
       background: white;
       border-radius: 12px;
+      padding: 20px 25px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      padding: 20px;
-      overflow: hidden;
     }
 
-    .card h2 {
+    .section h2 {
       margin-top: 0;
       color: #004aad;
-      font-size: 1.1em;
-      border-bottom: 2px solid #004aad20;
+      border-bottom: 2px solid #004aad30;
       padding-bottom: 6px;
     }
 
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      font-size: 0.95em;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
     }
 
     .info-item {
       background: #f6f9ff;
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 8px 10px;
     }
 
-    .charts {
-      grid-column: 1 / span 2;
-      display: flex;
-      justify-content: space-around;
-      align-items: stretch;
-      gap: 30px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
     }
 
-    canvas {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      flex: 1;
-      height: 320px !important;
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 6px 10px;
+      text-align: left;
+      font-size: 0.9em;
+    }
+
+    th {
+      background: #f0f5ff;
+      color: #004aad;
+    }
+
+    .highlight {
+      background: #e8f0ff;
+      border-left: 4px solid #004aad;
+      padding: 10px;
+      border-radius: 6px;
     }
 
     footer {
-      position: absolute;
-      bottom: 10px;
-      right: 30px;
+      text-align: right;
       font-size: 0.8em;
-      color: #555;
+      color: #666;
+      padding: 10px 40px;
     }
   </style>
 </head>
 <body>
   <header>
     <button onclick="window.close()">⬅ Volver</button>
-    <h1 id="name">Cargando...</h1>
-    <button id="pdfBtn">📄 PDF</button>
+    <h1 id="nombre">Paciente</h1>
+    <button id="pdfBtn">📄 Exportar PDF</button>
   </header>
 
-  <div class="dashboard">
-    <div class="card">
-      <h2>Datos del paciente</h2>
+  <main>
+    <section class="section" id="identificacion">
+      <h2>Datos personales</h2>
       <div class="info-grid" id="info"></div>
-    </div>
+    </section>
 
-    <div class="card">
-      <h2>Resumen clínico</h2>
-      <div id="resumen">Cargando datos clínicos...</div>
-    </div>
+    <section class="section" id="evolucion">
+      <h2>Evolución médica</h2>
+      <div id="notas"></div>
+    </section>
 
-    <div class="charts">
-      <canvas id="lineChart"></canvas>
-      <canvas id="radarChart"></canvas>
-    </div>
-  </div>
+    <section class="section" id="resultados">
+      <h2>Resultados clínicos recientes</h2>
+      <table id="tabla-resultados">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Temp (°C)</th>
+            <th>FC</th>
+            <th>Presión</th>
+            <th>SpO₂</th>
+            <th>Leucos</th>
+            <th>PCR</th>
+            <th>Creat</th>
+            <th>Glucosa</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="section" id="tratamientos">
+      <h2>Tratamientos y procedimientos</h2>
+      <div id="trat-list"></div>
+    </section>
+
+    <section class="section" id="alta">
+      <h2>Resumen de alta</h2>
+      <div id="alta-info"></div>
+    </section>
+  </main>
 
   <footer>© 2025 MedAI Evolution Assistant</footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const params = new URLSearchParams(window.location.search);
-    const patientId = params.get("id");
 
-    async function loadPatient() {
-      const { data, error } = await supabase
-        .from("vista_pacientes_completo")
-        .select("*")
-        .eq("patient_id", patientId)
-        .single();
+    const id = new URLSearchParams(window.location.search).get("id");
 
-      if (error) return console.error(error);
+    async function loadData() {
+      const { data: paciente } = await supabase.from("paciente").select("*").eq("patient_id", id).single();
+      document.getElementById("nombre").textContent = paciente.nombre;
 
-      document.getElementById("name").textContent = data.nombre;
       document.getElementById("info").innerHTML = `
-        <div class="info-item"><strong>Edad:</strong> ${data.edad} años</div>
-        <div class="info-item"><strong>Sexo:</strong> ${data.sexo}</div>
-        <div class="info-item"><strong>Médico:</strong> ${data.firma_medico || "No asignado"}</div>
-        <div class="info-item"><strong>Estado:</strong> ${data.estado_general || "Sin datos"}</div>
-        <div class="info-item"><strong>Diagnóstico:</strong> ${data.diagnostico_principal || "N/A"}</div>
-        <div class="info-item"><strong>Fecha última:</strong> ${data.fecha || "N/A"}</div>
+        <div class="info-item"><strong>Edad:</strong> ${paciente.edad} años</div>
+        <div class="info-item"><strong>Sexo:</strong> ${paciente.sexo}</div>
+        <div class="info-item"><strong>Peso:</strong> ${paciente.peso_kg || "-"} kg</div>
+        <div class="info-item"><strong>Altura:</strong> ${paciente.altura_cm || "-"} cm</div>
+        <div class="info-item"><strong>IMC:</strong> ${paciente.imc || "-"} </div>
+        <div class="info-item"><strong>Servicio:</strong> ${paciente.servicio || "-"} </div>
+        <div class="info-item"><strong>Motivo ingreso:</strong> ${paciente.motivo_ingreso || "-"} </div>
+        <div class="info-item"><strong>Fecha ingreso:</strong> ${paciente.fecha_ingreso || "-"} </div>
+        <div class="info-item"><strong>Comorbilidades:</strong> ${paciente.comorbilidades || "Ninguna"} </div>
+        <div class="info-item"><strong>Alergias:</strong> ${paciente.alergias || "No registradas"} </div>
       `;
 
-      const evol = Array.isArray(data.evolucion_medica)
-        ? data.evolucion_medica
-        : JSON.parse(data.evolucion_medica || "[]");
+      const { data: evol } = await supabase.from("evolucion_medica").select("*").eq("patient_id", id).order("fecha", { ascending: false });
+      document.getElementById("notas").innerHTML = evol.map(e => `
+        <div class="highlight">
+          <strong>${e.fecha}</strong> — ${e.estado_general || "Sin estado"}<br>
+          <em>${e.nota_medica}</em><br>
+          <small>Dolor: ${e.dolor_nivel}/10 | Movilidad: ${e.movilidad}/10 | Sueño: ${e.sueño_calidad}/10</small>
+        </div>
+      `).join("");
 
-      if (!evol.length) {
-        document.getElementById("resumen").textContent = "Sin evolución médica registrada.";
-        return;
-      }
+      const { data: res } = await supabase.from("resultados_clinicos").select("*").eq("patient_id", id).order("fecha", { ascending: false }).limit(5);
+      document.querySelector("#tabla-resultados tbody").innerHTML = res.map(r => `
+        <tr>
+          <td>${r.fecha}</td>
+          <td>${r.temperatura || "-"}</td>
+          <td>${r.frecuencia_cardiaca || "-"}</td>
+          <td>${r.presion_arterial || "-"}</td>
+          <td>${r.spo2 || "-"}</td>
+          <td>${r.leucocitos || "-"}</td>
+          <td>${r.pcr_mg_l || "-"}</td>
+          <td>${r.creatinina_mg_dl || "-"}</td>
+          <td>${r.glucosa_mg_dl || "-"}</td>
+        </tr>
+      `).join("");
 
-      const resumen = evol[evol.length - 1];
-      document.getElementById("resumen").innerHTML = `
-        <strong>Nota médica:</strong> ${resumen.nota_medica || "No disponible"}<br>
-        <strong>Tratamiento:</strong> ${resumen.tolerancia_tratamiento || "-"} /10<br>
-        <strong>Riesgo recaída:</strong> ${(resumen.riesgo_recaida_estimado * 100).toFixed(1)}%<br>
-        <strong>Valoración global:</strong> ${resumen.valoracion_estado}/5
-      `;
+      const { data: trat } = await supabase.from("tratamientos").select("*").eq("patient_id", id);
+      document.getElementById("trat-list").innerHTML = trat.map(t => `
+        <div class="highlight">
+          <strong>${t.tratamiento}</strong> (${t.via_administracion || "-"})<br>
+          ${t.procedimientos || ""}<br>
+          <small>Cambio: ${t.cambio_tratamiento || "-"} | Efectos: ${t.efectos_secundarios || "-"}</small>
+        </div>
+      `).join("");
 
-      const fechas = evol.map(e => e.fecha);
-      const valoracion = evol.map(e => e.valoracion_estado);
-
-      const inicio = evol[0];
-      const fin = evol[evol.length - 1];
-
-      new Chart(document.getElementById("lineChart"), {
-        type: "line",
-        data: {
-          labels: fechas,
-          datasets: [{
-            label: "Valoración del estado",
-            data: valoracion,
-            borderColor: "#0078d7",
-            backgroundColor: "rgba(0,120,215,0.15)",
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, max: 5 } }
-        }
-      });
-
-      new Chart(document.getElementById("radarChart"), {
-        type: "radar",
-        data: {
-          labels: ["Dolor", "Movilidad", "Apetito", "Sueño", "Tolerancia"],
-          datasets: [
-            {
-              label: `Ingreso (${inicio.fecha})`,
-              data: [inicio.dolor_nivel, inicio.movilidad, inicio.apetito, inicio.sueño_calidad, inicio.tolerancia_tratamiento],
-              backgroundColor: "rgba(255,99,132,0.2)",
-              borderColor: "#ff6384",
-              borderWidth: 2
-            },
-            {
-              label: `Último (${fin.fecha})`,
-              data: [fin.dolor_nivel, fin.movilidad, fin.apetito, fin.sueño_calidad, fin.tolerancia_tratamiento],
-              backgroundColor: "rgba(0,120,215,0.25)",
-              borderColor: "#0078d7",
-              borderWidth: 2
-            }
-          ]
-        },
-        options: {
-          plugins: { legend: { position: "bottom" } },
-          scales: { r: { beginAtZero: true, max: 10 } }
-        }
-      });
+      const { data: alta } = await supabase.from("alta_resumen").select("*").eq("patient_id", id).single();
+      document.getElementById("alta-info").innerHTML = alta ? `
+        <p><strong>Fecha alta:</strong> ${alta.fecha_alta}</p>
+        <p><strong>Diagnóstico principal:</strong> ${alta.diagnostico_principal}</p>
+        <p><strong>Diagnósticos secundarios:</strong> ${alta.diagnosticos_secundarios}</p>
+        <p><strong>Evolución:</strong> ${alta.evolucion_resumen}</p>
+        <p><strong>Tratamiento de alta:</strong> ${alta.tratamiento_alta}</p>
+        <p><strong>Seguimiento:</strong> ${alta.seguimiento_recomendado}</p>
+        <p><strong>Riesgo de recaída:</strong> ${(alta.riesgo_recaida_estimado * 100).toFixed(1)}%</p>
+        <p><strong>Modelo generador:</strong> ${alta.modelo_generador}</p>
+      ` : "<p>No hay resumen de alta disponible.</p>";
     }
 
-    document.getElementById("pdfBtn").addEventListener("click", async () => {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF("l", "pt", "a4");
-      const canvas = await html2canvas(document.querySelector(".dashboard"));
-      const imgData = canvas.toDataURL("image/png");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("informe_paciente.pdf");
-    });
-
-    loadPatient();
+    loadData();
   </script>
 </body>
 </html>
