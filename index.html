@@ -3,55 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MedAI Evolution Assistant</title>
+  <title>MedAI Evolution Assistant – Planta Hospitalaria</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* === ESTILO GLOBAL === */
+    :root {
+      --azul: #004aad;
+      --azul-claro: #0078d7;
+      --fondo: #f4f8ff;
+      --verde: #26a269;
+      --ambar: #f6c400;
+      --rojo: #e63946;
+      --gris: #6b7280;
+    }
     body {
       margin: 0;
-      background: linear-gradient(to right, #eaf2ff, #f8fbff);
       font-family: 'Segoe UI', sans-serif;
+      background: var(--fondo);
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      color: #111;
     }
 
+    /* === HEADER === */
     header {
-      background: linear-gradient(90deg, #004aad, #0078d7);
+      background: linear-gradient(90deg, var(--azul), var(--azul-claro));
       color: white;
       padding: 15px 30px;
-      font-size: 1.4em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .title {
       display: flex;
       align-items: center;
       gap: 10px;
+      font-size: 1.5em;
       font-weight: bold;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
     }
 
-    header img {
-      width: 40px;
+    header img { width: 40px; }
+
+    header nav {
+      display: flex;
+      gap: 15px;
     }
 
+    header button {
+      background: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: var(--azul);
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 500;
+    }
+    header button:hover { background: #dce8ff; }
+
+    /* === PLANTA === */
     .hospital {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: space-evenly;
       align-items: center;
-      background: radial-gradient(circle at center, #ffffff, #e8f0ff 80%);
-      overflow-y: hidden;
-      position: relative;
+      background: radial-gradient(circle at center, #ffffff, #eaf2ff 80%);
+      padding: 20px;
     }
 
     .row {
       display: flex;
       justify-content: center;
-      gap: 40px;
+      gap: 25px;
+      flex-wrap: wrap;
+      width: 100%;
     }
 
     .corridor {
-      width: 100%;
-      height: 80px;
+      width: 90%;
+      height: 60px;
       background: repeating-linear-gradient(
         to right,
         #c7d7f0,
@@ -61,62 +98,112 @@
       );
       border-top: 3px solid #89ace0;
       border-bottom: 3px solid #89ace0;
-      box-shadow: inset 0 3px 10px rgba(0,0,0,0.15);
+      margin: 20px 0;
+      box-shadow: inset 0 3px 10px rgba(0,0,0,0.1);
     }
 
+    /* === TARJETAS DE PACIENTES === */
     .room {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      padding: 18px;
-      width: 160px;
+      border-radius: 14px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+      padding: 15px 18px;
+      width: 190px;
       text-align: center;
       cursor: pointer;
       transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
     }
 
     .room:hover {
       transform: translateY(-8px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
     }
 
     .room h3 {
-      margin: 0;
-      color: #004aad;
+      margin: 8px 0 5px;
+      font-size: 1.1em;
+      color: var(--azul);
     }
 
     .room p {
-      margin: 5px 0;
+      margin: 3px 0;
       color: #333;
       font-size: 0.9em;
     }
 
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    }
+
+    .status-verde { background: var(--verde); }
+    .status-ambar { background: var(--ambar); }
+    .status-rojo { background: var(--rojo); }
+
+    .trend {
+      margin-top: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    .trend-bar {
+      height: 100%;
+      transition: width 0.5s;
+    }
+
+    /* === CHAT BUTTON === */
     #chat-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #0078d7;
+      background: var(--azul-claro);
       color: white;
       border: none;
       border-radius: 50%;
       width: 60px;
       height: 60px;
       font-size: 26px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
       cursor: pointer;
       transition: transform 0.3s;
     }
+    #chat-btn:hover { transform: scale(1.1); background: var(--azul); }
 
-    #chat-btn:hover {
-      transform: scale(1.1);
-      background: #005bb5;
+    footer {
+      text-align: center;
+      color: var(--gris);
+      padding: 8px;
+      font-size: 0.8em;
+      background: #eef3ff;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    @media (max-width: 900px) {
+      .room { width: 45%; }
+    }
+    @media (max-width: 600px) {
+      .room { width: 80%; }
     }
   </style>
 </head>
 <body>
   <header>
-    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="logo" />
-    MedAI Evolution Assistant
+    <div class="title">
+      <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="logo" />
+      MedAI Evolution Assistant
+    </div>
+    <nav>
+      <button onclick="location.href='ranking.html'">Ranking</button>
+      <button onclick="location.href='chat.html'">Asistente</button>
+    </nav>
   </header>
 
   <div class="hospital">
@@ -127,11 +214,21 @@
 
   <button id="chat-btn" title="Abrir Chat">💬</button>
 
+  <footer>© 2025 MedAI — Sistema Evolutivo Clínico</footer>
+
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // Calcular color de estado clínico
+    function colorEstado(trendScore) {
+      if (trendScore >= 0.7) return "verde";
+      if (trendScore >= 0.4) return "ambar";
+      return "rojo";
+    }
+
+    // Cargar pacientes
     async function loadPatients() {
       const { data, error } = await supabase.from("vista_pacientes_completo").select("*").limit(12);
       if (error) return console.error(error);
@@ -140,12 +237,21 @@
       const row2 = document.getElementById("row2");
 
       data.forEach((p, i) => {
+        const estado = colorEstado(p.trend_score ?? Math.random()); // Fallback si no hay score
+        const trendPercent = Math.min(100, Math.max(0, (p.trend_score ?? Math.random()) * 100));
+
         const room = document.createElement("div");
         room.className = "room";
         room.innerHTML = `
+          <div class="status-dot status-${estado}"></div>
           <h3>${p.nombre}</h3>
+          <p><strong>${p.edad}</strong> años · ${p.sexo}</p>
           <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
-          <p><strong>${p.edad}</strong> años • ${p.sexo}</p>
+          <p><small>Ingreso: ${p.fecha_ingreso || "-"}</small></p>
+          <p><small>Servicio: ${p.servicio || "-"}</small></p>
+          <div class="trend">
+            <div class="trend-bar" style="width:${trendPercent}%; background: var(--${estado});"></div>
+          </div>
         `;
         room.onclick = () => window.open(`paciente.html?id=${p.patient_id}`, "_blank");
         (i < 6 ? row1 : row2).appendChild(room);
@@ -153,7 +259,7 @@
     }
 
     document.getElementById("chat-btn").onclick = () => {
-      alert("Aquí se integrará el chat médico con N8N 💬");
+      window.open("chat.html", "_blank");
     };
 
     loadPatients();
