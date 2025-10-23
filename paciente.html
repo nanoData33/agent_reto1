@@ -3,132 +3,179 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Informe Médico | MedAI</title>
+  <title>Informe Médico - MedAI</title>
+
+  <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js"></script>
+
   <style>
     :root {
-      --blue-main: #004aad;
-      --bg-light: #f7faff;
-      --text-dark: #1a1a1a;
-      --accent-red: #e74c3c;
+      --main-blue: #004aad;
+      --light-blue: #f4f8ff;
+      --light-gray: #f9f9f9;
       --accent-green: #2ecc71;
+      --accent-red: #e74c3c;
       --accent-yellow: #f1c40f;
       --shadow: 0 3px 20px rgba(0,0,0,0.1);
-      --radius: 12px;
+      --radius: 14px;
     }
+
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg-light);
-      color: var(--text-dark);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: 'Inter', sans-serif;
+      background: var(--light-blue);
+      color: #1a1a1a;
     }
+
     header {
-      width: 100%;
-      background: var(--blue-main);
+      background: var(--main-blue);
       color: white;
-      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      box-shadow: var(--shadow);
       font-size: 1.4em;
       font-weight: 600;
-      box-shadow: var(--shadow);
     }
-    .container {
-      width: 90%;
-      max-width: 1200px;
+
+    header button {
+      background: white;
+      border: none;
+      color: var(--main-blue);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    header button:hover {
+      background: #dce9ff;
+      transform: scale(1.05);
+    }
+
+    /* Contenedor del informe */
+    #pdfArea {
+      width: 900px;
       margin: 30px auto;
       background: white;
+      padding: 30px 40px;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 30px;
       display: flex;
       flex-direction: column;
       gap: 25px;
     }
 
-    /* Datos básicos */
     .section {
-      border-radius: var(--radius);
-      padding: 20px;
-      background: #fdfdfd;
-      box-shadow: var(--shadow);
-    }
-    .section h2 {
-      border-bottom: 2px solid var(--blue-main);
-      padding-bottom: 6px;
-      margin-bottom: 15px;
-      color: var(--blue-main);
+      border-left: 4px solid var(--main-blue);
+      padding-left: 12px;
     }
 
-    /* Diseño de columnas principales */
-    .grid-2 {
+    .section h2 {
+      margin: 0 0 8px 0;
+      color: var(--main-blue);
+    }
+
+    .grid2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 25px;
     }
-    .grid-2.equal {
-      align-items: start;
+
+    .card {
+      background: var(--light-gray);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
     /* Panel de variables */
-    .variables-grid {
+    .vars {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 10px;
     }
-    .variable {
+
+    .var {
       text-align: center;
-      border-radius: var(--radius);
-      padding: 10px;
+      border-radius: 10px;
+      padding: 12px;
       color: white;
       font-weight: 600;
+      box-shadow: inset 0 -2px 6px rgba(0,0,0,0.2);
     }
 
-    /* Medicación */
-    .meds-list {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    .meds-list th, .meds-list td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-
-    /* Figura */
-    .body-figure {
-      width: 100%;
-      height: 360px;
+    /* Figura humana SVG */
+    .body-container {
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 360px;
       background: #eef3ff;
       border-radius: var(--radius);
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
     }
 
-    canvas {
-      max-width: 100%;
+    svg {
+      width: 150px;
       height: auto;
     }
 
+    /* Medicación */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95em;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      text-align: left;
+      color: var(--main-blue);
+    }
+
+    /* Botón PDF */
+    #btnPDF {
+      background: var(--main-blue);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      align-self: flex-end;
+    }
+
+    #btnPDF:hover {
+      background: #003c8f;
+    }
+
     @media print {
+      header, #btnPDF { display: none; }
       body { background: white; }
-      header { display: none; }
-      .container { box-shadow: none; }
+      #pdfArea { box-shadow: none; margin: 0; }
     }
   </style>
 </head>
 
 <body>
-  <header>🩺 Informe Médico del Paciente</header>
+  <header>
+    🩺 Informe Médico
+    <button id="btnPDF">Descargar PDF</button>
+  </header>
 
-  <div class="container">
-    <!-- DATOS BÁSICOS -->
-    <section class="section" id="datos">
-      <h2>Datos básicos</h2>
+  <div id="pdfArea">
+    <!-- Datos básicos -->
+    <section class="section">
+      <h2>Datos del paciente</h2>
       <p><strong>Nombre:</strong> <span id="nombre"></span></p>
       <p><strong>Edad:</strong> <span id="edad"></span> años — <strong>Sexo:</strong> <span id="sexo"></span></p>
       <p><strong>Motivo de ingreso:</strong> <span id="motivo"></span></p>
@@ -137,39 +184,47 @@
       <p><strong>Fecha de ingreso:</strong> <span id="ingreso"></span></p>
     </section>
 
-    <!-- RESUMEN IA + RADAR -->
-    <div class="grid-2 equal">
-      <section class="section">
+    <!-- Resumen + Radar -->
+    <div class="grid2">
+      <section class="card">
         <h2>Resumen evolutivo (IA n8n)</h2>
-        <p id="resumen">⚙️ Esperando resumen generado por IA...</p>
+        <p id="resumen">⚙️ Esperando resumen IA...</p>
       </section>
-      <section class="section">
-        <h2>Radar de evolución</h2>
+      <section class="card">
+        <h2>Comparativa de evolución</h2>
         <canvas id="radarChart"></canvas>
       </section>
     </div>
 
-    <!-- VARIABLES + FIGURA -->
-    <div class="grid-2 equal">
-      <section class="section">
+    <!-- Variables + Figura -->
+    <div class="grid2">
+      <section class="card">
         <h2>Panel de variables</h2>
-        <div class="variables-grid" id="vars"></div>
+        <div class="vars" id="vars"></div>
       </section>
-      <section class="section">
+
+      <section class="card">
         <h2>Estado corporal</h2>
-        <div class="body-figure">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/9/99/Human_body_outline.png" alt="Figura" height="300">
+        <div class="body-container">
+          <!-- SVG humano -->
+          <svg viewBox="0 0 100 280" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="30" r="18" fill="#9fc5f8" />
+            <rect x="42" y="48" width="16" height="60" rx="8" fill="#6fa8dc"/>
+            <line x1="50" y1="70" x2="25" y2="100" stroke="#6fa8dc" stroke-width="8" stroke-linecap="round"/>
+            <line x1="50" y1="70" x2="75" y2="100" stroke="#6fa8dc" stroke-width="8" stroke-linecap="round"/>
+            <rect x="44" y="108" width="12" height="60" fill="#3d85c6"/>
+            <line x1="50" y1="168" x2="35" y2="220" stroke="#3d85c6" stroke-width="8" stroke-linecap="round"/>
+            <line x1="50" y1="168" x2="65" y2="220" stroke="#3d85c6" stroke-width="8" stroke-linecap="round"/>
+          </svg>
         </div>
       </section>
     </div>
 
-    <!-- MEDICACIÓN -->
-    <section class="section">
-      <h2>Medicación y tratamiento</h2>
-      <table class="meds-list" id="tablaMeds">
-        <thead>
-          <tr><th>Medicamento</th><th>Dosis</th><th>Vía</th></tr>
-        </thead>
+    <!-- Medicación -->
+    <section class="card">
+      <h2>Tratamiento y medicación</h2>
+      <table id="tablaMeds">
+        <thead><tr><th>Medicamento</th><th>Dosis</th><th>Vía</th></tr></thead>
         <tbody></tbody>
       </table>
     </section>
@@ -180,86 +235,78 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const pacienteID = urlParams.get('id');
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
 
     async function cargarPaciente() {
-      const { data: paciente } = await supabase
-        .from("pacientes")
-        .select("*")
-        .eq("PacienteID", pacienteID)
-        .single();
-
-      if (!paciente) return;
-
-      document.getElementById("nombre").textContent = paciente.Nombre;
-      document.getElementById("edad").textContent = paciente.Edad;
-      document.getElementById("sexo").textContent = paciente.Sexo;
-      document.getElementById("motivo").textContent = paciente.MotivoIngreso;
-      document.getElementById("diag").textContent = paciente.DiagnosticoPrincipal;
-      document.getElementById("servicio").textContent = paciente.Servicio;
-      document.getElementById("ingreso").textContent = paciente.FechaIngreso;
+      const { data } = await supabase.from("pacientes").select("*").eq("PacienteID", id).single();
+      if (!data) return;
+      nombre.textContent = data.Nombre;
+      edad.textContent = data.Edad;
+      sexo.textContent = data.Sexo;
+      motivo.textContent = data.MotivoIngreso;
+      diag.textContent = data.DiagnosticoPrincipal;
+      servicio.textContent = data.Servicio;
+      ingreso.textContent = data.FechaIngreso;
     }
 
     async function cargarRadar() {
       const { data } = await supabase
         .from("evolucion")
-        .select("PresionSistolica, PresionDiastolica, FrecuenciaCardiaca, Temperatura, SaturacionOxigeno, Glucosa")
-        .eq("PacienteID", pacienteID)
-        .limit(1)
-        .maybeSingle();
+        .select("Fecha,PresionSistolica,PresionDiastolica,FrecuenciaCardiaca,Temperatura,SaturacionOxigeno,Glucosa")
+        .eq("PacienteID", id)
+        .order("Fecha", { ascending: true });
 
-      if (!data) return;
+      if (!data || data.length < 2) return;
+
+      const first = data[0];
+      const last = data[data.length - 1];
+
+      const labels = ["Presión Sistólica", "Presión Diastólica", "Frecuencia Cardiaca", "Temperatura", "Saturación O₂", "Glucosa"];
 
       new Chart(document.getElementById("radarChart"), {
         type: "radar",
         data: {
-          labels: Object.keys(data),
-          datasets: [{
-            label: "Indicadores",
-            data: Object.values(data),
-            backgroundColor: "rgba(0, 74, 173, 0.2)",
-            borderColor: "#004aad",
-            borderWidth: 2
-          }]
+          labels,
+          datasets: [
+            { label: "Ingreso", data: Object.values(first).slice(1), borderColor: "#3d85c6", backgroundColor: "rgba(61,133,198,0.3)" },
+            { label: "Alta", data: Object.values(last).slice(1), borderColor: "#2ecc71", backgroundColor: "rgba(46,204,113,0.3)" }
+          ]
         },
-        options: { scales: { r: { angleLines: { color: '#ccc' } } } }
+        options: { responsive: true, scales: { r: { beginAtZero: false } } }
       });
     }
 
     async function cargarVariables() {
-      const { data } = await supabase
-        .from("signos_vitales")
-        .select("PresionSistolica, Temperatura, SaturacionOxigeno, FrecuenciaCardiaca")
-        .eq("PacienteID", pacienteID)
-        .limit(1)
-        .maybeSingle();
-
-      if (!data) return;
-
-      const vars = document.getElementById("vars");
-      Object.entries(data).forEach(([k, v]) => {
-        let color = v > 100 || v < 36 ? "var(--accent-red)" : "var(--accent-green)";
-        const div = document.createElement("div");
-        div.className = "variable";
-        div.style.background = color;
-        div.innerHTML = `${k}<br><span style="font-size:1.2em">${v}</span>`;
-        vars.appendChild(div);
+      const { data } = await supabase.from("signos_vitales").select("*").eq("PacienteID", id).order("Fecha", { ascending: false }).limit(1);
+      if (!data?.length) return;
+      const registro = data[0];
+      const cont = document.getElementById("vars");
+      Object.entries(registro).forEach(([k, v]) => {
+        if (typeof v === "number") {
+          const color = v > 100 || v < 35 ? "var(--accent-red)" : "var(--accent-green)";
+          cont.innerHTML += `<div class="var" style="background:${color}">${k}<br><span style="font-size:1.2em">${v}</span></div>`;
+        }
       });
     }
 
     async function cargarMedicacion() {
-      const { data } = await supabase
-        .from("medicacion")
-        .select("Medicamento, Dosis, Via")
-        .eq("PacienteID", pacienteID);
-
+      const { data } = await supabase.from("medicacion").select("Medicamento,Dosis,Via").eq("PacienteID", id);
       const tbody = document.querySelector("#tablaMeds tbody");
       if (!data) return;
-      data.forEach(m => {
-        tbody.innerHTML += `<tr><td>${m.Medicamento}</td><td>${m.Dosis}</td><td>${m.Via}</td></tr>`;
-      });
+      data.forEach(m => tbody.innerHTML += `<tr><td>${m.Medicamento}</td><td>${m.Dosis}</td><td>${m.Via}</td></tr>`);
     }
+
+    document.getElementById("btnPDF").onclick = () => {
+      const opt = {
+        margin: 0.2,
+        filename: 'informe_medico.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().from(document.getElementById('pdfArea')).set(opt).save();
+    };
 
     cargarPaciente();
     cargarRadar();
