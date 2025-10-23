@@ -3,217 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MedAI Evolution Dashboard</title>
+  <title>MedAI Evolution Ward</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --azul: #004aad;
-      --azul-claro: #4f83ff;
-      --verde: #16a34a;
-      --ambar: #fbbf24;
-      --rojo: #dc2626;
-      --gris: #6b7280;
-      --fondo: #f9fbff;
-      --blanco: #ffffff;
+      --blue-main: #004aad;
+      --blue-light: #eaf2ff;
+      --accent-green: #2ecc71;
+      --accent-yellow: #f1c40f;
+      --accent-red: #e74c3c;
+      --bg: linear-gradient(135deg, #f8fbff, #eaf2ff);
+      --card-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      --transition: all 0.3s ease;
     }
 
     body {
       margin: 0;
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--fondo);
-      color: #1e293b;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      overflow-x: hidden;
     }
 
     header {
-      background: var(--blanco);
-      border-bottom: 1px solid #e2e8f0;
-      padding: 14px 40px;
+      background: var(--blue-main);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+      padding: 15px 40px;
+      font-size: 1.4em;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.25);
     }
 
-    header h1 {
-      font-size: 1.5em;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-      color: var(--azul);
-    }
-
-    nav {
-      display: flex;
-      gap: 12px;
-    }
-
-    nav button {
-      background: var(--azul);
-      color: white;
+    header button {
+      background: white;
       border: none;
-      padding: 8px 16px;
+      color: var(--blue-main);
+      padding: 8px 20px;
+      font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: 500;
-      transition: background 0.2s ease;
+      transition: var(--transition);
     }
 
-    nav button:hover {
-      background: var(--azul-claro);
+    header button:hover {
+      background: #dce9ff;
+      transform: scale(1.05);
     }
 
-    main {
-      flex: 1;
+    .hospital {
       display: flex;
       flex-direction: column;
-      padding: 30px 50px;
-      gap: 25px;
-    }
-
-    .title-section {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-    }
-
-    .title-section h2 {
-      font-size: 1.2em;
-      color: var(--gris);
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 22px;
-      margin-top: 10px;
-    }
-
-    .card {
-      background: var(--blanco);
-      border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      padding: 18px 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
+      margin: 40px auto;
+      width: 95%;
       position: relative;
     }
 
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    .row {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      margin: 25px 0;
+      flex-wrap: wrap;
     }
 
-    .status {
+    .corridor {
+      width: 85%;
+      height: 80px;
+      background: repeating-linear-gradient(
+        to right,
+        #c7d7f0,
+        #c7d7f0 20px,
+        #a8c3e6 20px,
+        #a8c3e6 40px
+      );
+      border-top: 4px solid #8aa9e8;
+      border-bottom: 4px solid #8aa9e8;
+      border-radius: 6px;
+      box-shadow: inset 0 3px 10px rgba(0,0,0,0.15);
+    }
+
+    .room {
+      background: white;
+      border-radius: 14px;
+      box-shadow: var(--card-shadow);
+      padding: 18px 20px;
+      width: 180px;
+      cursor: pointer;
+      text-align: left;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .room:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+    }
+
+    .indicator {
       position: absolute;
-      top: 14px;
-      right: 14px;
+      top: 12px;
+      right: 12px;
       width: 14px;
       height: 14px;
       border-radius: 50%;
     }
 
-    .status.verde { background: var(--verde); }
-    .status.ambar { background: var(--ambar); }
-    .status.rojo { background: var(--rojo); }
-
-    .card h3 {
-      margin: 0 0 6px;
-      font-size: 1.15em;
-      color: var(--azul);
-      font-weight: 600;
+    .room h3 {
+      margin: 8px 0 3px 0;
+      color: var(--blue-main);
+      font-size: 1.1em;
     }
 
-    .card p {
+    .room p {
       margin: 3px 0;
       font-size: 0.9em;
-      color: #334155;
+      color: #333;
     }
 
-    .trend-bar {
+    .bar {
       height: 6px;
-      width: 100%;
       border-radius: 3px;
-      background: #e5e7eb;
+      background: #e6e6e6;
+      margin-top: 8px;
       overflow: hidden;
-      margin-top: 10px;
     }
 
-    .trend-fill {
-      height: 100%;
-      transition: width 0.6s ease;
-    }
-
-    .no-data {
-      text-align: center;
-      color: var(--gris);
-      font-style: italic;
-      margin-top: 50px;
-    }
-
-    footer {
-      background: var(--blanco);
-      text-align: center;
-      color: var(--gris);
-      font-size: 0.85em;
-      padding: 10px;
-      border-top: 1px solid #e2e8f0;
+    .bar-fill {
+      height: 6px;
+      border-radius: 3px;
+      transition: width 0.5s ease;
     }
 
     #chat-btn {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--azul);
+      bottom: 25px;
+      right: 25px;
+      background: var(--blue-main);
       color: white;
       border: none;
       border-radius: 50%;
-      width: 64px;
-      height: 64px;
+      width: 65px;
+      height: 65px;
       font-size: 28px;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.25);
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      transition: transform 0.25s ease;
+      transition: var(--transition);
     }
 
     #chat-btn:hover {
-      transform: scale(1.08);
-      background: var(--azul-claro);
+      transform: scale(1.1);
+      background: #00347e;
     }
   </style>
 </head>
+
 <body>
   <header>
-    <h1>MedAI Evolution Dashboard</h1>
-    <nav>
-      <button onclick="location.href='ranking.html'">Ranking</button>
-      <button onclick="location.href='chat.html'">Asistente</button>
-    </nav>
+    <span>🏥 MedAI Evolution Ward</span>
+    <div>
+      <button onclick="window.location='ranking.html'">Ranking</button>
+      <button onclick="alert('Chat médico próximamente 💬')">Asistente</button>
+    </div>
   </header>
 
-  <main>
-    <div class="title-section">
-      <h2>Pacientes hospitalizados</h2>
-    </div>
+  <div class="hospital">
+    <div class="row" id="row1"></div>
+    <div class="corridor"></div>
+    <div class="row" id="row2"></div>
+  </div>
 
-    <div class="grid" id="patients-grid">
-      <p class="no-data" id="loading">Cargando pacientes...</p>
-    </div>
-  </main>
-
-  <footer>
-    © 2025 MedAI Clinical Systems — Plataforma Evolutiva
-  </footer>
-
-  <button id="chat-btn" title="Chat con IA">💬</button>
+  <button id="chat-btn" title="Abrir chat">💬</button>
 
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
@@ -221,56 +182,43 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function loadPatients() {
-      const grid = document.getElementById("patients-grid");
-      const loading = document.getElementById("loading");
+      const { data, error } = await supabase
+        .from("vista_pacientes_dashboard")
+        .select("*")
+        .limit(12);
 
-      try {
-        const { data, error } = await supabase
-          .from("vista_pacientes_dashboard")
-          .select("*")
-          .limit(12);
-
-        if (error) throw error;
-
-        grid.innerHTML = "";
-
-        if (!data || data.length === 0) {
-          grid.innerHTML = `<p class="no-data">No hay pacientes disponibles.</p>`;
-          return;
-        }
-
-        data.forEach((p) => {
-          const trend = p.trend_score ?? Math.random();
-          const estado = trend >= 0.7 ? "verde" : trend >= 0.4 ? "ambar" : "rojo";
-          const trendPercent = Math.round(trend * 100);
-
-          const card = document.createElement("div");
-          card.className = "card";
-          card.onclick = () => window.open(`paciente.html?id=${p.patient_id}`, "_blank");
-
-          card.innerHTML = `
-            <div class="status ${estado}"></div>
-            <h3>${p.nombre}</h3>
-            <p><strong>${p.edad}</strong> años — ${p.sexo}</p>
-            <p>${p.diagnostico_principal || "Sin diagnóstico principal"}</p>
-            <p><small>Ingreso: ${p.fecha_ingreso || "-"}</small></p>
-            <p><small>Servicio: ${p.servicio || "-"}</small></p>
-            <div class="trend-bar">
-              <div class="trend-fill" style="width:${trendPercent}%; background: var(--${estado});"></div>
-            </div>
-          `;
-
-          grid.appendChild(card);
-        });
-      } catch (err) {
-        console.error("Error al cargar pacientes:", err);
-        grid.innerHTML = `<p class="no-data">⚠️ Error al conectar con la base de datos.</p>`;
+      if (error || !data) {
+        console.error(error);
+        document.querySelector(".hospital").innerHTML = `
+          <p style="color:red; font-weight:500;">⚠️ Error al cargar los pacientes.</p>
+        `;
+        return;
       }
-    }
 
-    document.getElementById("chat-btn").onclick = () => {
-      window.open("chat.html", "_blank");
-    };
+      const row1 = document.getElementById("row1");
+      const row2 = document.getElementById("row2");
+
+      data.forEach((p, i) => {
+        const room = document.createElement("div");
+        room.className = "room";
+        
+        const color = 
+          p.trend_score >= 0.8 ? "#2ecc71" :
+          p.trend_score >= 0.6 ? "#f1c40f" : "#e74c3c";
+
+        room.innerHTML = `
+          <div class="indicator" style="background:${color};"></div>
+          <h3>${p.nombre}</h3>
+          <p><strong>${p.edad}</strong> años — ${p.sexo}</p>
+          <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
+          <p><small>Ingreso: ${p.fecha_ingreso}</small></p>
+          <p><small>Servicio: ${p.servicio}</small></p>
+          <div class="bar"><div class="bar-fill" style="width:${p.trend_score * 100}%; background:${color};"></div></div>
+        `;
+        room.onclick = () => window.open(`paciente.html?id=${p.paciente_id}`, "_blank");
+        (i < 6 ? row1 : row2).appendChild(room);
+      });
+    }
 
     loadPatients();
   </script>
