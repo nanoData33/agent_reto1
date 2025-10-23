@@ -226,7 +226,7 @@
 
       try {
         const { data, error } = await supabase
-          .from("vista_pacientes_completo")
+          .from("vista_pacientes_dashboard")
           .select("*")
           .limit(12);
 
