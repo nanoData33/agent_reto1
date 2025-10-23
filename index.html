@@ -3,259 +3,269 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MedAI Evolution Assistant – Planta Hospitalaria</title>
+  <title>MedAI Evolution Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* === ESTILO GLOBAL === */
     :root {
       --azul: #004aad;
-      --azul-claro: #0078d7;
-      --fondo: #f4f8ff;
-      --verde: #26a269;
-      --ambar: #f6c400;
-      --rojo: #e63946;
+      --azul-claro: #4f83ff;
+      --verde: #16a34a;
+      --ambar: #fbbf24;
+      --rojo: #dc2626;
       --gris: #6b7280;
+      --fondo: #f9fbff;
+      --blanco: #ffffff;
     }
+
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: var(--fondo);
+      color: #1e293b;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      color: #111;
     }
 
-    /* === HEADER === */
     header {
-      background: linear-gradient(90deg, var(--azul), var(--azul-claro));
-      color: white;
-      padding: 15px 30px;
+      background: var(--blanco);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.25);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 10;
+      box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
     }
 
-    header .title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    header h1 {
       font-size: 1.5em;
-      font-weight: bold;
-    }
-
-    header img { width: 40px; }
-
-    header nav {
-      display: flex;
-      gap: 15px;
-    }
-
-    header button {
-      background: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
+      letter-spacing: 0.5px;
+      font-weight: 600;
       color: var(--azul);
-      cursor: pointer;
-      transition: 0.2s;
-      font-weight: 500;
     }
-    header button:hover { background: #dce8ff; }
 
-    /* === PLANTA === */
-    .hospital {
+    nav {
+      display: flex;
+      gap: 12px;
+    }
+
+    nav button {
+      background: var(--azul);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+
+    nav button:hover {
+      background: var(--azul-claro);
+    }
+
+    main {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-evenly;
-      align-items: center;
-      background: radial-gradient(circle at center, #ffffff, #eaf2ff 80%);
-      padding: 20px;
-    }
-
-    .row {
-      display: flex;
-      justify-content: center;
+      padding: 30px 50px;
       gap: 25px;
-      flex-wrap: wrap;
-      width: 100%;
     }
 
-    .corridor {
-      width: 90%;
-      height: 60px;
-      background: repeating-linear-gradient(
-        to right,
-        #c7d7f0,
-        #c7d7f0 20px,
-        #a8c3e6 20px,
-        #a8c3e6 40px
-      );
-      border-top: 3px solid #89ace0;
-      border-bottom: 3px solid #89ace0;
-      margin: 20px 0;
-      box-shadow: inset 0 3px 10px rgba(0,0,0,0.1);
+    .title-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    /* === TARJETAS DE PACIENTES === */
-    .room {
-      background: white;
+    .title-section h2 {
+      font-size: 1.2em;
+      color: var(--gris);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 22px;
+      margin-top: 10px;
+    }
+
+    .card {
+      background: var(--blanco);
       border-radius: 14px;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.15);
-      padding: 15px 18px;
-      width: 190px;
-      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 18px 20px;
       cursor: pointer;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
       position: relative;
-      overflow: hidden;
     }
 
-    .room:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .room h3 {
-      margin: 8px 0 5px;
-      font-size: 1.1em;
-      color: var(--azul);
-    }
-
-    .room p {
-      margin: 3px 0;
-      color: #333;
-      font-size: 0.9em;
-    }
-
-    .status-dot {
+    .status {
+      position: absolute;
+      top: 14px;
+      right: 14px;
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
     }
 
-    .status-verde { background: var(--verde); }
-    .status-ambar { background: var(--ambar); }
-    .status-rojo { background: var(--rojo); }
+    .status.verde { background: var(--verde); }
+    .status.ambar { background: var(--ambar); }
+    .status.rojo { background: var(--rojo); }
 
-    .trend {
-      margin-top: 8px;
-      height: 8px;
-      border-radius: 4px;
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 1.15em;
+      color: var(--azul);
+      font-weight: 600;
+    }
+
+    .card p {
+      margin: 3px 0;
+      font-size: 0.9em;
+      color: #334155;
+    }
+
+    .trend-bar {
+      height: 6px;
+      width: 100%;
+      border-radius: 3px;
       background: #e5e7eb;
       overflow: hidden;
-    }
-    .trend-bar {
-      height: 100%;
-      transition: width 0.5s;
+      margin-top: 10px;
     }
 
-    /* === CHAT BUTTON === */
+    .trend-fill {
+      height: 100%;
+      transition: width 0.6s ease;
+    }
+
+    .no-data {
+      text-align: center;
+      color: var(--gris);
+      font-style: italic;
+      margin-top: 50px;
+    }
+
+    footer {
+      background: var(--blanco);
+      text-align: center;
+      color: var(--gris);
+      font-size: 0.85em;
+      padding: 10px;
+      border-top: 1px solid #e2e8f0;
+    }
+
     #chat-btn {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--azul-claro);
+      bottom: 24px;
+      right: 24px;
+      background: var(--azul);
       color: white;
       border: none;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 26px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      width: 64px;
+      height: 64px;
+      font-size: 28px;
       cursor: pointer;
-      transition: transform 0.3s;
-    }
-    #chat-btn:hover { transform: scale(1.1); background: var(--azul); }
-
-    footer {
-      text-align: center;
-      color: var(--gris);
-      padding: 8px;
-      font-size: 0.8em;
-      background: #eef3ff;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      transition: transform 0.25s ease;
     }
 
-    @media (max-width: 900px) {
-      .room { width: 45%; }
-    }
-    @media (max-width: 600px) {
-      .room { width: 80%; }
+    #chat-btn:hover {
+      transform: scale(1.08);
+      background: var(--azul-claro);
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="title">
-      <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="logo" />
-      MedAI Evolution Assistant
-    </div>
+    <h1>MedAI Evolution Dashboard</h1>
     <nav>
       <button onclick="location.href='ranking.html'">Ranking</button>
       <button onclick="location.href='chat.html'">Asistente</button>
     </nav>
   </header>
 
-  <div class="hospital">
-    <div class="row" id="row1"></div>
-    <div class="corridor"></div>
-    <div class="row" id="row2"></div>
-  </div>
+  <main>
+    <div class="title-section">
+      <h2>Pacientes hospitalizados</h2>
+    </div>
 
-  <button id="chat-btn" title="Abrir Chat">💬</button>
+    <div class="grid" id="patients-grid">
+      <p class="no-data" id="loading">Cargando pacientes...</p>
+    </div>
+  </main>
 
-  <footer>© 2025 MedAI — Sistema Evolutivo Clínico</footer>
+  <footer>
+    © 2025 MedAI Clinical Systems — Plataforma Evolutiva
+  </footer>
+
+  <button id="chat-btn" title="Chat con IA">💬</button>
 
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Calcular color de estado clínico
-    function colorEstado(trendScore) {
-      if (trendScore >= 0.7) return "verde";
-      if (trendScore >= 0.4) return "ambar";
-      return "rojo";
-    }
-
-    // Cargar pacientes
     async function loadPatients() {
-      const { data, error } = await supabase.from("vista_pacientes_completo").select("*").limit(12);
-      if (error) return console.error(error);
+      const grid = document.getElementById("patients-grid");
+      const loading = document.getElementById("loading");
 
-      const row1 = document.getElementById("row1");
-      const row2 = document.getElementById("row2");
+      try {
+        const { data, error } = await supabase
+          .from("vista_pacientes_completo")
+          .select("*")
+          .limit(12);
 
-      data.forEach((p, i) => {
-        const estado = colorEstado(p.trend_score ?? Math.random()); // Fallback si no hay score
-        const trendPercent = Math.min(100, Math.max(0, (p.trend_score ?? Math.random()) * 100));
+        if (error) throw error;
 
-        const room = document.createElement("div");
-        room.className = "room";
-        room.innerHTML = `
-          <div class="status-dot status-${estado}"></div>
-          <h3>${p.nombre}</h3>
-          <p><strong>${p.edad}</strong> años · ${p.sexo}</p>
-          <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
-          <p><small>Ingreso: ${p.fecha_ingreso || "-"}</small></p>
-          <p><small>Servicio: ${p.servicio || "-"}</small></p>
-          <div class="trend">
-            <div class="trend-bar" style="width:${trendPercent}%; background: var(--${estado});"></div>
-          </div>
-        `;
-        room.onclick = () => window.open(`paciente.html?id=${p.patient_id}`, "_blank");
-        (i < 6 ? row1 : row2).appendChild(room);
-      });
+        grid.innerHTML = "";
+
+        if (!data || data.length === 0) {
+          grid.innerHTML = `<p class="no-data">No hay pacientes disponibles.</p>`;
+          return;
+        }
+
+        data.forEach((p) => {
+          const trend = p.trend_score ?? Math.random();
+          const estado = trend >= 0.7 ? "verde" : trend >= 0.4 ? "ambar" : "rojo";
+          const trendPercent = Math.round(trend * 100);
+
+          const card = document.createElement("div");
+          card.className = "card";
+          card.onclick = () => window.open(`paciente.html?id=${p.patient_id}`, "_blank");
+
+          card.innerHTML = `
+            <div class="status ${estado}"></div>
+            <h3>${p.nombre}</h3>
+            <p><strong>${p.edad}</strong> años — ${p.sexo}</p>
+            <p>${p.diagnostico_principal || "Sin diagnóstico principal"}</p>
+            <p><small>Ingreso: ${p.fecha_ingreso || "-"}</small></p>
+            <p><small>Servicio: ${p.servicio || "-"}</small></p>
+            <div class="trend-bar">
+              <div class="trend-fill" style="width:${trendPercent}%; background: var(--${estado});"></div>
+            </div>
+          `;
+
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error al cargar pacientes:", err);
+        grid.innerHTML = `<p class="no-data">⚠️ Error al conectar con la base de datos.</p>`;
+      }
     }
 
     document.getElementById("chat-btn").onclick = () => {
