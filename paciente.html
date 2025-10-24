@@ -13,7 +13,8 @@
 <style>
 :root {
   --azul: #004aad;
-  --gris: #f6f8fb;
+  --azul-claro: #eaf1ff;
+  --gris: #f5f7fa;
   --panel: #ffffff;
 }
 body {
@@ -25,44 +26,84 @@ body {
 header {
   background: var(--azul);
   color: white;
-  padding: 12px 40px;
+  padding: 14px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-header h1 { font-size: 1.1rem; font-weight: 600; }
+header h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
 .btn {
   background: white;
   color: var(--azul);
   border: none;
   border-radius: 6px;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 8px 16px;
   cursor: pointer;
   transition: 0.3s;
 }
-.btn:hover { background: #e6eeff; }
+.btn:hover { background: var(--azul-claro); }
 
 main {
-  max-width: 1000px;
-  margin: 20px auto;
+  max-width: 1100px;
+  margin: 25px auto;
   background: var(--panel);
   border-radius: 12px;
-  padding: 25px 35px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  padding: 30px 40px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
-  gap: 20px;
+  gap: 25px;
 }
 
-section { background: #f9fafb; border-radius: 10px; padding: 15px; box-shadow: inset 0 0 4px rgba(0,0,0,0.05); }
-h2 { color: var(--azul); font-size: 1rem; margin-bottom: 8px; }
+section {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.04);
+}
+h2 {
+  color: var(--azul);
+  font-size: 1rem;
+  margin-bottom: 8px;
+  border-bottom: 2px solid var(--azul-claro);
+  padding-bottom: 4px;
+  font-weight: 600;
+}
 
-.info p { margin: 4px 0; font-size: 0.9rem; }
-.timeline { font-size: 0.85rem; max-height: 120px; overflow-y: auto; }
-.timeline-item { margin-bottom: 5px; }
-.timeline-item strong { color: var(--azul); }
+.info p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+.timeline {
+  font-size: 0.88rem;
+  max-height: 140px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+.timeline-item {
+  margin-bottom: 6px;
+}
+.timeline-item strong {
+  color: var(--azul);
+}
+
+#resumenIA {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #222;
+  background: #f5f8ff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-height: 80px;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
+}
 
 @media print {
   header, .btn { display: none; }
@@ -74,30 +115,30 @@ h2 { color: var(--azul); font-size: 1rem; margin-bottom: 8px; }
 <body>
 <header>
   <h1>MedAI Evolution Assistant</h1>
-  <button class="btn" onclick="descargarPDF()">📄 Exportar A4</button>
+  <button class="btn" onclick="descargarPDF()">Exportar Informe A4</button>
 </header>
 
 <main id="informe">
   <section class="info">
-    <h2>👤 Paciente</h2>
+    <h2>Datos del paciente</h2>
     <p><b>Nombre:</b> <span id="nombre"></span></p>
-    <p><b>Edad:</b> <span id="edad"></span> — <b>Sexo:</b> <span id="sexo"></span></p>
+    <p><b>Edad:</b> <span id="edad"></span> &nbsp;|&nbsp; <b>Sexo:</b> <span id="sexo"></span></p>
     <p><b>Diagnóstico:</b> <span id="diagnostico"></span></p>
     <p><b>Servicio:</b> <span id="servicio"></span></p>
   </section>
 
   <section>
-    <h2>🧠 Resumen IA (Gemini)</h2>
-    <div id="resumenIA" style="font-size:0.9rem;">⚙️ Esperando datos...</div>
+    <h2>Resumen clínico generado (IA)</h2>
+    <div id="resumenIA">Esperando resultados...</div>
   </section>
 
   <section>
-    <h2>📊 Evolución al ingreso vs alta</h2>
+    <h2>Evolución ingreso vs alta</h2>
     <canvas id="radarChart" height="220"></canvas>
   </section>
 
   <section>
-    <h2>📅 Últimas notas clínicas</h2>
+    <h2>Últimas notas médicas</h2>
     <div class="timeline" id="timeline"></div>
   </section>
 </main>
@@ -126,11 +167,11 @@ async function cargar() {
   const { data: notas } = await supabase.from('notas').select('*').eq('PacienteID', id).order('Fecha');
 
   if (!evol?.length) {
-    document.getElementById("resumenIA").innerHTML = "❌ No hay evolución disponible.";
+    document.getElementById("resumenIA").innerHTML = "No hay evolución disponible para este paciente.";
     return;
   }
 
-  // === Radar (Ingreso vs Alta) ===
+  // === Radar chart (Ingreso vs Alta) ===
   const ingreso = evol[0];
   const alta = evol[evol.length - 1];
   const labels = ['Presión Sistólica', 'Frecuencia Cardíaca', 'Temperatura', 'Saturación O₂', 'Glucosa', 'Creatinina'];
@@ -148,12 +189,12 @@ async function cargar() {
     data: {
       labels,
       datasets: [
-        { label: 'Ingreso', data: ingresoVals, backgroundColor: 'rgba(0,74,173,0.3)', borderColor: '#004aad' },
-        { label: 'Alta', data: altaVals, backgroundColor: 'rgba(22,163,74,0.3)', borderColor: '#16a34a' }
+        { label: 'Ingreso', data: ingresoVals, backgroundColor: 'rgba(0,74,173,0.25)', borderColor: '#004aad', borderWidth: 2 },
+        { label: 'Alta', data: altaVals, backgroundColor: 'rgba(22,163,74,0.25)', borderColor: '#16a34a', borderWidth: 2 }
       ]
     },
     options: {
-      scales: { r: { ticks: { display: false } } },
+      scales: { r: { ticks: { display: false }, grid: { color: '#dbe3f5' } } },
       plugins: { legend: { position: 'bottom' } }
     }
   });
@@ -163,7 +204,7 @@ async function cargar() {
     ? notas.slice(-4).map(n => `<div class="timeline-item"><strong>${n.Fecha}:</strong> ${n.Nota}</div>`).join('')
     : 'Sin notas clínicas registradas.';
 
-  // === Enviar a n8n para resumen IA ===
+  // === Enviar datos a n8n (IA resumen) ===
   await generarResumenIA(p, evol, notas);
 }
 
@@ -179,7 +220,7 @@ async function generarResumenIA(paciente, evolucion, notas) {
     notas: notas.slice(-5)
   };
 
-  document.getElementById("resumenIA").innerHTML = "🧠 Enviando datos a IA...";
+  document.getElementById("resumenIA").innerHTML = "Generando resumen con IA...";
 
   try {
     const res = await fetch("https://nano33.app.n8n.cloud/webhook-test/resumen-ia", {
@@ -190,11 +231,11 @@ async function generarResumenIA(paciente, evolucion, notas) {
 
     const data = await res.json();
     document.getElementById("resumenIA").innerHTML = data.resumen
-      ? `🩺 <b>Resumen generado:</b><br>${data.resumen}`
-      : "⚠️ No se recibió respuesta de la IA.";
+      ? `<b>${data.resumen}</b>`
+      : "No se recibió respuesta de la IA.";
   } catch (err) {
     console.error(err);
-    document.getElementById("resumenIA").innerHTML = "❌ Error al conectar con el asistente IA.";
+    document.getElementById("resumenIA").innerHTML = "Error al conectar con el asistente IA.";
   }
 }
 
