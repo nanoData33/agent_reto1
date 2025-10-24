@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tendencias | MedAI Evolution Ward</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Inter", sans-serif; background: #f8fafc; margin: 0; }
+    header { background: #1f3b73; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+    button { background: white; border: none; border-radius: 6px; padding: 6px 14px; font-weight: 600; color: #1f3b73; cursor: pointer; }
+    select { padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; }
+    .container { width: 90%; margin: 40px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    canvas { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,0.08); padding: 20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>📈 Tendencias clínicas</h2>
+    <div>
+      <select id="pacienteSelect"></select>
+      <button onclick="window.location='index.html'">← Volver</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <canvas id="graficoPresion"></canvas>
+    <canvas id="graficoFrecuencia"></canvas>
+    <canvas id="graficoTemperatura"></canvas>
+    <canvas id="graficoSaturacion"></canvas>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const pacienteSelect = document.getElementById('pacienteSelect');
+    let charts = {};
+
+    async function cargarPacientes() {
+      const { data, error } = await supabase.from('pacientes').select('PacienteID, Nombre');
+      if (error) return console.error(error);
+      pacienteSelect.innerHTML = data.map(p => `<option value="${p.PacienteID}">${p.Nombre}</option>`).join('');
+      if (data.length) cargarEvolucion(data[0].PacienteID);
+    }
+
+    pacienteSelect.addEventListener('change', e => cargarEvolucion(e.target.value));
+
+    async function cargarEvolucion(pacienteID) {
+      const { data, error } = await supabase
+        .from('evolucion')
+        .select('Fecha, PresionSistolica, PresionDiastolica, FrecuenciaCardiaca, Temperatura, SaturacionOxigeno')
+        .eq('PacienteID', pacienteID)
+        .order('Fecha', { ascending: true });
+      if (error) return console.error(error);
+
+      const labels = data.map(d => d.Fecha);
+      const sistolica = data.map(d => d.PresionSistolica);
+      const diastolica = data.map(d => d.PresionDiastolica);
+      const fc = data.map(d => d.FrecuenciaCardiaca);
+      const temp = data.map(d => d.Temperatura);
+      const sat = data.map(d => d.SaturacionOxigeno);
+
+      crearGrafico('graficoPresion', labels, [
+        { label: 'Sistólica', data: sistolica, borderColor: '#3a6ff8' },
+        { label: 'Diastólica', data: diastolica, borderColor: '#f1c40f' }
+      ]);
+
+      crearGrafico('graficoFrecuencia', labels, [{ label: 'Frecuencia Cardíaca', data: fc, borderColor: '#e74c3c' }]);
+      crearGrafico('graficoTemperatura', labels, [{ label: 'Temperatura', data: temp, borderColor: '#27ae60' }]);
+      crearGrafico('graficoSaturacion', labels, [{ label: 'Saturación O₂', data: sat, borderColor: '#9b59b6' }]);
+    }
+
+    function crearGrafico(id, labels, datasets) {
+      if (charts[id]) charts[id].destroy();
+      charts[id] = new Chart(document.getElementById(id), {
+        type: 'line',
+        data: { labels, datasets: datasets.map(ds => ({ ...ds, tension: 0.3, fill: false })) },
+        options: {
+          plugins: { legend: { position: 'bottom' } },
+          scales: { y: { beginAtZero: false } }
+        }
+      });
+    }
+
+    cargarPacientes();
+  </script>
+</body>
+</html>
