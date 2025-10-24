@@ -241,45 +241,56 @@ th {
     </div>
   </div>
 </main>
-
 <script>
 const supabase = window.supabase.createClient(
   'https://aczjgeleupwlvghjhkav.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM'
 );
+
 const id = new URLSearchParams(window.location.search).get("id");
 
 async function cargar() {
-  const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
-  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
-  const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
-  const { data: pruebas } = await supabase.from('pruebas').select('*').eq('PacienteID', id);
-  const { data: medicos } = await supabase.from('personal_medico').select('*').limit(3);
-  const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
+  try {
+    if (!id) {
+      alert("❌ No se ha indicado el paciente en la URL (?id=P001)");
+      return;
+    }
 
-  document.getElementById('nombre').textContent = p.Nombre;
-  document.getElementById('edad').textContent = p.Edad;
-  document.getElementById('sexo').textContent = p.Sexo;
-  document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal;
-  document.getElementById('servicio').textContent = p.Servicio;
+    console.log("🩺 Cargando paciente", id);
+    const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
+    if (!p) { alert("Paciente no encontrado."); return; }
 
-  const ult = signos?.[signos.length - 1];
-  if (ult) {
-    document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
-    document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
-    document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
-    document.getElementById('temp').textContent = ult.Temperatura;
+    const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
+    const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
+    const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
+
+    document.getElementById('nombre').textContent = p.Nombre;
+    document.getElementById('edad').textContent = p.Edad;
+    document.getElementById('sexo').textContent = p.Sexo;
+    document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal;
+    document.getElementById('servicio').textContent = p.Servicio;
+
+    const ult = signos?.[signos.length - 1];
+    if (ult) {
+      document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
+      document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
+      document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
+      document.getElementById('temp').textContent = ult.Temperatura;
+    }
+
+    renderRadar(evol);
+    renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
+    await generarResumenIA(p, evol, signos);
+
+  } catch (err) {
+    console.error("⚠️ Error en cargar():", err);
+    document.getElementById("resumenIA").textContent = "Error al cargar los datos del paciente.";
   }
-
-  renderRadar(evol);
-  renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
-  renderTabla('tablaPruebas', pruebas, ['Tipo', 'Fecha', 'Resultado']);
-  renderMedicos(medicos);
-  await generarResumenIA(p, evol, signos);
 }
 
 /* === RADAR === */
 function renderRadar(evol) {
+  if (!evol?.length) return;
   const ingreso = evol[0], alta = evol[evol.length-1];
   const ctx = document.getElementById('graficoRadar');
   new Chart(ctx, {
@@ -297,39 +308,65 @@ function renderRadar(evol) {
 
 /* === TABLAS === */
 function renderTabla(id, datos, columnas) {
-  document.getElementById(id).innerHTML = datos.length
+  document.getElementById(id).innerHTML = datos?.length
     ? datos.map(d => `<tr>${columnas.map(c => `<td>${d[c] ?? '-'}</td>`).join('')}</tr>`).join('')
     : `<tr><td colspan="${columnas.length}">Sin registros</td></tr>`;
-}
-function renderMedicos(medicos) {
-  document.getElementById('tablaMedicos').innerHTML =
-    medicos.map(m => `<tr><td>${m.Nombre}</td><td>${m.Rol}</td><td><button class='btn'>Contactar</button></td></tr>`).join('');
 }
 
 /* === RESUMEN IA === */
 async function generarResumenIA(paciente, evolucion, signos) {
   const barra = document.getElementById("barraProgreso");
+  const resumenDiv = document.getElementById("resumenIA");
+  resumenDiv.textContent = "Enviando datos a IA...";
   barra.style.width = "0%";
-  let progreso = 0;
-  const anim = setInterval(() => {
-    if (progreso < 90) { progreso += 10; barra.style.width = progreso + "%"; }
-  }, 300);
 
-  const payload = { paciente_id: paciente.PacienteID, nombre: paciente.Nombre, edad: paciente.Edad, diagnostico: paciente.DiagnosticoPrincipal, evolucion, signos };
+  const payload = {
+    paciente_id: paciente.PacienteID,
+    nombre: paciente.Nombre,
+    edad: paciente.Edad,
+    sexo: paciente.Sexo,
+    diagnostico: paciente.DiagnosticoPrincipal,
+    servicio: paciente.Servicio,
+    evolucion,
+    signos
+  };
+
   try {
     const res = await fetch("https://nano33.app.n8n.cloud/webhook-test/resumen-ia", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
     const texto = await res.text();
-    clearInterval(anim);
-    barra.style.width = "100%";
-    document.getElementById("resumenIA").innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
+    console.log("✅ Respuesta IA:", texto);
+
+    if (texto.trim().length > 0) {
+      barra.style.width = "100%";
+      resumenDiv.innerHTML = `
+        <div style="white-space: pre-wrap;">${texto}</div>
+        <div style="margin-top:10px;">
+          <label>Valoración del resumen:</label><br>
+          <span id="stars" style="font-size:18px; color:#ccc; cursor:pointer;">★★★★★</span>
+        </div>`;
+      activarValoracion();
+    } else {
+      resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
+    }
+
   } catch (err) {
-    clearInterval(anim);
-    document.getElementById("resumenIA").innerHTML = "Error al conectar con IA.";
+    console.error("❌ Error IA:", err);
+    resumenDiv.textContent = "Error al conectar con el asistente IA.";
   }
+}
+
+function activarValoracion() {
+  const stars = document.getElementById("stars");
+  stars.addEventListener("click", e => {
+    let n = Math.ceil(e.offsetX / (stars.offsetWidth / 5));
+    stars.innerHTML = "★★★★★".slice(0,n) + "<span style='color:#ccc;'>" + "★★★★★".slice(n) + "</span>";
+    console.log(`⭐ Valoración: ${n}/5`);
+  });
 }
 
 /* === PDF === */
@@ -342,6 +379,19 @@ function generarPDF() {
   };
   html2pdf().set(opt).from(document.body).save();
 }
+
+/* === BOTÓN MANUAL EXTRA === */
+const botonManual = document.createElement("button");
+botonManual.textContent = "Generar resumen IA manualmente";
+botonManual.className = "btn";
+botonManual.style.marginTop = "10px";
+botonManual.onclick = async () => {
+  const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
+  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
+  const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
+  await generarResumenIA(p, evol, signos);
+};
+document.getElementById("bloqueIA").appendChild(botonManual);
 
 cargar();
 </script>
