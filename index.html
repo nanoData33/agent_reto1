@@ -3,228 +3,191 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🏥 MedAI Evolution Ward</title>
+  <title>MedAI Evolution Ward</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Fuente y estilos base -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --blue-main: #004aad;
-      --blue-light: #edf3ff;
-      --blue-dark: #002f6c;
-      --accent-green: #27ae60;
-      --accent-yellow: #f1c40f;
-      --accent-red: #e74c3c;
-      --gray-text: #555;
-      --bg: linear-gradient(135deg, #f9fbff 0%, #eaf1ff 100%);
-      --card-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-      --transition: all 0.35s ease;
+      --blue-main: #1f3b73;
+      --blue-accent: #3a6ff8;
+      --gray-bg: #f5f7fa;
+      --gray-dark: #333;
+      --gray-light: #888;
+      --success: #27ae60;
+      --warning: #f1c40f;
+      --danger: #e74c3c;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      --radius: 10px;
+      --transition: all 0.3s ease;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg);
-      color: var(--gray-text);
-      overflow-x: hidden;
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-bg);
+      color: var(--gray-dark);
     }
 
     header {
-      background: white;
+      background: #fff;
       color: var(--blue-main);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 45px;
-      font-weight: 600;
-      font-size: 1.3em;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+      padding: 16px 40px;
+      border-bottom: 1px solid #e2e6ec;
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 100;
     }
 
     header span {
+      font-weight: 700;
+      font-size: 1.4rem;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 1.4em;
+      gap: 8px;
     }
 
     header button {
-      background: var(--blue-main);
       border: none;
-      color: white;
-      padding: 9px 20px;
-      font-weight: 600;
-      border-radius: 8px;
+      background: var(--blue-main);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: var(--radius);
       cursor: pointer;
+      font-weight: 600;
       transition: var(--transition);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
       margin-left: 10px;
     }
 
     header button:hover {
-      background: var(--blue-dark);
+      background: var(--blue-accent);
       transform: translateY(-2px);
     }
 
     .hospital {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      width: 92%;
+      max-width: 1280px;
       margin: 50px auto;
-      width: 95%;
-      max-width: 1300px;
-      position: relative;
+      text-align: center;
     }
 
     .row {
       display: flex;
       justify-content: center;
-      gap: 40px;
-      margin: 30px 0;
       flex-wrap: wrap;
+      gap: 24px;
+      margin: 30px 0;
     }
 
     .corridor {
-      width: 85%;
-      height: 80px;
-      background: repeating-linear-gradient(
-        to right,
-        #cddff8,
-        #cddff8 25px,
-        #b3c8f0 25px,
-        #b3c8f0 50px
-      );
-      border-top: 4px solid #8aa9e8;
-      border-bottom: 4px solid #8aa9e8;
-      border-radius: 8px;
-      box-shadow: inset 0 4px 10px rgba(0,0,0,0.15);
-      position: relative;
-    }
-
-    .corridor::before {
-      content: "CORREDOR CENTRAL";
-      position: absolute;
-      top: 25%;
-      left: 50%;
-      transform: translateX(-50%);
+      width: 100%;
+      height: 70px;
+      background: linear-gradient(to right, #dce2f0 0%, #e9eef9 100%);
+      border-radius: var(--radius);
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue-main);
       font-weight: 600;
-      color: var(--blue-dark);
-      font-size: 0.95em;
       letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
     .room {
-      background: white;
-      border-radius: 16px;
-      box-shadow: var(--card-shadow);
-      padding: 22px 22px 18px 22px;
-      width: 200px;
+      background: #fff;
+      width: 220px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      text-align: left;
       cursor: pointer;
       transition: var(--transition);
       position: relative;
-      overflow: hidden;
+      border-left: 5px solid transparent;
     }
 
     .room:hover {
-      transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: translateY(-5px);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
     }
 
     .indicator {
       position: absolute;
       top: 14px;
       right: 14px;
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      box-shadow: 0 0 6px rgba(0,0,0,0.15);
     }
 
     .room h3 {
-      margin: 10px 0 6px 0;
+      margin: 8px 0 4px 0;
       color: var(--blue-main);
-      font-size: 1.1em;
+      font-size: 1rem;
       font-weight: 600;
     }
 
     .room p {
-      margin: 4px 0;
-      font-size: 0.9em;
-      color: var(--gray-text);
+      margin: 2px 0;
+      font-size: 0.85rem;
+      color: var(--gray-light);
+    }
+
+    .room strong {
+      color: var(--gray-dark);
     }
 
     .bar {
-      height: 8px;
-      border-radius: 5px;
-      background: #e6e9ef;
+      height: 5px;
+      background: #ececec;
+      border-radius: 4px;
       margin-top: 10px;
       overflow: hidden;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .bar-fill {
-      height: 8px;
-      border-radius: 5px;
-      transition: width 0.6s ease;
+      height: 5px;
+      border-radius: 4px;
+      transition: width 0.4s ease;
     }
 
     #chat-btn {
       position: fixed;
-      bottom: 25px;
-      right: 25px;
+      bottom: 24px;
+      right: 24px;
       background: var(--blue-main);
-      color: white;
+      color: #fff;
       border: none;
       border-radius: 50%;
-      width: 65px;
-      height: 65px;
-      font-size: 30px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      width: 60px;
+      height: 60px;
+      font-size: 26px;
       cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
       transition: var(--transition);
     }
 
     #chat-btn:hover {
-      transform: scale(1.1) rotate(5deg);
-      background: var(--blue-dark);
-    }
-
-    .loading {
-      font-weight: 500;
-      color: var(--blue-main);
-      margin-top: 50px;
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
+      background: var(--blue-accent);
+      transform: scale(1.08);
     }
 
     @media (max-width: 768px) {
       header {
         flex-direction: column;
         gap: 10px;
-        text-align: center;
-      }
-
-      .corridor::before {
-        font-size: 0.85em;
       }
 
       .room {
-        width: 160px;
-        padding: 16px;
+        width: 180px;
+        padding: 14px;
       }
     }
   </style>
@@ -232,18 +195,17 @@
 
 <body>
   <header>
-    <span>🏥 MedAI Evolution Ward</span>
+    <span>🧬 MedAI Evolution Ward</span>
     <div>
       <button onclick="window.location='ranking.html'">🏅 Ranking</button>
-      <button onclick="alert('Chat médico próximamente 💬')">🩺 Asistente</button>
+      <button onclick="alert('Chat médico próximamente 💬')">💬 Asistente</button>
     </div>
   </header>
 
   <div class="hospital">
     <div class="row" id="row1"></div>
-    <div class="corridor"></div>
+    <div class="corridor">CORREDOR CENTRAL</div>
     <div class="row" id="row2"></div>
-    <p id="loading" class="loading">Cargando pacientes...</p>
   </div>
 
   <button id="chat-btn" title="Abrir chat">💬</button>
@@ -254,19 +216,14 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function loadPatients() {
-      const loadingEl = document.getElementById("loading");
       const { data, error } = await supabase
         .from("vista_pacientes_dashboard")
         .select("*")
         .limit(12);
 
-      loadingEl.style.display = "none";
-
       if (error || !data) {
         console.error(error);
-        document.querySelector(".hospital").innerHTML = `
-          <p style="color:red; font-weight:500;">⚠️ Error al cargar los pacientes.</p>
-        `;
+        document.querySelector(".hospital").innerHTML = `<p style="color:red;">Error al cargar los pacientes.</p>`;
         return;
       }
 
@@ -276,20 +233,23 @@
       data.forEach((p, i) => {
         const room = document.createElement("div");
         room.className = "room";
-        
-        const color = 
-          p.trend_score >= 0.8 ? "#27ae60" :
-          p.trend_score >= 0.6 ? "#f1c40f" : "#e74c3c";
+
+        const color =
+          p.trend_score >= 0.8 ? "var(--success)" :
+          p.trend_score >= 0.6 ? "var(--warning)" : "var(--danger)";
+
+        room.style.borderLeftColor = color;
 
         room.innerHTML = `
           <div class="indicator" style="background:${color};"></div>
           <h3>${p.nombre}</h3>
           <p><strong>${p.edad}</strong> años — ${p.sexo}</p>
           <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
-          <p><small>Ingreso: ${p.fecha_ingreso}</small></p>
-          <p><small>Servicio: ${p.servicio}</small></p>
+          <p>Ingreso: ${p.fecha_ingreso}</p>
+          <p>Servicio: <strong>${p.servicio}</strong></p>
           <div class="bar"><div class="bar-fill" style="width:${p.trend_score * 100}%; background:${color};"></div></div>
         `;
+
         room.onclick = () => window.open(`paciente.html?id=${p.paciente_id}`, "_blank");
         (i < 6 ? row1 : row2).appendChild(room);
       });
