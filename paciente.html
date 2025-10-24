@@ -13,99 +13,70 @@
 <style>
 :root {
   --azul: #004aad;
-  --gris: #f5f7fa;
+  --gris: #f6f8fb;
   --panel: #ffffff;
 }
-
 body {
   font-family: 'Poppins', sans-serif;
   background: var(--gris);
   margin: 0;
   color: #1f2d3d;
 }
-
 header {
   background: var(--azul);
   color: white;
-  padding: 15px 40px;
+  padding: 12px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
-header h1 { font-size: 1.2rem; font-weight: 600; }
-
+header h1 { font-size: 1.1rem; font-weight: 600; }
 .btn {
   background: white;
   color: var(--azul);
   border: none;
   border-radius: 6px;
   font-weight: 600;
-  padding: 8px 14px;
+  padding: 6px 14px;
   cursor: pointer;
   transition: 0.3s;
 }
 .btn:hover { background: #e6eeff; }
 
 main {
-  max-width: 1100px;
-  margin: 30px auto;
+  max-width: 1000px;
+  margin: 20px auto;
   background: var(--panel);
-  border-radius: 10px;
-  padding: 25px 40px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-h2 {
-  color: var(--azul);
-  font-size: 1rem;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #e0e7ff;
-  padding-bottom: 4px;
-}
-
-.grid {
+  border-radius: 12px;
+  padding: 25px 35px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
 }
 
-.card {
-  background: #f9fafb;
-  border-radius: 10px;
-  padding: 12px 15px;
-  box-shadow: inset 0 0 6px rgba(0,0,0,0.04);
-}
+section { background: #f9fafb; border-radius: 10px; padding: 15px; box-shadow: inset 0 0 4px rgba(0,0,0,0.05); }
+h2 { color: var(--azul); font-size: 1rem; margin-bottom: 8px; }
 
-.metric {
-  font-size: 0.9rem;
-}
+.info p { margin: 4px 0; font-size: 0.9rem; }
 
-.metric p { margin: 4px 0; }
-
-.timeline {
-  font-size: 0.85rem;
-  max-height: 120px;
-  overflow-y: auto;
+.metricas { display: flex; flex-wrap: wrap; gap: 12px; }
+.mini {
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  flex: 1 1 45%;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
+.mini h4 { margin: 0; font-size: 0.9rem; color: #555; }
+.mini p { margin: 4px 0 0; font-weight: 600; color: var(--azul); }
+
+.timeline { font-size: 0.85rem; max-height: 120px; overflow-y: auto; }
+.timeline-item { margin-bottom: 5px; }
 .timeline-item strong { color: var(--azul); }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-th, td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #e5e7eb;
-}
-th {
-  background: var(--azul);
-  color: white;
-  font-weight: 500;
-}
-
-/* Ajuste para PDF */
 @media print {
   header, .btn { display: none; }
   main { box-shadow: none; margin: 0; padding: 0; }
@@ -120,50 +91,31 @@ th {
 </header>
 
 <main id="informe">
-
-  <!-- Perfil -->
-  <section class="card">
-    <h2>👤 Datos del Paciente</h2>
+  <!-- Info Paciente -->
+  <section class="info">
+    <h2>👤 Paciente</h2>
     <p><b>Nombre:</b> <span id="nombre"></span></p>
     <p><b>Edad:</b> <span id="edad"></span> — <b>Sexo:</b> <span id="sexo"></span></p>
-    <p><b>Diagnóstico principal:</b> <span id="diagnostico"></span></p>
+    <p><b>Diagnóstico:</b> <span id="diagnostico"></span></p>
     <p><b>Servicio:</b> <span id="servicio"></span></p>
   </section>
 
-  <!-- Tendencias -->
+  <!-- Radar -->
   <section>
-    <h2>📈 Evolución Clínica (Datos reales)</h2>
-    <div class="grid">
-      <canvas id="renalChart"></canvas>
-      <canvas id="cardioChart"></canvas>
-      <canvas id="respChart"></canvas>
-    </div>
+    <h2>📊 Evolución al ingreso vs alta</h2>
+    <canvas id="radarChart" height="220"></canvas>
   </section>
 
-  <!-- Información complementaria -->
-  <div class="grid" style="margin-top:20px;">
-    <div class="card">
-      <h2>🧪 Últimos análisis</h2>
-      <div id="lab"></div>
-    </div>
+  <!-- Medicación -->
+  <section>
+    <h2>💊 Medicación activa</h2>
+    <div id="meds" style="font-size:0.85rem;"></div>
+  </section>
 
-    <div class="card">
-      <h2>💊 Medicación activa</h2>
-      <div id="meds"></div>
-    </div>
-
-    <div class="card">
-      <h2>📅 Notas clínicas</h2>
-      <div class="timeline" id="timeline"></div>
-    </div>
-  </div>
-
-  <section style="margin-top:25px;">
-    <h2>👩‍⚕️ Equipo médico responsable</h2>
-    <table id="tablaMedicos">
-      <thead><tr><th>Nombre</th><th>Especialidad</th><th>Rol</th><th>Activo</th></tr></thead>
-      <tbody></tbody>
-    </table>
+  <!-- Notas -->
+  <section>
+    <h2>📅 Últimas notas clínicas</h2>
+    <div class="timeline" id="timeline"></div>
   </section>
 </main>
 
@@ -180,7 +132,6 @@ async function cargar() {
 
   const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
   if (!p) return alert("Paciente no encontrado.");
-
   document.getElementById('nombre').textContent = p.Nombre;
   document.getElementById('edad').textContent = p.Edad;
   document.getElementById('sexo').textContent = p.Sexo;
@@ -188,81 +139,56 @@ async function cargar() {
   document.getElementById('servicio').textContent = p.Servicio;
 
   const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
-  const { data: labs } = await supabase.from('lab_iniciales').select('*').eq('PacienteID', id).maybeSingle();
   const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
   const { data: notas } = await supabase.from('notas').select('*').eq('PacienteID', id).order('Fecha');
-  const { data: medicos } = await supabase.from('personal_medico').select('*').limit(5);
-  const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
 
-  // === Gráficos ===
-  if (evol?.length) {
-    new Chart(document.getElementById('renalChart'), {
-      type: 'line',
-      data: {
-        labels: evol.map(e => e.Fecha),
-        datasets: [
-          { label: 'Creatinina', data: evol.map(e => e.Creatinina), borderColor: '#dc2626', tension: 0.3 },
-          { label: 'Urea', data: evol.map(e => e.Urea), borderColor: '#f59e0b', tension: 0.3 }
-        ]
+  if (!evol?.length) return;
+
+  // --- Radar con datos reales ---
+  const ingreso = evol[0];
+  const alta = evol[evol.length - 1];
+  const labels = ['Presión Sistólica', 'Frecuencia Cardíaca', 'Temperatura', 'Saturación O₂', 'Glucosa', 'Creatinina'];
+  const ingresoVals = [
+    ingreso.PresionSistolica, ingreso.FrecuenciaCardiaca, ingreso.Temperatura,
+    ingreso.SaturacionOxigeno, ingreso.Glucosa, ingreso.Creatinina
+  ];
+  const altaVals = [
+    alta.PresionSistolica, alta.FrecuenciaCardiaca, alta.Temperatura,
+    alta.SaturacionOxigeno, alta.Glucosa, alta.Creatinina
+  ];
+
+  new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Ingreso', data: ingresoVals, backgroundColor: 'rgba(0,74,173,0.3)', borderColor: '#004aad' },
+        { label: 'Alta', data: altaVals, backgroundColor: 'rgba(22,163,74,0.3)', borderColor: '#16a34a' }
+      ]
+    },
+    options: {
+      scales: {
+        r: { ticks: { display: false }, beginAtZero: false }
       },
-      options: { plugins: { legend: { display: false } } }
-    });
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
 
-    new Chart(document.getElementById('cardioChart'), {
-      type: 'line',
-      data: {
-        labels: evol.map(e => e.Fecha),
-        datasets: [
-          { label: 'Presión Sistólica', data: evol.map(e => e.PresionSistolica), borderColor: '#2563eb', tension: 0.3 },
-          { label: 'Frecuencia Cardíaca', data: evol.map(e => e.FrecuenciaCardiaca), borderColor: '#16a34a', tension: 0.3 }
-        ]
-      },
-      options: { plugins: { legend: { display: false } } }
-    });
-
-    new Chart(document.getElementById('respChart'), {
-      type: 'line',
-      data: {
-        labels: signos.map(s => s.Fecha),
-        datasets: [
-          { label: 'Temperatura', data: signos.map(s => s.Temperatura), borderColor: '#e11d48', tension: 0.3 },
-          { label: 'Saturación O₂', data: signos.map(s => s.SaturacionOxigeno), borderColor: '#0ea5e9', tension: 0.3 }
-        ]
-      },
-      options: { plugins: { legend: { display: false } } }
-    });
-  }
-
-  // === Laboratorio ===
-  if (labs) {
-    const keys = ['Glucosa','Creatinina','Urea','Hemoglobina','Leucocitos'];
-    document.getElementById('lab').innerHTML = keys.map(k =>
-      `<p><b>${k}:</b> ${labs[k] ?? '—'}</p>`).join('');
-  } else {
-    document.getElementById('lab').innerHTML = 'Sin análisis registrados.';
-  }
-
-  // === Medicación ===
+  // --- Medicación ---
   document.getElementById('meds').innerHTML = meds.length
     ? meds.map(m => `<p>${m.Medicamento} — ${m.Dosis} (${m.Via})</p>`).join('')
     : 'Sin medicación activa.';
 
-  // === Notas ===
+  // --- Notas clínicas ---
   document.getElementById('timeline').innerHTML = notas.length
-    ? notas.map(n => `<div class="timeline-item"><strong>${n.Fecha}:</strong> ${n.Nota}</div>`).join('')
-    : 'Sin notas clínicas.';
-
-  // === Médicos ===
-  document.querySelector('#tablaMedicos tbody').innerHTML =
-    medicos.map(m => `<tr>
-      <td>${m.Nombre}</td><td>${m.Especialidad}</td><td>${m.Rol}</td><td>${m.Activo ? "✅" : "❌"}</td>
-    </tr>`).join('');
+    ? notas.slice(-3).map(n => `<div class="timeline-item"><strong>${n.Fecha}:</strong> ${n.Nota}</div>`).join('')
+    : 'Sin notas clínicas registradas.';
 }
 
 function descargarPDF() {
   const opt = {
     margin: 0.4,
-    filename: 'Informe_Evolutivo.pdf',
+    filename: 'Informe_Paciente.pdf',
     html2canvas: { scale: 2 },
     jsPDF: { format: 'a4', orientation: 'portrait' }
   };
