@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Riesgo Vital | MedAI Evolution Ward</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Inter", sans-serif; background: #f8fafc; margin: 0; }
+    header { background: #1f3b73; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+    button { background: white; border: none; border-radius: 6px; padding: 6px 14px; font-weight: 600; color: #1f3b73; cursor: pointer; }
+    .charts { width: 80%; margin: 50px auto; display: flex; gap: 40px; justify-content: space-around; }
+    canvas { background: white; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,0.08); padding: 20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>🩸 Riesgo Vital</h2>
+    <button onclick="window.location='index.html'">← Volver</button>
+  </header>
+
+  <div class="charts">
+    <canvas id="graficoRiesgo"></canvas>
+    <canvas id="graficoServicio"></canvas>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function analizarRiesgo() {
+      const { data, error } = await supabase.from('evolucion').select('PacienteID, SaturacionOxigeno, Temperatura, PresionSistolica');
+      if (error) return console.error(error);
+
+      let riesgo = { critico: 0, moderado: 0, estable: 0 };
+      data.forEach(r => {
+        if (r.SaturacionOxigeno < 92 || r.PresionSistolica < 90 || r.Temperatura > 38.5) riesgo.critico++;
+        else if (r.SaturacionOxigeno < 95 || r.Temperatura > 37.8) riesgo.moderado++;
+        else riesgo.estable++;
+      });
+
+      new Chart(document.getElementById('graficoRiesgo'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Críticos', 'Moderados', 'Estables'],
+          datasets: [{ data: [riesgo.critico, riesgo.moderado, riesgo.estable], backgroundColor: ['#e74c3c','#f1c40f','#27ae60'] }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
+      });
+
+      const { data: pacientes } = await supabase.from('pacientes').select('Servicio');
+      const conteo = {};
+      pacientes.forEach(p => { conteo[p.Servicio] = (conteo[p.Servicio] || 0) + 1; });
+
+      new Chart(document.getElementById('graficoServicio'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(conteo),
+          datasets: [{ label: 'Pacientes por servicio', data: Object.values(conteo), backgroundColor: '#3a6ff8' }]
+        },
+        options: { plugins: { legend: { display: false } } }
+      });
+    }
+
+    analizarRiesgo();
+  </script>
+</body>
+</html>
