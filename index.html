@@ -115,7 +115,7 @@
 
     .hospital {
       width: 92%;
-      max-width: 1300px;
+      max-width: 1280px;
       margin: 0 auto 50px auto;
       display: flex;
       flex-direction: column;
@@ -124,31 +124,33 @@
 
     .row {
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 18px;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+      gap: 12px;
       margin: 15px 0;
+      width: 100%;
     }
 
     .corridor {
       width: 100%;
-      height: 25px;
-      background: rgba(58,111,248,0.07);
+      height: 22px;
+      background: rgba(58,111,248,0.06);
       border-radius: 4px;
-      box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
-      margin: 10px 0 25px 0;
+      box-shadow: inset 0 0 3px rgba(0,0,0,0.04);
+      margin: 15px 0 25px 0;
     }
 
     .room {
       background: #fff;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px 14px;
-      width: 180px;
+      padding: 10px 12px;
+      width: calc(16.6% - 10px); /* EXACTLY 6 per row */
       position: relative;
       border-left: 4px solid transparent;
       transition: var(--transition);
       cursor: pointer;
+      min-width: 180px;
     }
 
     .room:hover {
@@ -166,15 +168,15 @@
     }
 
     .room h3 {
-      margin: 6px 0 2px;
-      font-size: 0.9rem;
+      margin: 4px 0 2px;
+      font-size: 0.85rem;
       color: var(--blue-main);
       font-weight: 600;
     }
 
     .room p {
       margin: 1px 0;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--gray-mid);
       line-height: 1.2;
     }
@@ -191,8 +193,8 @@
       color: white;
       border: none;
       border-radius: 50%;
-      width: 54px;
-      height: 54px;
+      width: 52px;
+      height: 52px;
       font-size: 22px;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(0,0,0,0.25);
@@ -208,11 +210,11 @@
     }
 
     @media (max-width: 1000px) {
-      .room { width: 160px; }
+      .room { width: calc(33.3% - 10px); } /* 3 per row */
     }
 
-    @media (max-width: 768px) {
-      header { flex-direction: column; gap: 10px; }
+    @media (max-width: 600px) {
+      .room { width: calc(50% - 10px); } /* 2 per row */
     }
   </style>
 </head>
