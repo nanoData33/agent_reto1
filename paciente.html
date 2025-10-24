@@ -207,7 +207,6 @@ async function cargar() {
   // === Enviar datos a n8n (IA resumen) ===
   await generarResumenIA(p, evol, notas);
 }
-
 async function generarResumenIA(paciente, evolucion, notas) {
   const payload = {
     paciente_id: paciente.PacienteID,
@@ -229,9 +228,12 @@ async function generarResumenIA(paciente, evolucion, notas) {
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
-    document.getElementById("resumenIA").innerHTML = data.resumen
-      ? `<b>${data.resumen}</b>`
+    // 🔹 Leemos texto plano, no JSON:
+    const texto = await res.text();
+
+    // 🔹 Mostramos directamente el contenido devuelto:
+    document.getElementById("resumenIA").innerHTML = texto.trim()
+      ? `<div style="white-space: pre-wrap;">${texto}</div>`
       : "No se recibió respuesta de la IA.";
   } catch (err) {
     console.error(err);
