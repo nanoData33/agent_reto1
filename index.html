@@ -12,13 +12,13 @@
     :root {
       --blue-main: #1f3b73;
       --blue-accent: #3a6ff8;
-      --gray-bg: #f5f7fa;
+      --gray-bg: #f6f8fb;
       --gray-dark: #2d2d2d;
       --gray-mid: #666;
-      --success: #2ecc71;
+      --success: #27ae60;
       --warning: #f1c40f;
       --danger: #e74c3c;
-      --shadow: 0 2px 8px rgba(0,0,0,0.12);
+      --shadow: 0 2px 8px rgba(0,0,0,0.1);
       --radius: 8px;
       --transition: all 0.3s ease;
     }
@@ -28,17 +28,17 @@
       font-family: "Inter", sans-serif;
       background: var(--gray-bg);
       color: var(--gray-dark);
+      overflow-x: hidden;
     }
 
     header {
       background: #fff;
-      color: var(--blue-main);
+      border-bottom: 1px solid #e2e6ec;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 16px 40px;
-      border-bottom: 1px solid #e0e4ea;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       position: sticky;
       top: 0;
       z-index: 10;
@@ -46,15 +46,22 @@
 
     header span {
       font-weight: 700;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       display: flex;
       align-items: center;
       gap: 10px;
+      color: var(--blue-main);
     }
 
     header i {
       color: var(--blue-accent);
       font-size: 1.3em;
+    }
+
+    header .buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     header button {
@@ -66,7 +73,6 @@
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
-      margin-left: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -77,44 +83,77 @@
       transform: translateY(-2px);
     }
 
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin: 25px auto;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: #fff;
+      color: var(--blue-main);
+      border: 1px solid #dce3f0;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      background: var(--blue-accent);
+      color: white;
+      transform: translateY(-3px);
+    }
+
     .hospital {
-      width: 95%;
+      width: 92%;
       max-width: 1400px;
-      margin: 40px auto;
+      margin: 0 auto 50px auto;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 30px;
     }
 
     .row {
       display: flex;
-      overflow-x: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--blue-accent) transparent;
-      gap: 22px;
-      padding: 10px 0;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin: 20px 0;
+    }
+
+    .corridor {
       width: 100%;
-    }
-
-    .row::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    .row::-webkit-scrollbar-thumb {
-      background: var(--blue-accent);
-      border-radius: 4px;
+      height: 40px;
+      background: rgba(58,111,248,0.08);
+      border-radius: 6px;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
+      color: var(--blue-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin: 10px 0 25px 0;
     }
 
     .room {
-      flex: 0 0 240px;
       background: #fff;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 18px 20px;
-      transition: var(--transition);
+      width: 230px;
       position: relative;
       border-left: 4px solid transparent;
+      transition: var(--transition);
       cursor: pointer;
     }
 
@@ -133,7 +172,7 @@
     }
 
     .room h3 {
-      margin: 8px 0 2px;
+      margin: 8px 0 4px;
       font-size: 1rem;
       color: var(--blue-main);
       font-weight: 600;
@@ -149,35 +188,6 @@
       color: var(--gray-dark);
     }
 
-    .bar {
-      height: 5px;
-      background: #ececec;
-      border-radius: 4px;
-      margin-top: 8px;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 5px;
-      border-radius: 4px;
-      transition: width 0.4s ease;
-    }
-
-    .corridor {
-      width: 100%;
-      height: 60px;
-      border-radius: var(--radius);
-      background: #e6e9f2;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: var(--blue-main);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
     #chat-btn {
       position: fixed;
       bottom: 24px;
@@ -186,9 +196,9 @@
       color: white;
       border: none;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 26px;
+      width: 58px;
+      height: 58px;
+      font-size: 24px;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(0,0,0,0.25);
       transition: var(--transition);
@@ -202,32 +212,37 @@
       transform: scale(1.08);
     }
 
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        gap: 10px;
-      }
+    @media (max-width: 1000px) {
+      .room { width: 200px; }
+    }
 
-      .room {
-        flex: 0 0 200px;
-        padding: 14px;
-      }
+    @media (max-width: 768px) {
+      header { flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
 
 <body>
   <header>
-    <span><i class="fa-solid fa-hospital"></i> MedAI Evolution Ward</span>
-    <div>
+    <span><i class="fa-solid fa-hospital-user"></i> MedAI Evolution Ward</span>
+    <div class="buttons">
       <button onclick="window.location='ranking.html'"><i class="fa-solid fa-ranking-star"></i> Ranking</button>
       <button onclick="alert('Chat médico próximamente')"><i class="fa-solid fa-stethoscope"></i> Asistente</button>
     </div>
   </header>
 
+  <!-- Botones de acciones -->
+  <div class="actions">
+    <button class="action-btn"><i class="fa-solid fa-chart-line"></i> Tendencias</button>
+    <button class="action-btn"><i class="fa-solid fa-heart-pulse"></i> Riesgo vital</button>
+    <button class="action-btn"><i class="fa-solid fa-brain"></i> Predicciones AI</button>
+    <button class="action-btn"><i class="fa-solid fa-file-export"></i> Exportar datos</button>
+    <button class="action-btn"><i class="fa-solid fa-bell"></i> Alertas</button>
+  </div>
+
   <div class="hospital">
     <div class="row" id="row1"></div>
-    <div class="corridor"><i class="fa-solid fa-road"></i>&nbsp;Corredor Central</div>
+    <div class="corridor">Corredor Central</div>
     <div class="row" id="row2"></div>
   </div>
 
@@ -270,7 +285,6 @@
           <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
           <p>Ingreso: ${p.fecha_ingreso}</p>
           <p>Servicio: <strong>${p.servicio}</strong></p>
-          <div class="bar"><div class="bar-fill" style="width:${p.trend_score * 100}%; background:${color};"></div></div>
         `;
 
         room.onclick = () => window.open(`paciente.html?id=${p.paciente_id}`, "_blank");
