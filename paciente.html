@@ -60,19 +60,6 @@ section { background: #f9fafb; border-radius: 10px; padding: 15px; box-shadow: i
 h2 { color: var(--azul); font-size: 1rem; margin-bottom: 8px; }
 
 .info p { margin: 4px 0; font-size: 0.9rem; }
-
-.metricas { display: flex; flex-wrap: wrap; gap: 12px; }
-.mini {
-  background: #fff;
-  border-radius: 8px;
-  padding: 8px 10px;
-  flex: 1 1 45%;
-  text-align: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-.mini h4 { margin: 0; font-size: 0.9rem; color: #555; }
-.mini p { margin: 4px 0 0; font-weight: 600; color: var(--azul); }
-
 .timeline { font-size: 0.85rem; max-height: 120px; overflow-y: auto; }
 .timeline-item { margin-bottom: 5px; }
 .timeline-item strong { color: var(--azul); }
@@ -91,7 +78,6 @@ h2 { color: var(--azul); font-size: 1rem; margin-bottom: 8px; }
 </header>
 
 <main id="informe">
-  <!-- Info Paciente -->
   <section class="info">
     <h2>👤 Paciente</h2>
     <p><b>Nombre:</b> <span id="nombre"></span></p>
@@ -100,19 +86,16 @@ h2 { color: var(--azul); font-size: 1rem; margin-bottom: 8px; }
     <p><b>Servicio:</b> <span id="servicio"></span></p>
   </section>
 
-  <!-- Radar -->
+  <section>
+    <h2>🧠 Resumen IA (Gemini)</h2>
+    <div id="resumenIA" style="font-size:0.9rem;">⚙️ Esperando datos...</div>
+  </section>
+
   <section>
     <h2>📊 Evolución al ingreso vs alta</h2>
     <canvas id="radarChart" height="220"></canvas>
   </section>
 
-  <!-- Medicación -->
-  <section>
-    <h2>💊 Medicación activa</h2>
-    <div id="meds" style="font-size:0.85rem;"></div>
-  </section>
-
-  <!-- Notas -->
   <section>
     <h2>📅 Últimas notas clínicas</h2>
     <div class="timeline" id="timeline"></div>
@@ -132,6 +115,7 @@ async function cargar() {
 
   const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
   if (!p) return alert("Paciente no encontrado.");
+
   document.getElementById('nombre').textContent = p.Nombre;
   document.getElementById('edad').textContent = p.Edad;
   document.getElementById('sexo').textContent = p.Sexo;
@@ -139,12 +123,14 @@ async function cargar() {
   document.getElementById('servicio').textContent = p.Servicio;
 
   const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
-  const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
   const { data: notas } = await supabase.from('notas').select('*').eq('PacienteID', id).order('Fecha');
 
-  if (!evol?.length) return;
+  if (!evol?.length) {
+    document.getElementById("resumenIA").innerHTML = "❌ No hay evolución disponible.";
+    return;
+  }
 
-  // --- Radar con datos reales ---
+  // === Radar (Ingreso vs Alta) ===
   const ingreso = evol[0];
   const alta = evol[evol.length - 1];
   const labels = ['Presión Sistólica', 'Frecuencia Cardíaca', 'Temperatura', 'Saturación O₂', 'Glucosa', 'Creatinina'];
@@ -167,22 +153,49 @@ async function cargar() {
       ]
     },
     options: {
-      scales: {
-        r: { ticks: { display: false }, beginAtZero: false }
-      },
+      scales: { r: { ticks: { display: false } } },
       plugins: { legend: { position: 'bottom' } }
     }
   });
 
-  // --- Medicación ---
-  document.getElementById('meds').innerHTML = meds.length
-    ? meds.map(m => `<p>${m.Medicamento} — ${m.Dosis} (${m.Via})</p>`).join('')
-    : 'Sin medicación activa.';
-
-  // --- Notas clínicas ---
+  // === Notas ===
   document.getElementById('timeline').innerHTML = notas.length
-    ? notas.slice(-3).map(n => `<div class="timeline-item"><strong>${n.Fecha}:</strong> ${n.Nota}</div>`).join('')
+    ? notas.slice(-4).map(n => `<div class="timeline-item"><strong>${n.Fecha}:</strong> ${n.Nota}</div>`).join('')
     : 'Sin notas clínicas registradas.';
+
+  // === Enviar a n8n para resumen IA ===
+  await generarResumenIA(p, evol, notas);
+}
+
+async function generarResumenIA(paciente, evolucion, notas) {
+  const payload = {
+    paciente_id: paciente.PacienteID,
+    nombre: paciente.Nombre,
+    edad: paciente.Edad,
+    sexo: paciente.Sexo,
+    diagnostico: paciente.DiagnosticoPrincipal,
+    servicio: paciente.Servicio,
+    evolucion: evolucion.slice(-5),
+    notas: notas.slice(-5)
+  };
+
+  document.getElementById("resumenIA").innerHTML = "🧠 Enviando datos a IA...";
+
+  try {
+    const res = await fetch("https://nano33.app.n8n.cloud/webhook-test/resumen-ia", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    document.getElementById("resumenIA").innerHTML = data.resumen
+      ? `🩺 <b>Resumen generado:</b><br>${data.resumen}`
+      : "⚠️ No se recibió respuesta de la IA.";
+  } catch (err) {
+    console.error(err);
+    document.getElementById("resumenIA").innerHTML = "❌ Error al conectar con el asistente IA.";
+  }
 }
 
 function descargarPDF() {
