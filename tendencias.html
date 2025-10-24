@@ -2,188 +2,83 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tendencias de planta | MedAI Evolution Ward</title>
+  <title>Actividad clínica | MedAI Evolution Ward</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
   <style>
-    :root {
-      --blue-main: #004aad;
-      --accent-green: #2ecc71;
-      --accent-yellow: #f1c40f;
-      --accent-red: #e74c3c;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f8fafc;
-      margin: 0;
-      color: #1f1f1f;
-    }
-
-    header {
-      background: var(--blue-main);
-      color: white;
-      padding: 15px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .dashboard {
-      width: 90%;
-      margin: 40px auto;
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-    }
-
-    .kpi-container {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-
-    .kpi {
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      padding: 20px;
-      width: 200px;
-      text-align: center;
-    }
-
-    .kpi h3 {
-      margin: 8px 0;
-      font-size: 1.2em;
-      color: var(--blue-main);
-    }
-
-    .kpi p {
-      font-size: 1.6em;
-      font-weight: 600;
-    }
-
-    .charts {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-    }
-
-    canvas {
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      padding: 20px;
-    }
-
-    button {
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      background: white;
-      color: var(--blue-main);
-      padding: 6px 14px;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #dce9ff;
-      transform: scale(1.05);
-    }
+    body { font-family:'Inter',sans-serif; background:#f8fafc; margin:0; color:#1f1f1f; }
+    header { background:#004aad; color:white; padding:15px 40px; display:flex; justify-content:space-between; align-items:center; }
+    .container { width:90%; margin:40px auto; display:flex; flex-direction:column; gap:40px; }
+    canvas { background:white; border-radius:14px; box-shadow:0 4px 16px rgba(0,0,0,0.1); padding:20px; }
+    button { border:none; border-radius:6px; font-weight:600; cursor:pointer; background:white; color:#004aad; padding:6px 14px; transition:0.3s; }
+    button:hover { background:#dce9ff; transform:scale(1.05); }
+    h2 { margin:0; }
   </style>
 </head>
 <body>
   <header>
-    <h2>📊 Tendencias de planta</h2>
+    <h2>📈 Actividad clínica</h2>
     <button onclick="window.location='index.html'">← Volver</button>
   </header>
 
-  <div class="dashboard">
-    <div class="kpi-container" id="kpiContainer"></div>
-
-    <div class="charts">
-      <canvas id="chartTemp"></canvas>
-      <canvas id="chartSat"></canvas>
-      <canvas id="chartFC"></canvas>
-      <canvas id="chartPresion"></canvas>
-    </div>
+  <div class="container">
+    <canvas id="grafEvol"></canvas>
+    <canvas id="grafNotas"></canvas>
+    <canvas id="grafServicios"></canvas>
   </div>
 
   <script>
-    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabase.createClient(
+      "https://aczjgeleupwlvghjhkav.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM"
+    );
 
-    async function cargarTendencias() {
-      const { data, error } = await supabase.from('evolucion').select('*');
-      if (error) { console.error(error); return; }
+    async function cargarActividad() {
+      const { data: evol, error: e1 } = await supabase.from("evolucion").select("Fecha,PacienteID");
+      const { data: notas, error: e2 } = await supabase.from("notas").select("Fecha,PacienteID");
+      const { data: pacientes, error: e3 } = await supabase.from("pacientes").select("PacienteID,Servicio");
 
-      // Últimas mediciones (simulando snapshot de planta)
-      const latest = data.slice(-100); // limitar carga
+      if (e1 || e2 || e3) return console.error(e1||e2||e3);
 
-      // Promedios globales
-      const avg = (arr) => arr.reduce((a,b)=>a+b,0)/arr.length || 0;
-      const temp = avg(latest.map(x => x.Temperatura || 0));
-      const sat = avg(latest.map(x => x.SaturacionOxigeno || 0));
-      const fc = avg(latest.map(x => x.FrecuenciaCardiaca || 0));
-      const presionSis = avg(latest.map(x => x.PresionSistolica || 0));
-      const presionDia = avg(latest.map(x => x.PresionDiastolica || 0));
+      // Nº de registros de evolución por día
+      const evolCount = contarPorDia(evol);
+      const notaCount = contarPorDia(notas);
 
-      // Conteo de riesgo
-      const criticos = latest.filter(x =>
-        x.SaturacionOxigeno < 92 ||
-        x.PresionSistolica < 90 ||
-        x.Temperatura > 38.5
-      ).length;
-      const estables = latest.length - criticos;
+      // Registros por servicio
+      const evolPorServicio = pacientes.reduce((acc,p)=>{
+        const count = evol.filter(ev=>ev.PacienteID===p.PacienteID).length;
+        acc[p.Servicio] = (acc[p.Servicio]||0) + count;
+        return acc;
+      },{});
 
-      renderKPIs({ temp, sat, fc, presionSis, presionDia, criticos, estables });
-
-      // Distribuciones para gráficos
-      const chartData = {
-        temp: latest.map(x => x.Temperatura).filter(Boolean),
-        sat: latest.map(x => x.SaturacionOxigeno).filter(Boolean),
-        fc: latest.map(x => x.FrecuenciaCardiaca).filter(Boolean),
-        presion: latest.map(x => x.PresionSistolica).filter(Boolean)
-      };
-
-      renderCharts(chartData);
+      renderChart("grafEvol","Evoluciones registradas por día",Object.keys(evolCount),Object.values(evolCount),"#004aad");
+      renderChart("grafNotas","Notas médicas por día",Object.keys(notaCount),Object.values(notaCount),"#2ecc71");
+      renderChart("grafServicios","Evoluciones por servicio",Object.keys(evolPorServicio),Object.values(evolPorServicio),"#f39c12");
     }
 
-    function renderKPIs(data) {
-      const c = document.getElementById('kpiContainer');
-      c.innerHTML = `
-        <div class="kpi"><h3>🌡️ Temp. media</h3><p>${data.temp.toFixed(1)} °C</p></div>
-        <div class="kpi"><h3>🫁 O₂ media</h3><p>${data.sat.toFixed(0)} %</p></div>
-        <div class="kpi"><h3>❤️ FC media</h3><p>${data.fc.toFixed(0)} bpm</p></div>
-        <div class="kpi"><h3>🩸 PA media</h3><p>${data.presionSis.toFixed(0)}/${data.presionDia.toFixed(0)}</p></div>
-        <div class="kpi" style="background:${data.criticos>0?'#ffeaea':'#eaf9ef'};">
-          <h3>${data.criticos>0?'🚨 Pacientes críticos':'✅ Estables'}</h3>
-          <p>${data.criticos>0?data.criticos+' críticos':data.estables+' estables'}</p>
-        </div>`;
+    function contarPorDia(arr) {
+      const counts={};
+      arr.forEach(d=>{
+        if(!d.Fecha) return;
+        const f=new Date(d.Fecha).toISOString().slice(0,10);
+        counts[f]=(counts[f]||0)+1;
+      });
+      return counts;
     }
 
-    function renderCharts(d) {
-      const makeChart = (id, label, data, color) => new Chart(document.getElementById(id), {
-        type: 'bar',
-        data: { labels: data, datasets: [{ label, data, backgroundColor: color }] },
-        options: {
-          plugins: { legend: { display: false }, title: { display: true, text: label, color:'#004aad' } },
-          scales: { y: { beginAtZero: false } }
+    function renderChart(id,titulo,labels,values,color){
+      new Chart(document.getElementById(id),{
+        type:"bar",
+        data:{labels,datasets:[{label:titulo,data:values,backgroundColor:color}]},
+        options:{
+          plugins:{title:{display:true,text:titulo,color:"#004aad",font:{size:16,weight:"600"}}},
+          scales:{x:{ticks:{color:"#444"}},y:{beginAtZero:true}}
         }
       });
-
-      makeChart('chartTemp', 'Distribución de temperatura', d.temp, '#e67e22');
-      makeChart('chartSat', 'Distribución de saturación O₂', d.sat, '#27ae60');
-      makeChart('chartFC', 'Distribución de frecuencia cardíaca', d.fc, '#e74c3c');
-      makeChart('chartPresion', 'Distribución de presión sistólica', d.presion, '#2980b9');
     }
 
-    cargarTendencias();
+    cargarActividad();
   </script>
 </body>
 </html>
