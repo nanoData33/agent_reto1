@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🧠 MedAI Evolution Assistant</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -12,16 +12,17 @@
 
 <style>
   :root {
-    --azul: #0078d4;
+    --azul: #004aad;
+    --azul-claro: #0078d4;
     --verde: #22c55e;
     --rojo: #ef4444;
-    --gris: #f1f5f9;
+    --gris: #f5f7fa;
     --panel: #ffffff;
   }
 
   body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--gris);
+    background: var(--gris);
     margin: 0;
     color: #1f2d3d;
   }
@@ -29,7 +30,7 @@
   header {
     background: var(--azul);
     color: white;
-    padding: 20px 50px;
+    padding: 18px 45px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -38,7 +39,7 @@
 
   header h1 {
     font-weight: 600;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
 
   .btn {
@@ -49,19 +50,25 @@
     font-weight: 600;
     padding: 10px 18px;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: 0.3s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    background: #eef3ff;
   }
 
   main {
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 40px auto;
     background: var(--panel);
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 40px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.07);
   }
 
-  section { margin-bottom: 50px; }
+  section { margin-bottom: 45px; }
 
   h2 {
     color: var(--azul);
@@ -71,17 +78,39 @@
     margin-bottom: 18px;
   }
 
-  .panel {
-    background: #f9fbff;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.04);
+  /* Perfil */
+  .perfil-paciente {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--azul), var(--azul-claro));
+    color: white;
+    border-radius: 14px;
+    padding: 25px 35px;
+    margin-bottom: 40px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   }
 
+  /* Resumen IA */
+  #resumenIA {
+    font-size: 1rem;
+    line-height: 1.6;
+    background: #f9fbff;
+    border-left: 4px solid var(--azul);
+    padding: 20px 25px;
+    border-radius: 8px;
+  }
+
+  .loading {
+    color: var(--azul-claro);
+    font-style: italic;
+  }
+
+  /* Tarjetas */
   .grid-3 {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
   }
 
   .metric-card {
@@ -89,28 +118,32 @@
     border-radius: 10px;
     padding: 15px 20px;
     text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
   }
 
-  .metric-card h3 {
-    margin: 10px 0 5px;
-    font-size: 1.1rem;
+  .metric-card h3 { margin: 8px 0 5px; font-size: 1rem; }
+  .metric-card p { margin: 0; font-size: 1.3rem; font-weight: 600; }
+
+  /* Medicación */
+  .med-card {
+    background: #f9fbff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    border-left: 4px solid var(--azul);
+    margin-bottom: 10px;
   }
 
-  .metric-card p {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
+  .via { font-weight:600; color:var(--azul-claro); }
 
+  /* Timeline */
   .timeline {
     border-left: 3px solid var(--azul);
     padding-left: 20px;
-    margin-top: 20px;
   }
 
   .timeline-item {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     position: relative;
   }
 
@@ -122,6 +155,8 @@
     font-size: 1.2rem;
     top: 0;
   }
+
+  .timeline-item.alta { border-left:4px solid var(--verde); background:#ecfdf5; padding:10px; border-radius:6px; }
 
   table {
     width: 100%;
@@ -140,55 +175,46 @@
     font-weight: 500;
   }
 
-  .tag {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    background: var(--azul);
-    color: white;
-  }
-
-  .tag.iv { background: var(--rojo); }
-  .tag.vo { background: var(--verde); }
 </style>
 </head>
 
 <body>
 <header>
   <h1>🧠 MedAI Evolution Assistant</h1>
-  <button class="btn" onclick="descargarPDF()">📄 Descargar Informe Evolutivo</button>
+  <button class="btn" onclick="descargarPDF()">📄 Exportar Informe</button>
 </header>
 
 <main id="informe">
-  <section>
-    <h2>🤖 Resumen Evolutivo Automático (IA)</h2>
-    <div class="panel" id="resumenIA">
-      ⚙️ Generando resumen clínico con IA...
+
+  <section class="perfil-paciente" id="perfilPaciente">
+    <div>
+      <h2 id="nombrePaciente">Paciente</h2>
+      <p><b>Edad:</b> <span id="edadPaciente"></span> — <b>Sexo:</b> <span id="sexoPaciente"></span></p>
+      <p><b>Diagnóstico:</b> <span id="diagPaciente"></span></p>
+      <p><b>Servicio:</b> <span id="servicioPaciente"></span></p>
     </div>
   </section>
 
   <section>
-    <h2>📈 Evolución de Parámetros Críticos</h2>
+    <h2>🤖 Resumen Evolutivo Automático (IA)</h2>
+    <div id="resumenIA" class="panel">
+      <div class="loading">🩺 Analizando evolución del paciente...</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>📈 Evolución Clínica</h2>
     <canvas id="lineChart" height="120"></canvas>
   </section>
 
   <section>
-    <h2>🧪 Análisis de Laboratorio Iniciales</h2>
+    <h2>🧪 Laboratorio Inicial</h2>
     <div class="grid-3" id="labCards"></div>
   </section>
 
   <section>
-    <h2>💊 Tratamiento y Medicación</h2>
-    <table>
-      <thead><tr><th>Medicamento</th><th>Dosis</th><th>Vía</th></tr></thead>
-      <tbody id="tablaMeds"></tbody>
-    </table>
-  </section>
-
-  <section>
-    <h2>🫀 Evolución de Signos Vitales</h2>
-    <canvas id="vitalsChart" height="120"></canvas>
+    <h2>💊 Tratamiento Actual</h2>
+    <div id="medCards"></div>
   </section>
 
   <section>
@@ -203,138 +229,83 @@
       <tbody id="tablaMedicos"></tbody>
     </table>
   </section>
+
 </main>
 
 <script>
-const supabase = supabase.createClient(
+const supabase = window.supabase.createClient(
   'https://aczjgeleupwlvghjhkav.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM'
 );
 const id = new URLSearchParams(window.location.search).get("id") || "PAC001";
 
 async function cargarPanel() {
-  try {
-    const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha', { ascending: true });
-    const { data: labs } = await supabase.from('lab_iniciales').select('*').eq('PacienteID', id).single();
-    const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
-    const { data: notas } = await supabase.from('notas').select('*').eq('PacienteID', id).order('Fecha', { ascending: true });
-    const { data: medicos } = await supabase.from('personal_medico').select('*').limit(5);
-    const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha', { ascending: true });
+  const { data: paciente } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
+  if (!paciente) return alert("Paciente no encontrado.");
 
-    // === IA: resumen evolutivo simulado ===
-    document.getElementById("resumenIA").innerHTML = `
-      🩺 <b>Resumen IA del caso:</b><br>
-      Durante la hospitalización, el paciente mostró una mejora progresiva en los parámetros hemodinámicos y metabólicos.
-      La presión arterial y la glucemia se estabilizaron, con tendencia favorable en los marcadores inflamatorios.
-      Se recomienda control ambulatorio y seguimiento analítico a las 2 semanas del alta.
-    `;
+  document.getElementById("nombrePaciente").innerText = paciente.Nombre;
+  document.getElementById("edadPaciente").innerText = paciente.Edad;
+  document.getElementById("sexoPaciente").innerText = paciente.Sexo;
+  document.getElementById("diagPaciente").innerText = paciente.DiagnosticoPrincipal || '—';
+  document.getElementById("servicioPaciente").innerText = paciente.Servicio || '—';
 
-    // === Evolución clínica (línea temporal de laboratorio + vitales) ===
-    const ctx = document.getElementById("lineChart");
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: evol.map(e => e.Fecha),
-        datasets: [
-          {
-            label: "Glucosa",
-            data: evol.map(e => e.Glucosa),
-            borderColor: "#0078d4",
-            fill: false
-          },
-          {
-            label: "Creatinina",
-            data: evol.map(e => e.Creatinina),
-            borderColor: "#22c55e",
-            fill: false
-          },
-          {
-            label: "Urea",
-            data: evol.map(e => e.Urea),
-            borderColor: "#ef4444",
-            fill: false
-          }
-        ]
-      },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-    });
+  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha', { ascending: true });
+  const { data: labs } = await supabase.from('lab_iniciales').select('*').eq('PacienteID', id).single();
+  const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
+  const { data: notas } = await supabase.from('notas').select('*').eq('PacienteID', id).order('Fecha', { ascending: true });
+  const { data: medicos } = await supabase.from('personal_medico').select('*').limit(5);
 
-    // === Laboratorio iniciales ===
-    const labKeys = ['Glucosa','pH','Creatinina','Hemoglobina','Leucocitos','Urea'];
-    document.getElementById("labCards").innerHTML = labKeys.map(k => `
-      <div class="metric-card">
-        <h3>${k}</h3>
-        <p>${labs?.[k] ?? '—'}</p>
-      </div>
-    `).join('');
+  // --- RESUMEN IA ---
+  setTimeout(() => {
+    const inicial = evol[0], ult = evol[evol.length-1];
+    const texto = `
+      <p><b>Evolución general:</b> el paciente ingresó con parámetros ${inicial.PresionSistolica}/${inicial.PresionDiastolica} mmHg y ${inicial.FrecuenciaCardiaca} lpm.</p>
+      <p>Durante su estancia, la tendencia fue <b>${ult.PresionSistolica < inicial.PresionSistolica ? 'favorable' : 'estable'}</b>, 
+      con ${ult.Temperatura > inicial.Temperatura ? 'episodios febriles transitorios' : 'descenso progresivo de la temperatura'} 
+      y función renal ${ult.Creatinina > inicial.Creatinina ? 'en vigilancia' : 'en mejora'}.</p>
+      <p>Recomendado seguimiento por ${paciente.Servicio} al alta.</p>`;
+    document.getElementById("resumenIA").innerHTML = texto;
+  }, 1000);
 
-    // === Medicación ===
-    document.getElementById("tablaMeds").innerHTML =
-      meds.length ? meds.map(m => `
-        <tr>
-          <td>${m.Medicamento}</td>
-          <td>${m.Dosis}</td>
-          <td><span class="tag ${m.Via === 'IV' ? 'iv' : 'vo'}">${m.Via}</span></td>
-        </tr>`).join('') :
-        "<tr><td colspan='3'>Sin medicación registrada</td></tr>";
+  // --- EVOLUCIÓN CLÍNICA ---
+  new Chart(document.getElementById("lineChart"), {
+    type: 'line',
+    data: {
+      labels: evol.map(e => e.Fecha),
+      datasets: [
+        { label: "Creatinina (mg/dL)", data: evol.map(e => e.Creatinina), borderColor: "#ef4444", tension: 0.3 },
+        { label: "Urea (mg/dL)", data: evol.map(e => e.Urea), borderColor: "#facc15", tension: 0.3 },
+        { label: "Glucosa (mg/dL)", data: evol.map(e => e.Glucosa), borderColor: "#0078d4", tension: 0.3 }
+      ]
+    },
+    options: { plugins: { legend: { position: "bottom" } } }
+  });
 
-    // === Signos vitales ===
-    const vctx = document.getElementById("vitalsChart");
-    new Chart(vctx, {
-      type: 'line',
-      data: {
-        labels: signos.map(s => s.Fecha),
-        datasets: [
-          {
-            label: "Presión Sistólica",
-            data: signos.map(s => s.PresionSistolica),
-            borderColor: "#0078d4",
-            fill: false
-          },
-          {
-            label: "Frecuencia Cardíaca",
-            data: signos.map(s => s.FrecuenciaCardiaca),
-            borderColor: "#ef4444",
-            fill: false
-          },
-          {
-            label: "Saturación O₂",
-            data: signos.map(s => s.SaturacionOxigeno),
-            borderColor: "#22c55e",
-            fill: false
-          }
-        ]
-      },
-      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-    });
+  // --- LABORATORIO ---
+  const labKeys = ['Glucosa','pH','Creatinina','Hemoglobina','Leucocitos','Urea'];
+  document.getElementById("labCards").innerHTML = labKeys.map(k => `
+    <div class="metric-card"><h3>${k}</h3><p>${labs?.[k] ?? '—'}</p></div>
+  `).join('');
 
-    // === Timeline clínica ===
-    let timeline = notas.map(n => `
-      <div class="timeline-item">
-        <strong>${n.Fecha}:</strong> ${n.Nota}
-      </div>
-    `).join('');
-    document.getElementById("timeline").innerHTML = timeline || "No hay notas clínicas registradas.";
+  // --- MEDICACIÓN ---
+  document.getElementById("medCards").innerHTML = meds.length ? meds.map(m => `
+    <div class="med-card"><h4>${m.Medicamento}</h4><p>${m.Dosis} — <span class="via">${m.Via}</span></p></div>
+  `).join('') : "<p>Sin medicación registrada.</p>";
 
-    // === Médicos responsables ===
-    document.getElementById("tablaMedicos").innerHTML =
-      medicos.map(m => `
-        <tr>
-          <td>${m.Nombre}</td>
-          <td>${m.Especialidad}</td>
-          <td>${m.Rol}</td>
-          <td>${m.Activo ? "✅" : "❌"}</td>
-        </tr>
-      `).join('');
+  // --- TIMELINE ---
+  document.getElementById("timeline").innerHTML = notas.length ?
+    notas.map(n => `<div class="timeline-item ${n.Nota.toLowerCase().includes('alta') ? 'alta' : ''}"><strong>${n.Fecha}</strong><br>${n.Nota}</div>`).join('') :
+    "<p>No hay notas clínicas registradas.</p>";
 
-  } catch (err) {
-    console.error(err);
-    alert("Error al cargar el panel clínico");
-  }
+  // --- MÉDICOS ---
+  document.getElementById("tablaMedicos").innerHTML = medicos.map(m => `
+    <tr><td>${m.Nombre}</td><td>${m.Especialidad}</td><td>${m.Rol}</td><td>${m.Activo ? "✅" : "❌"}</td></tr>
+  `).join('');
 }
 
 function descargarPDF() {
-  const opt = { margin: 0.4, filename: 'Informe_Evolutivo_MedAI.pdf', html2canvas: { scale: 2 }, jsPDF: { format: 'a4', orientation: 'portrait' } };
+  const nombre = document.getElementById("nombrePaciente").innerText.replace(/\s/g,'_');
+  const opt = { margin: 0.4, filename: `Evolucion_${nombre}.pdf`, html2canvas: { scale: 2 }, jsPDF: { format: 'a4' } };
   html2pdf().set(opt).from(document.getElementById("informe")).save();
 }
 
