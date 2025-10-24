@@ -13,9 +13,10 @@
 <style>
 :root {
   --azul: #004aad;
-  --azul-claro: #eaf1ff;
-  --gris: #f5f7fa;
+  --gris: #f6f8fb;
   --panel: #ffffff;
+  --borde: #e5e7eb;
+  --verde: #16a34a;
 }
 body {
   font-family: 'Poppins', sans-serif;
@@ -26,84 +27,117 @@ body {
 header {
   background: var(--azul);
   color: white;
-  padding: 14px 40px;
+  padding: 16px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-header h1 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
+header h1 { font-size: 1.1rem; font-weight: 600; }
 .btn {
   background: white;
   color: var(--azul);
   border: none;
   border-radius: 6px;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 6px 14px;
   cursor: pointer;
   transition: 0.3s;
 }
-.btn:hover { background: var(--azul-claro); }
+.btn:hover { background: #e6eeff; }
 
 main {
   max-width: 1100px;
   margin: 25px auto;
   background: var(--panel);
   border-radius: 12px;
-  padding: 30px 40px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 25px;
+  padding: 25px 35px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
-section {
+/* Encabezado paciente */
+#cabeceraPaciente {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: #f9fafb;
-  border-radius: 10px;
-  padding: 18px;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.04);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  margin-bottom: 20px;
 }
-h2 {
-  color: var(--azul);
-  font-size: 1rem;
-  margin-bottom: 8px;
-  border-bottom: 2px solid var(--azul-claro);
-  padding-bottom: 4px;
-  font-weight: 600;
-}
-
-.info p {
+#datosBasicos p {
   margin: 4px 0;
   font-size: 0.9rem;
 }
-.timeline {
-  font-size: 0.88rem;
-  max-height: 140px;
-  overflow-y: auto;
-  line-height: 1.4;
-}
-.timeline-item {
-  margin-bottom: 6px;
-}
-.timeline-item strong {
-  color: var(--azul);
+#constantes {
+  text-align: right;
+  font-size: 0.9rem;
 }
 
-#resumenIA {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: #222;
-  background: #f5f8ff;
-  border-radius: 8px;
-  padding: 10px 12px;
-  min-height: 80px;
-  box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
+/* Gráficos */
+#panelGraficos {
+  position: relative;
+  text-align: center;
 }
+.navGrafico {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: var(--azul);
+  cursor: pointer;
+  background: white;
+  border-radius: 50%;
+  padding: 3px 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  user-select: none;
+}
+#prevGraf { left: 0; }
+#nextGraf { right: 0; }
+
+/* Resumen IA */
+#resumenIA {
+  background: #f9fafb;
+  border: 1px solid var(--borde);
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  min-height: 70px;
+  margin-bottom: 10px;
+}
+.stars {
+  display: flex;
+  gap: 5px;
+  cursor: pointer;
+}
+.star {
+  font-size: 1.3rem;
+  color: #ccc;
+}
+.star.active {
+  color: #ffc107;
+}
+
+/* Tablas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid var(--borde);
+  text-align: left;
+}
+th {
+  background: var(--azul);
+  color: white;
+  font-weight: 500;
+}
+
+/* Secciones */
+section { margin-bottom: 30px; }
+h2 { color: var(--azul); font-size: 1rem; margin-bottom: 10px; }
 
 @media print {
   header, .btn { display: none; }
@@ -115,31 +149,65 @@ h2 {
 <body>
 <header>
   <h1>MedAI Evolution Assistant</h1>
-  <button class="btn" onclick="descargarPDF()">Exportar Informe A4</button>
+  <button class="btn" onclick="descargarPDF()">Exportar A4</button>
 </header>
 
 <main id="informe">
-  <section class="info">
-    <h2>Datos del paciente</h2>
-    <p><b>Nombre:</b> <span id="nombre"></span></p>
-    <p><b>Edad:</b> <span id="edad"></span> &nbsp;|&nbsp; <b>Sexo:</b> <span id="sexo"></span></p>
-    <p><b>Diagnóstico:</b> <span id="diagnostico"></span></p>
-    <p><b>Servicio:</b> <span id="servicio"></span></p>
+  <!-- Cabecera paciente -->
+  <div id="cabeceraPaciente">
+    <div id="datosBasicos">
+      <p><b>Nombre:</b> <span id="nombre"></span></p>
+      <p><b>Edad:</b> <span id="edad"></span> — <b>Sexo:</b> <span id="sexo"></span></p>
+      <p><b>Diagnóstico:</b> <span id="diagnostico"></span></p>
+      <p><b>Servicio:</b> <span id="servicio"></span></p>
+    </div>
+    <div id="constantes">
+      <p><b>Últimas constantes:</b></p>
+      <p>PA: <span id="pa"></span> mmHg</p>
+      <p>FC: <span id="fc"></span> bpm | SpO₂: <span id="spo2"></span>%</p>
+      <p>Tª: <span id="temp"></span> °C</p>
+    </div>
+  </div>
+
+  <!-- Radar -->
+  <section>
+    <h2>Evolución comparada</h2>
+    <div id="panelGraficos">
+      <canvas id="grafico" height="180"></canvas>
+      <div id="prevGraf" class="navGrafico">◀</div>
+      <div id="nextGraf" class="navGrafico">▶</div>
+    </div>
   </section>
 
+  <!-- Resumen IA -->
   <section>
-    <h2>Resumen clínico generado (IA)</h2>
-    <div id="resumenIA">Esperando resultados...</div>
+    <h2>Resumen de evolución (IA)</h2>
+    <div id="resumenIA">Generando resumen...</div>
+    <div class="stars" id="valoracion">
+      <span class="star" data-v="1">★</span>
+      <span class="star" data-v="2">★</span>
+      <span class="star" data-v="3">★</span>
+      <span class="star" data-v="4">★</span>
+      <span class="star" data-v="5">★</span>
+    </div>
   </section>
 
+  <!-- Medicación -->
   <section>
-    <h2>Evolución ingreso vs alta</h2>
-    <canvas id="radarChart" height="220"></canvas>
+    <h2>Tratamiento actual</h2>
+    <table>
+      <thead><tr><th>Medicamento</th><th>Dosis</th><th>Vía</th></tr></thead>
+      <tbody id="tablaMeds"></tbody>
+    </table>
   </section>
 
+  <!-- Equipo médico -->
   <section>
-    <h2>Últimas notas médicas</h2>
-    <div class="timeline" id="timeline"></div>
+    <h2>Equipo médico</h2>
+    <table>
+      <thead><tr><th>Nombre</th><th>Especialidad</th><th>Rol</th><th>Contacto</th></tr></thead>
+      <tbody id="tablaMedicos"></tbody>
+    </table>
   </section>
 </main>
 
@@ -148,14 +216,17 @@ const supabase = window.supabase.createClient(
   'https://aczjgeleupwlvghjhkav.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM'
 );
-
 const id = new URLSearchParams(window.location.search).get("id");
 
-async function cargar() {
-  if (!id) return alert("No se ha indicado el paciente.");
+let graficoIndex = 0;
+let graficosData = [];
 
+async function cargar() {
   const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
-  if (!p) return alert("Paciente no encontrado.");
+  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
+  const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
+  const { data: medicos } = await supabase.from('personal_medico').select('*').limit(4);
+  const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
 
   document.getElementById('nombre').textContent = p.Nombre;
   document.getElementById('edad').textContent = p.Edad;
@@ -163,51 +234,61 @@ async function cargar() {
   document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal;
   document.getElementById('servicio').textContent = p.Servicio;
 
-  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
-  const { data: notas } = await supabase.from('notas').select('*').eq('PacienteID', id).order('Fecha');
-
-  if (!evol?.length) {
-    document.getElementById("resumenIA").innerHTML = "No hay evolución disponible para este paciente.";
-    return;
+  const ult = signos?.[signos.length - 1];
+  if (ult) {
+    document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
+    document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
+    document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
+    document.getElementById('temp').textContent = ult.Temperatura;
   }
 
-  // === Radar chart (Ingreso vs Alta) ===
+  // === Graficos ===
   const ingreso = evol[0];
   const alta = evol[evol.length - 1];
-  const labels = ['Presión Sistólica', 'Frecuencia Cardíaca', 'Temperatura', 'Saturación O₂', 'Glucosa', 'Creatinina'];
-  const ingresoVals = [
-    ingreso.PresionSistolica, ingreso.FrecuenciaCardiaca, ingreso.Temperatura,
-    ingreso.SaturacionOxigeno, ingreso.Glucosa, ingreso.Creatinina
+  graficosData = [
+    {
+      labels: ['PA Sistólica', 'FC', 'Temp', 'SpO₂', 'Glucosa', 'Creatinina'],
+      ingreso: [ingreso.PresionSistolica, ingreso.FrecuenciaCardiaca, ingreso.Temperatura, ingreso.SaturacionOxigeno, ingreso.Glucosa, ingreso.Creatinina],
+      alta: [alta.PresionSistolica, alta.FrecuenciaCardiaca, alta.Temperatura, alta.SaturacionOxigeno, alta.Glucosa, alta.Creatinina]
+    }
   ];
-  const altaVals = [
-    alta.PresionSistolica, alta.FrecuenciaCardiaca, alta.Temperatura,
-    alta.SaturacionOxigeno, alta.Glucosa, alta.Creatinina
-  ];
+  renderGrafico();
 
-  new Chart(document.getElementById('radarChart'), {
+  // === Medicación ===
+  document.getElementById("tablaMeds").innerHTML =
+    meds.length ? meds.map(m => `
+      <tr><td>${m.Medicamento}</td><td>${m.Dosis}</td><td>${m.Via}</td></tr>
+    `).join('') : "<tr><td colspan='3'>Sin medicación registrada</td></tr>";
+
+  // === Médicos ===
+  document.getElementById("tablaMedicos").innerHTML =
+    medicos.map(m => `
+      <tr><td>${m.Nombre}</td><td>${m.Especialidad}</td><td>${m.Rol}</td>
+      <td><button class='btn' onclick="alert('Envío de correo a ${m.Email}')">Contactar</button></td></tr>
+    `).join('');
+
+  await generarResumenIA(p, evol, signos);
+}
+
+function renderGrafico() {
+  const ctx = document.getElementById('grafico');
+  const g = graficosData[graficoIndex];
+  new Chart(ctx, {
     type: 'radar',
     data: {
-      labels,
+      labels: g.labels,
       datasets: [
-        { label: 'Ingreso', data: ingresoVals, backgroundColor: 'rgba(0,74,173,0.25)', borderColor: '#004aad', borderWidth: 2 },
-        { label: 'Alta', data: altaVals, backgroundColor: 'rgba(22,163,74,0.25)', borderColor: '#16a34a', borderWidth: 2 }
+        { label: 'Ingreso', data: g.ingreso, backgroundColor: 'rgba(0,74,173,0.3)', borderColor: '#004aad' },
+        { label: 'Alta', data: g.alta, backgroundColor: 'rgba(22,163,74,0.3)', borderColor: '#16a34a' }
       ]
     },
-    options: {
-      scales: { r: { ticks: { display: false }, grid: { color: '#dbe3f5' } } },
-      plugins: { legend: { position: 'bottom' } }
-    }
+    options: { scales: { r: { ticks: { display: false } } }, plugins: { legend: { position: 'bottom' } } }
   });
-
-  // === Notas ===
-  document.getElementById('timeline').innerHTML = notas.length
-    ? notas.slice(-4).map(n => `<div class="timeline-item"><strong>${n.Fecha}:</strong> ${n.Nota}</div>`).join('')
-    : 'Sin notas clínicas registradas.';
-
-  // === Enviar datos a n8n (IA resumen) ===
-  await generarResumenIA(p, evol, notas);
 }
-async function generarResumenIA(paciente, evolucion, notas) {
+document.getElementById('prevGraf').onclick = () => { graficoIndex = (graficoIndex - 1 + graficosData.length) % graficosData.length; renderGrafico(); };
+document.getElementById('nextGraf').onclick = () => { graficoIndex = (graficoIndex + 1) % graficosData.length; renderGrafico(); };
+
+async function generarResumenIA(paciente, evolucion, signos) {
   const payload = {
     paciente_id: paciente.PacienteID,
     nombre: paciente.Nombre,
@@ -216,30 +297,32 @@ async function generarResumenIA(paciente, evolucion, notas) {
     diagnostico: paciente.DiagnosticoPrincipal,
     servicio: paciente.Servicio,
     evolucion: evolucion.slice(-5),
-    notas: notas.slice(-5)
+    signos: signos.slice(-5)
   };
-
-  document.getElementById("resumenIA").innerHTML = "Generando resumen con IA...";
-
   try {
     const res = await fetch("https://nano33.app.n8n.cloud/webhook-test/resumen-ia", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-
-    // 🔹 Leemos texto plano, no JSON:
     const texto = await res.text();
-
-    // 🔹 Mostramos directamente el contenido devuelto:
-    document.getElementById("resumenIA").innerHTML = texto.trim()
-      ? `<div style="white-space: pre-wrap;">${texto}</div>`
-      : "No se recibió respuesta de la IA.";
+    document.getElementById("resumenIA").innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
   } catch (err) {
-    console.error(err);
-    document.getElementById("resumenIA").innerHTML = "Error al conectar con el asistente IA.";
+    document.getElementById("resumenIA").innerHTML = "Error al conectar con IA.";
   }
 }
+
+// Valoración IA
+document.querySelectorAll('.star').forEach(star => {
+  star.addEventListener('click', () => {
+    const val = star.dataset.v;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+    for (let i = 1; i <= val; i++) {
+      document.querySelector(`.star[data-v="${i}"]`).classList.add('active');
+    }
+    alert(`Valoración registrada: ${val} estrellas`);
+  });
+});
 
 function descargarPDF() {
   const opt = {
