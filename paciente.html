@@ -278,15 +278,17 @@ async function cargar() {
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
     const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
     const { data: notas } = await supabase
-      .from('notas')
+      .from("notas")
       .select(`
         Fecha,
         Nota,
-        personal_medico (Nombre, Rol)
+        MedicoID (
+          Nombre,
+          Rol
+        )
       `)
-      .eq('PacienteID', id)
-      .order('Fecha');
-
+      .eq("PacienteID", id)
+      .order("Fecha");
 
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
@@ -542,8 +544,8 @@ function renderNotas(notas) {
 
   tabla.innerHTML = notas.map(n => `
     <tr>
-      <td>${n.personal_medico?.Nombre || "—"}</td>
-      <td>${n.personal_medico?.Rol || "—"}</td>
+      <td>${n.MedicoID?.Nombre || "—"}</td>
+      <td>${n.MedicoID?.Rol || "—"}</td>
       <td>
         <div style="font-size:0.75rem; color:#555;">${new Date(n.Fecha).toLocaleDateString()}</div>
         <div style="font-size:0.8rem;">${n.Nota}</div>
@@ -551,6 +553,7 @@ function renderNotas(notas) {
     </tr>
   `).join('');
 }
+
  
 
 async function generarPDF() {
