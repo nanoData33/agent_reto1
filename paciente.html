@@ -12,6 +12,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+  
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -374,54 +378,50 @@ function activarValoracion() {
   });
 }
 
-async function generarPDF() {
-  import("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js").then(() => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    let y = 20;
+function generarPDF() {
+  const nombre = document.getElementById('nombre').innerText;
+  const edad = document.getElementById('edad').innerText;
+  const sexo = document.getElementById('sexo').innerText;
+  const diagnostico = document.getElementById('diagnostico').innerText;
+  const servicio = document.getElementById('servicio').innerText;
+  const resumen = document.getElementById('resumenIA').innerText || 'Sin resumen IA disponible.';
 
-    const nombre = document.getElementById("nombre").textContent;
-    const edad = document.getElementById("edad").textContent;
-    const sexo = document.getElementById("sexo").textContent;
-    const diagnostico = document.getElementById("diagnostico").textContent;
-    const servicio = document.getElementById("servicio").textContent;
+  const canvasRadar = document.getElementById('graficoRadar');
+  const radarImg = canvasRadar ? canvasRadar.toDataURL('image/png') : null;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text("Informe de Alta Clínica", 105, y, { align: "center" });
-    y += 10;
+  const docDefinition = {
+    pageSize: 'A4',
+    pageMargins: [40, 50, 40, 60],
+    content: [
+      { text: 'Informe Clínico de Alta', style: 'titulo' },
+      {
+        style: 'datos',
+        table: {
+          widths: ['*', '*'],
+          body: [
+            [
+              { text: `Paciente: ${nombre}\nEdad: ${edad}\nSexo: ${sexo}`, border: [false,false,false,false] },
+              { text: `Diagnóstico: ${diagnostico}\nServicio: ${servicio}`, border: [false,false,false,false] }
+            ]
+          ]
+        },
+        margin: [0, 10, 0, 20]
+      },
+      { text: 'Resumen IA:', style: 'subtitulo' },
+      { text: resumen, margin: [0, 5, 0, 15], fontSize: 10, lineHeight: 1.3 },
+      radarImg ? { image: radarImg, width: 300, alignment: 'center', margin: [0, 10, 0, 20] } : '',
+      { text: 'Informe generado automáticamente por MedAI Evolution Assistant', style: 'pie' }
+    ],
+    styles: {
+      titulo: { fontSize: 16, bold: true, alignment: 'center', color: '#004aad' },
+      subtitulo: { fontSize: 12, bold: true, color: '#004aad', margin: [0, 10, 0, 5] },
+      datos: { fontSize: 10 },
+      pie: { fontSize: 8, italics: true, alignment: 'center', margin: [0, 30, 0, 0], color: '#666' }
+    }
+  };
 
-    doc.setFontSize(11);
-    doc.text(`Paciente: ${nombre}`, 20, y);
-    y += 6;
-    doc.text(`Edad: ${edad}   Sexo: ${sexo}`, 20, y);
-    y += 6;
-    doc.text(`Diagnóstico: ${diagnostico}`, 20, y);
-    y += 6;
-    doc.text(`Servicio: ${servicio}`, 20, y);
-    y += 10;
-
-    const resumen = document.getElementById("resumenIA").innerText || "Sin resumen disponible.";
-    doc.setFont("helvetica", "bold");
-    doc.text("Resumen IA:", 20, y);
-    y += 6;
-    doc.setFont("helvetica", "normal");
-    const texto = doc.splitTextToSize(resumen, 170);
-    doc.text(texto, 20, y);
-    y += texto.length * 6 + 10;
-
-    // Añadir gráfico radar como imagen
-    const canvas = document.getElementById("graficoRadar");
-    const imgData = canvas.toDataURL("image/png", 1.0);
-    doc.addImage(imgData, "PNG", 20, y, 80, 80);
-    y += 90;
-
-    doc.setFontSize(9);
-    doc.text("Informe generado automáticamente por MedAI Evolution Assistant", 105, 290, { align: "center" });
-    doc.save(`informe_${nombre.replace(/\s+/g, "_")}.pdf`);
-  });
+  pdfMake.createPdf(docDefinition).download(`informe_${nombre.replace(/\s+/g, "_")}.pdf`);
 }
-
 
 /* === GRAFICO DE CONSTANTES VITALES === */
 function renderConstantes(signos) {
