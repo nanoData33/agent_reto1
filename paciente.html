@@ -277,6 +277,7 @@ async function cargar() {
     const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
     const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
+    // === EQUIPO MÉDICO (Notas y médicos asociados) ===
     const { data: notas, error: errorNotas } = await supabase
       .from("notas")
       .select("Fecha, Nota, MedicoID")
@@ -297,6 +298,7 @@ async function cargar() {
     }));
     
     renderNotas(notasCompletas);
+
 
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
