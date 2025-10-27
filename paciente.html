@@ -277,18 +277,23 @@ async function cargar() {
     const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
     const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
-    const { data: notas, error: errorNotas } = await supabase
+    const { data: notas } = await supabase
       .from("notas")
-      .select(`
-        Fecha,
-        Nota,
-        personal_medico (
-          Nombre,
-          Rol
-        )
-      `)
+      .select("Fecha, Nota, MedicoID")
       .eq("PacienteID", id)
       .order("Fecha");
+    
+    const { data: medicos } = await supabase
+      .from("personal_medico")
+      .select("MedicoID, Nombre, Rol");
+    
+    const notasCompletas = notas.map(n => ({
+      ...n,
+      personal_medico: medicos.find(m => m.MedicoID === n.MedicoID)
+    }));
+    
+    renderNotas(notasCompletas);
+
     
     if (errorNotas) {
       console.error("Error cargando notas:", errorNotas);
