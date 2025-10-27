@@ -442,10 +442,10 @@ function renderHeatmap(signos) {
 
   // Rangos normales
   const normal = {
-    "Presión Sistólica": { min: 100, max: 140 },
-    "FC": { min: 60, max: 100 },
-    "Temperatura": { min: 36, max: 37.5 },
-    "SpO₂": { min: 95, max: 100 }
+  "Presión Sistólica": { min: 110, max: 130 },
+  "FC": { min: 65, max: 90 },
+  "Temperatura": { min: 36.2, max: 37.2 },
+  "SpO₂": { min: 96, max: 99 }
   };
 
   // Datos para el heatmap
@@ -474,12 +474,16 @@ function renderHeatmap(signos) {
         borderWidth: 1,
         borderColor: "#fff",
         width: ctx => {
-          const area = ctx.chart.chartArea;
-          return area ? area.width / fechas.length - 2 : 20;
+          const chart = ctx.chart;
+          const area = chart.chartArea || {};
+          const xCount = fechas.length;
+          return area.width ? area.width / xCount - 3 : chart.width / xCount - 3;
         },
         height: ctx => {
-          const area = ctx.chart.chartArea;
-          return area ? area.height / parametros.length - 2 : 20;
+          const chart = ctx.chart;
+          const area = chart.chartArea || {};
+          const yCount = parametros.length;
+          return area.height ? area.height / yCount - 3 : chart.height / yCount - 3;
         }
       }]
     },
@@ -497,11 +501,20 @@ function renderHeatmap(signos) {
       },
       scales: {
         x: {
-          ticks: { callback: v => fechas[v] || "", maxRotation: 45, minRotation: 45 },
+          offset: true,
+          ticks: {
+            callback: v => fechas[v] || "",
+            maxRotation: 60,
+            minRotation: 60,
+            font: { size: 9 }
+          },
           grid: { display: false }
         },
         y: {
-          ticks: { callback: v => parametros[v] || "" },
+          ticks: {
+            callback: v => parametros[v] || "",
+            font: { size: 10 }
+          },
           grid: { display: false }
         }
       }
