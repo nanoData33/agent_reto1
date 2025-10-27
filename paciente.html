@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MedAI Evolution Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedAI Evolution Assistant</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+  <!-- Librerías necesarias -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <!-- Generación de PDF limpia (solo estas dos) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
-  
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Conexión a Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
@@ -382,50 +378,6 @@ function activarValoracion() {
   });
 }
 
-function generarPDF() {
-  const nombre = document.getElementById('nombre').innerText;
-  const edad = document.getElementById('edad').innerText;
-  const sexo = document.getElementById('sexo').innerText;
-  const diagnostico = document.getElementById('diagnostico').innerText;
-  const servicio = document.getElementById('servicio').innerText;
-  const resumen = document.getElementById('resumenIA').innerText || 'Sin resumen IA disponible.';
-
-  const canvasRadar = document.getElementById('graficoRadar');
-  const radarImg = canvasRadar ? canvasRadar.toDataURL('image/png') : null;
-
-  const docDefinition = {
-    pageSize: 'A4',
-    pageMargins: [40, 50, 40, 60],
-    content: [
-      { text: 'Informe Clínico de Alta', style: 'titulo' },
-      {
-        style: 'datos',
-        table: {
-          widths: ['*', '*'],
-          body: [
-            [
-              { text: `Paciente: ${nombre}\nEdad: ${edad}\nSexo: ${sexo}`, border: [false,false,false,false] },
-              { text: `Diagnóstico: ${diagnostico}\nServicio: ${servicio}`, border: [false,false,false,false] }
-            ]
-          ]
-        },
-        margin: [0, 10, 0, 20]
-      },
-      { text: 'Resumen IA:', style: 'subtitulo' },
-      { text: resumen, margin: [0, 5, 0, 15], fontSize: 10, lineHeight: 1.3 },
-      radarImg ? { image: radarImg, width: 300, alignment: 'center', margin: [0, 10, 0, 20] } : '',
-      { text: 'Informe generado automáticamente por MedAI Evolution Assistant', style: 'pie' }
-    ],
-    styles: {
-      titulo: { fontSize: 16, bold: true, alignment: 'center', color: '#004aad' },
-      subtitulo: { fontSize: 12, bold: true, color: '#004aad', margin: [0, 10, 0, 5] },
-      datos: { fontSize: 10 },
-      pie: { fontSize: 8, italics: true, alignment: 'center', margin: [0, 30, 0, 0], color: '#666' }
-    }
-  };
-
-  pdfMake.createPdf(docDefinition).download(`informe_${nombre.replace(/\s+/g, "_")}.pdf`);
-}
 
 /* === GRAFICO DE CONSTANTES VITALES === */
 function renderConstantes(signos) {
