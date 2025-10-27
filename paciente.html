@@ -11,6 +11,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
   
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
@@ -450,36 +454,74 @@ function renderConstantes(signos) {
   });
 }
 
-/* === GENERAR PDF === */
-function generarPDF() {
-  const elemento = document.getElementById("panel");
-  const opciones = {
-    margin: 0.3,
-    filename: `informe_${id}.pdf`,
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
-  };
+async function generarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+  let y = 20;
 
-  const barra = document.getElementById("barraProgreso");
-  barra.style.width = "0%";
-  barra.style.background = "#3a6ff8";
-  barra.style.transition = "width 0.5s";
+  // Datos básicos del paciente
+  const nombre = document.getElementById("nombre").innerText || "-";
+  const edad = document.getElementById("edad").innerText || "-";
+  const sexo = document.getElementById("sexo").innerText || "-";
+  const diagnostico = document.getElementById("diagnostico").innerText || "-";
+  const servicio = document.getElementById("servicio").innerText || "-";
+  const resumen = document.getElementById("resumenIA").innerText || "Sin resumen IA disponible.";
 
-  let progreso = 0;
-  const intervalo = setInterval(() => {
-    progreso += 10;
-    barra.style.width = progreso + "%";
-    if (progreso >= 90) clearInterval(intervalo);
-  }, 200);
+  // Cabecera
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("Informe Clínico de Alta", 105, y, { align: "center" });
+  y += 10;
 
-  html2pdf()
-    .set(opciones)
-    .from(elemento)
-    .save()
-    .then(() => {
-      barra.style.width = "100%";
-      barra.style.background = "#16a34a";
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.text(`Nombre: ${nombre}`, 20, y);
+  y += 6;
+  doc.text(`Edad: ${edad}   Sexo: ${sexo}`, 20, y);
+  y += 6;
+  doc.text(`Diagnóstico: ${diagnostico}`, 20, y);
+  y += 6;
+  doc.text(`Servicio: ${servicio}`, 20, y);
+  y += 10;
+
+  // Resumen IA
+  doc.setFont("helvetica", "bold");
+  doc.text("Resumen IA:", 20, y);
+  y += 6;
+  doc.setFont("helvetica", "normal");
+  const resumenSplit = doc.splitTextToSize(resumen, 170);
+  doc.text(resumenSplit, 20, y);
+  y += resumenSplit.length * 6 + 10;
+
+  // Tabla de medicación
+  const meds = Array.from(document.querySelectorAll("#tablaMeds tr")).map(tr =>
+    Array.from(tr.querySelectorAll("td,th")).map(td => td.innerText)
+  );
+  if (meds.length > 1) {
+    doc.setFont("helvetica", "bold");
+    doc.text("Tratamiento Actual", 20, y);
+    y += 4;
+    doc.autoTable({
+      startY: y,
+      head: [meds[0]],
+      body: meds.slice(1),
+      styles: { fontSize: 9 }
     });
+    y = doc.lastAutoTable.finalY + 10;
+  }
+
+  // Añadir gráfico radar como imagen
+  const radar = document.getElementById("graficoRadar");
+  if (radar) {
+    const imgData = radar.toDataURL("image/png");
+    doc.addImage(imgData, "PNG", 20, y, 90, 90);
+  }
+
+  // Pie de página
+  doc.setFontSize(9);
+  doc.text("Generado automáticamente por MedAI Evolution Assistant", 105, 285, { align: "center" });
+
+  doc.save(`informe_${nombre.replace(/\s+/g, "_")}.pdf`);
 }
 
 /* === BOTÓN MANUAL EXTRA === */
