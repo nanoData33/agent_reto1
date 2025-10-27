@@ -18,12 +18,6 @@
 
   <!-- Conexión a Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // Registrar los controladores del plugin matrix
-    const { MatrixController, MatrixElement } = ChartMatrix;
-    Chart.register(MatrixController, MatrixElement);
-  </script>
-
 
 <style>
 :root {
@@ -571,6 +565,14 @@ botonManual.onclick = async () => {
   await generarResumenIA(p, evol, signos);
 };
 document.getElementById("bloqueIA").appendChild(botonManual);
+// === REGISTRO DE PLUGIN MATRIX ===
+if (window.ChartMatrix) {
+  const { MatrixController, MatrixElement } = ChartMatrix;
+  Chart.register(MatrixController, MatrixElement);
+  console.log("✅ Plugin Matrix registrado correctamente");
+} else {
+  console.warn("⚠️ ChartMatrix no está disponible, revisa la carga del script .umd.min.js");
+}
 
 cargar();
 </script>
