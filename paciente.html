@@ -10,6 +10,7 @@
 
   <!-- Librerías necesarias -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.2/dist/chartjs-chart-matrix.min.js"></script>
 
   <!-- Generación de PDF limpia (solo estas dos) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -288,6 +289,7 @@ async function cargar() {
 
     renderRadar(evol);
     renderConstantes(signos);
+    renderHeatmap(signos);
     renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
     await generarResumenIA(p, evol, signos);
 
@@ -405,6 +407,81 @@ function renderConstantes(signos) {
     }
   });
 }
+
+function renderHeatmap(signos) {
+  if (!signos?.length) return;
+
+  const zona = document.getElementById("zonaGraficos");
+  const cont = document.createElement("div");
+  cont.style.marginTop = "20px";
+  cont.innerHTML = "<h3>Mapa de calor de signos vitales</h3><canvas id='graficoHeat'></canvas>";
+  zona.appendChild(cont);
+
+  const ctx = document.getElementById("graficoHeat");
+
+  // Parámetros
+  const parametros = ["Presión Sistólica", "FC", "Temperatura", "SpO₂"];
+  const fechas = signos.map(s => new Date(s.Fecha).toLocaleDateString());
+
+  // Normalización y colores
+  const normal = {
+    "Presión Sistólica": { min: 100, max: 140 },
+    "FC": { min: 60, max: 100 },
+    "Temperatura": { min: 36, max: 37.5 },
+    "SpO₂": { min: 95, max: 100 }
+  };
+
+  const valores = signos.flatMap((s, i) => [
+    { x: i, y: 0, v: s.PresionSistolica },
+    { x: i, y: 1, v: s.FrecuenciaCardiaca },
+    { x: i, y: 2, v: s.Temperatura },
+    { x: i, y: 3, v: s.SaturacionOxigeno }
+  ]);
+
+  new Chart(ctx, {
+    type: 'matrix',
+    data: {
+      datasets: [{
+        label: 'Signos vitales',
+        data: valores,
+        backgroundColor: ctx => {
+          const { v, y } = ctx.raw;
+          const param = parametros[y];
+          const { min, max } = normal[param];
+          if (v < min) return "rgba(231,76,60,0.8)";      // rojo
+          if (v > max) return "rgba(243,156,18,0.8)";     // naranja
+          return "rgba(46,204,113,0.8)";                  // verde
+        },
+        borderWidth: 1,
+        width: ({ chart }) => chart.chartArea.width / fechas.length - 2,
+        height: ({ chart }) => chart.chartArea.height / parametros.length - 2
+      }]
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: ctx => `${parametros[ctx[0].raw.y]} — ${fechas[ctx[0].raw.x]}`,
+            label: ctx => `Valor: ${ctx.raw.v}`
+          }
+        },
+        legend: { display: false },
+        title: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: { callback: (v) => fechas[v] || "" },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { callback: (v) => parametros[v] || "" },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
 
 async function generarPDF() {
   const { jsPDF } = window.jspdf;
