@@ -9,10 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
   <!-- Librerías necesarias -->
+  <!-- Chart.js principal -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.2/dist/chartjs-chart-matrix.umd.min.js"></script>
 
-  <!-- Generación de PDF limpia (solo estas dos) -->
+  <!-- Plugin Matrix (usa .min.js, no .umd.min.js, para evitar MIME error) -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.2/dist/chartjs-chart-matrix.min.js"></script>
+
+  <!-- Generación de PDF (jsPDF + autoTable) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
@@ -567,15 +570,13 @@ botonManual.onclick = async () => {
 document.getElementById("bloqueIA").appendChild(botonManual);
 
 // === REGISTRO DEL PLUGIN MATRIX ===
-const matrixPlugin = window['chartjs-chart-matrix'] || window.ChartMatrix;
-if (matrixPlugin) {
-  Chart.register(matrixPlugin);
+if (window['chartjs-chart-matrix']) {
+  Chart.register(window['chartjs-chart-matrix']);
   console.log("✅ Plugin Matrix registrado correctamente (registrado módulo completo)");
 } else {
-  console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta .umd.min.js");
+  console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta del script.");
 }
 
-  
 cargar();
 </script>
 </body>
