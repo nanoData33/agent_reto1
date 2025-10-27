@@ -375,51 +375,52 @@ function activarValoracion() {
 }
 
 async function generarPDF() {
-  const panel = document.getElementById("panel");
-  const barra = document.getElementById("barraProgreso");
-
-  // Asegura que los gráficos se hayan dibujado completamente
-  await new Promise(res => setTimeout(res, 800));
-
-  // Fuerza renderizado en alta resolución
-  const opciones = {
-    margin: 0.4,
-    filename: `informe_${id}.pdf`,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      logging: true,
-      windowWidth: panel.scrollWidth,
-      windowHeight: panel.scrollHeight
-    },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-  };
-
-  // Barra de progreso
-  barra.style.width = "0%";
-  barra.style.background = "#3a6ff8";
-  barra.style.transition = "width 0.5s";
-
-  let progreso = 0;
-  const intervalo = setInterval(() => {
-    progreso += 20;
-    barra.style.width = progreso + "%";
-    if (progreso >= 90) clearInterval(intervalo);
-  }, 250);
-
   try {
-    await html2pdf().set(opciones).from(panel).save();
+    const panel = document.getElementById("panel");
+    const barra = document.getElementById("barraProgreso");
+    barra.style.width = "5%";
+    barra.style.background = "#3a6ff8";
+
+    // Espera a que los gráficos terminen de renderizar
+    await new Promise(res => setTimeout(res, 800));
+
+    // Ajusta el tamaño antes de capturar
+    const opt = {
+      margin: 0.4,
+      filename: `informe_${id}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: "#ffffff"
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    // Avance visual de la barra
+    let progreso = 10;
+    const intervalo = setInterval(() => {
+      progreso += 10;
+      barra.style.width = progreso + "%";
+      if (progreso >= 90) clearInterval(intervalo);
+    }, 200);
+
+    // Crea el PDF y guarda
+    const worker = html2pdf().set(opt).from(panel);
+    await worker.save();
+
     barra.style.width = "100%";
     barra.style.background = "#16a34a";
   } catch (err) {
-    barra.style.background = "#e74c3c";
+    console.error("❌ Error al generar PDF:", err);
+    const barra = document.getElementById("barraProgreso");
     barra.style.width = "100%";
-    console.error("Error generando PDF:", err);
-    alert("No se pudo generar el PDF. Revisa la consola.");
+    barra.style.background = "#e74c3c";
+    alert("Error al generar el PDF. Revisa la consola.");
   }
 }
-
 
 /* === GRAFICO DE CONSTANTES VITALES === */
 function renderConstantes(signos) {
