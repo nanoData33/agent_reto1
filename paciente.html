@@ -277,18 +277,24 @@ async function cargar() {
     const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
     const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
-    const { data: notas } = await supabase
+    const { data: notas, error: errorNotas } = await supabase
       .from("notas")
       .select(`
         Fecha,
         Nota,
-        MedicoID (
+        personal_medico (
           Nombre,
           Rol
         )
       `)
       .eq("PacienteID", id)
       .order("Fecha");
+    
+    if (errorNotas) {
+      console.error("Error cargando notas:", errorNotas);
+    }
+    renderNotas(notas);
+
 
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
@@ -544,8 +550,8 @@ function renderNotas(notas) {
 
   tabla.innerHTML = notas.map(n => `
     <tr>
-      <td>${n.MedicoID?.Nombre || "—"}</td>
-      <td>${n.MedicoID?.Rol || "—"}</td>
+      <td>${n.personal_medico?.Nombre || "—"}</td>
+      <td>${n.personal_medico?.Rol || "—"}</td>
       <td>
         <div style="font-size:0.75rem; color:#555;">${new Date(n.Fecha).toLocaleDateString()}</div>
         <div style="font-size:0.8rem;">${n.Nota}</div>
@@ -553,6 +559,7 @@ function renderNotas(notas) {
     </tr>
   `).join('');
 }
+
 
  
 
