@@ -277,6 +277,16 @@ async function cargar() {
     const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
     const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
+    const { data: notas } = await supabase
+      .from('notas')
+      .select(`
+        Fecha,
+        Nota,
+        personal_medico (Nombre, Rol)
+      `)
+      .eq('PacienteID', id)
+      .order('Fecha');
+
 
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
@@ -296,6 +306,7 @@ async function cargar() {
     renderConstantes(signos);
     renderHeatmap(signos);
     renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
+    renderNotas(notas);
     await generarResumenIA(p, evol, signos);
 
   } catch (err) {
@@ -522,6 +533,25 @@ function renderHeatmap(signos) {
   });
 }
 
+function renderNotas(notas) {
+  const tabla = document.getElementById("tablaMedicos");
+  if (!notas?.length) {
+    tabla.innerHTML = `<tr><td colspan="3">Sin notas registradas</td></tr>`;
+    return;
+  }
+
+  tabla.innerHTML = notas.map(n => `
+    <tr>
+      <td>${n.personal_medico?.Nombre || "—"}</td>
+      <td>${n.personal_medico?.Rol || "—"}</td>
+      <td>
+        <div style="font-size:0.75rem; color:#555;">${new Date(n.Fecha).toLocaleDateString()}</div>
+        <div style="font-size:0.8rem;">${n.Nota}</div>
+      </td>
+    </tr>
+  `).join('');
+}
+ 
 
 async function generarPDF() {
   const { jsPDF } = window.jspdf;
