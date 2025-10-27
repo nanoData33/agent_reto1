@@ -9,42 +9,28 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
-    :root {
-      --blue-main: #1f3b73;
-      --blue-accent: #3a6ff8;
-      --gray-bg: #f6f8fb;
-      --gray-dark: #2d2d2d;
-      --gray-mid: #666;
-      --radius: 10px;
-      --shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-      --transition: all 0.3s ease;
-    }
-
     body {
-      margin: 0;
       font-family: "Inter", sans-serif;
-      background: var(--gray-bg);
-      color: var(--gray-dark);
+      background: #f6f8fb;
+      color: #2d2d2d;
+      margin: 0;
     }
-
     header {
       background: #fff;
-      box-shadow: var(--shadow);
       padding: 14px 40px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
     header span {
       font-weight: 700;
       font-size: 1.3rem;
-      color: var(--blue-main);
+      color: #1f3b73;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
     .columns {
       display: flex;
       flex-wrap: wrap;
@@ -52,83 +38,34 @@
       gap: 30px;
       padding: 30px;
     }
-
     .col {
       flex: 1;
       min-width: 380px;
       background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
       padding: 20px;
     }
-
     .col h2 {
       font-size: 1.2rem;
-      color: var(--blue-main);
+      color: #1f3b73;
       margin-bottom: 16px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-
     .card {
       background: #f9fbff;
-      border-radius: var(--radius);
+      border-radius: 10px;
       padding: 16px;
       margin-bottom: 12px;
       box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
-      transition: var(--transition);
     }
-
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
-    }
-
-    .card strong { color: var(--blue-main); }
-
+    .card strong { color: #1f3b73; }
     .reason {
       font-size: 0.85rem;
-      color: var(--gray-mid);
+      color: #666;
       margin-top: 6px;
-    }
-
-    button.action {
-      margin-top: 10px;
-      background: var(--blue-accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: 6px 12px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: var(--transition);
-    }
-
-    button.action:hover {
-      background: var(--blue-main);
-      transform: translateY(-2px);
-    }
-
-    #chat-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--blue-main);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 52px;
-      height: 52px;
-      font-size: 20px;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-      transition: var(--transition);
-    }
-
-    #chat-btn:hover {
-      background: var(--blue-accent);
-      transform: scale(1.08);
     }
   </style>
 </head>
@@ -148,10 +85,6 @@
     </div>
   </div>
 
-  <button id="chat-btn" title="Abrir chat" onclick="window.open('https://tuchatn8n.url', '_blank')">
-    <i class="fa-solid fa-comment-medical"></i>
-  </button>
-
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
@@ -161,4 +94,40 @@
       const { data: inWard } = await supabase.from("vista_pacientes_dashboard").select("*");
       const { data: allPatients } = await supabase.from("pacientes").select("*");
 
-      const altasContainer = document.
+      const altas = document.getElementById("altas");
+      const ingresos = document.getElementById("ingresos");
+
+      if (inWard?.length) {
+        const ready = inWard.filter(p => p.trend_score && p.trend_score >= 0.8);
+        if (ready.length === 0) altas.innerHTML += `<p>No hay pacientes listos para el alta.</p>`;
+        ready.forEach(p => {
+          altas.innerHTML += `
+            <div class="card">
+              <strong>${p.nombre || p.Nombre}</strong> (${p.edad || p.Edad} años)<br>
+              Diagnóstico: ${p.diagnostico_principal || p.DiagnosticoPrincipal || "No especificado"}<br>
+              <div class="reason">Evolución favorable con trend_score ${(p.trend_score).toFixed(2)}. Sugerencia: preparar alta médica.</div>
+            </div>
+          `;
+        });
+      }
+
+      if (allPatients?.length && inWard?.length) {
+        const currentIds = new Set(inWard.map(p => p.PacienteID || p.paciente_id));
+        const missing = allPatients.filter(p => !currentIds.has(p.PacienteID));
+        if (missing.length === 0) ingresos.innerHTML += `<p>No hay pacientes pendientes de ingreso.</p>`;
+        missing.forEach(p => {
+          ingresos.innerHTML += `
+            <div class="card">
+              <strong>${p.Nombre}</strong> (${p.Edad} años)<br>
+              Motivo: ${p.MotivoIngreso || "No registrado"}<br>
+              <div class="reason">Paciente no ingresado actualmente. Sugerencia: evaluar admisión en ${p.Servicio || "servicio correspondiente"}.</div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    loadDecisions();
+  </script>
+</body>
+</html>
