@@ -279,6 +279,8 @@ async function cargar() {
     }
 
     renderRadar(evol);
+    renderEvolucionTemporal(evol);
+    renderConstantes(signos);
     renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
     await generarResumenIA(p, evol, signos);
 
@@ -378,6 +380,109 @@ function generarPDF() {
     jsPDF: { format: 'a4', orientation: 'portrait' }
   };
   html2pdf().set(opt).from(document.body).save();
+}
+
+/* === GRAFICO DE EVOLUCIÓN TEMPORAL === */
+function renderEvolucionTemporal(evol) {
+  if (!evol?.length) return;
+  const ctx = document.createElement("canvas");
+  ctx.id = "graficoEvolTemporal";
+  document.getElementById("zonaGraficos").appendChild(ctx);
+
+  const dias = evol.map(e => e.dia_estancia);
+  const estados = evol.map(e => e.valoracion_estado);
+  const recaida = evol.map(e => Math.round(e.riesgo_recaida_estimado * 100));
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: dias,
+      datasets: [
+        {
+          label: "Valoración clínica (1-5)",
+          data: estados,
+          borderColor: "#004aad",
+          borderWidth: 2,
+          tension: 0.3,
+          fill: false
+        },
+        {
+          label: "Riesgo de recaída (%)",
+          data: recaida,
+          borderColor: "#e74c3c",
+          borderDash: [4,4],
+          borderWidth: 1.5,
+          yAxisID: "R"
+        }
+      ]
+    },
+    options: {
+      plugins: { title: { display: true, text: "Evolución clínica y riesgo" } },
+      scales: {
+        y: { beginAtZero: true, max: 5, title: { display: true, text: "Estado (1-5)" } },
+        R: { position: "right", beginAtZero: true, max: 100, title: { display: true, text: "Riesgo (%)" } }
+      }
+    }
+  });
+}
+
+/* === GRAFICO DE CONSTANTES VITALES === */
+function renderConstantes(signos) {
+  if (!signos?.length) return;
+  const ctx = document.createElement("canvas");
+  ctx.id = "graficoConstantes";
+  document.getElementById("zonaGraficos").appendChild(ctx);
+
+  const fechas = signos.map(s => new Date(s.Fecha).toLocaleDateString());
+  const fc = signos.map(s => s.FrecuenciaCardiaca);
+  const temp = signos.map(s => s.Temperatura);
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: fechas,
+      datasets: [
+        { label: "FC (bpm)", data: fc, borderColor: "#3a6ff8", borderWidth: 2, fill: false },
+        { label: "Temperatura (°C)", data: temp, borderColor: "#f39c12", borderWidth: 2, fill: false }
+      ]
+    },
+    options: {
+      plugins: { title: { display: true, text: "Constantes vitales durante la estancia" } },
+      scales: { y: { beginAtZero: false } }
+    }
+  });
+}
+
+/* === GENERAR PDF === */
+function generarPDF() {
+  const elemento = document.getElementById("panel");
+  const opciones = {
+    margin: 0.3,
+    filename: `informe_${id}.pdf`,
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+  };
+
+  const barra = document.getElementById("barraProgreso");
+  barra.style.width = "0%";
+  barra.style.background = "#3a6ff8";
+  barra.style.transition = "width 0.5s";
+
+  let progreso = 0;
+  const intervalo = setInterval(() => {
+    progreso += 10;
+    barra.style.width = progreso + "%";
+    if (progreso >= 90) clearInterval(intervalo);
+  }, 200);
+
+  html2pdf()
+    .set(opciones)
+    .from(elemento)
+    .save()
+    .then(() => {
+      barra.style.width = "100%";
+      barra.style.background = "#16a34a";
+    });
 }
 
 /* === BOTÓN MANUAL EXTRA === */
