@@ -567,13 +567,12 @@ botonManual.onclick = async () => {
 document.getElementById("bloqueIA").appendChild(botonManual);
 
 // === REGISTRO DEL PLUGIN MATRIX ===
-const matrixNS = window['chartjs-chart-matrix'] || window.ChartMatrix;
-if (matrixNS) {
-  const { MatrixController, MatrixElement } = matrixNS;
-  Chart.register(MatrixController, MatrixElement);
-  console.log("✅ Plugin Matrix registrado correctamente");
+const matrixPlugin = window['chartjs-chart-matrix'] || window.ChartMatrix;
+if (matrixPlugin) {
+  Chart.register(matrixPlugin);
+  console.log("✅ Plugin Matrix registrado correctamente (registrado módulo completo)");
 } else {
-  console.warn("⚠️ No se encontró el namespace del plugin Matrix. Verifica la versión del script .umd.min.js");
+  console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta .umd.min.js");
 }
 
   
