@@ -458,8 +458,14 @@ function renderHeatmap(signos) {
           return "rgba(46,204,113,0.8)";                  // verde
         },
         borderWidth: 1,
-        width: ({ chart }) => chart.chartArea.width / fechas.length - 2,
-        height: ({ chart }) => chart.chartArea.height / parametros.length - 2
+        width: ctx => {
+            const area = ctx.chart.chartArea;
+            return area ? area.width / fechas.length - 2 : 20;
+          },
+          height: ctx => {
+            const area = ctx.chart.chartArea;
+            return area ? area.height / parametros.length - 2 : 20;
+          }
       }]
     },
     options: {
