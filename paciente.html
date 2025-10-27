@@ -277,15 +277,19 @@ async function cargar() {
     const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
     const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
-    const { data: notas } = await supabase
+    const { data: notas, error: errorNotas } = await supabase
       .from("notas")
       .select("Fecha, Nota, MedicoID")
       .eq("PacienteID", id)
       .order("Fecha");
     
-    const { data: medicos } = await supabase
+    if (errorNotas) console.error("Error cargando notas:", errorNotas);
+    
+    const { data: medicos, error: errorMedicos } = await supabase
       .from("personal_medico")
       .select("MedicoID, Nombre, Rol");
+    
+    if (errorMedicos) console.error("Error cargando médicos:", errorMedicos);
     
     const notasCompletas = notas.map(n => ({
       ...n,
@@ -293,13 +297,6 @@ async function cargar() {
     }));
     
     renderNotas(notasCompletas);
-
-    
-    if (errorNotas) {
-      console.error("Error cargando notas:", errorNotas);
-    }
-    renderNotas(notas);
-
 
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
