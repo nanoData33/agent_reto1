@@ -10,8 +10,7 @@
 
   <!-- Librerías necesarias -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.2/dist/chartjs-chart-matrix.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.2/dist/chartjs-chart-matrix.umd.min.js"></script>
 
   <!-- Generación de PDF limpia (solo estas dos) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -20,9 +19,11 @@
   <!-- Conexión a Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-  // Registro manual del controlador "matrix" y su escala
-  Chart.register(MatrixController, MatrixElement, ColorScale, LinearScale, CategoryScale);
-</script>
+    // Registrar los controladores del plugin matrix
+    const { MatrixController, MatrixElement } = ChartMatrix;
+    Chart.register(MatrixController, MatrixElement);
+  </script>
+
 
 <style>
 :root {
