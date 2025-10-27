@@ -10,10 +10,12 @@
 
   <!-- Librerías necesarias -->
   <!-- Chart.js principal -->
+  <!-- Chart.js principal -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Plugin Matrix (versión 3.0.0, con MIME correcto) -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@3.0.0/dist/chartjs-chart-matrix.min.js"></script>
 
-  <!-- Plugin Matrix (usa .min.js, no .umd.min.js, para evitar MIME error) -->
-  <script src="https://unpkg.com/chartjs-chart-matrix@2.0.2/dist/chartjs-chart-matrix.min.js"></script>
 
   <!-- Generación de PDF (jsPDF + autoTable) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -572,10 +574,11 @@ document.getElementById("bloqueIA").appendChild(botonManual);
 // === REGISTRO DEL PLUGIN MATRIX ===
 if (window['chartjs-chart-matrix']) {
   Chart.register(window['chartjs-chart-matrix']);
-  console.log("✅ Plugin Matrix registrado correctamente (registrado módulo completo)");
+  console.log("✅ Plugin Matrix 3.0.0 registrado correctamente");
 } else {
   console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta del script.");
 }
+
 
 cargar();
 </script>
