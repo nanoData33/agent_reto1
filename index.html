@@ -16,7 +16,7 @@
       --gray-dark: #2d2d2d;
       --gray-mid: #666;
       --radius: 10px;
-      --shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      --shadow: 0 3px 10px rgba(0,0,0,0.08);
       --transition: all 0.3s ease;
     }
 
@@ -76,49 +76,20 @@
       transform: translateY(-2px);
     }
 
-    .actions {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      margin: 20px 0;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      background: #fff;
-      color: var(--blue-main);
-      border: 1px solid #dbe3f0;
-      padding: 10px 18px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: var(--transition);
-    }
-
-    .action-btn:hover {
-      background: var(--blue-accent);
-      color: white;
-      transform: translateY(-3px);
-    }
-
     .hospital {
-      width: 90%;
+      width: 92%;
       max-width: 1200px;
-      margin: 0 auto 60px auto;
+      margin: 30px auto;
       display: flex;
       flex-direction: column;
-      gap: 25px;
+      gap: 20px;
     }
 
     .row {
       display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+      gap: 14px;
     }
 
     .room {
@@ -126,7 +97,7 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 14px;
-      width: 260px;
+      width: calc(16.6% - 10px);
       position: relative;
       border-left: 5px solid transparent;
       transition: var(--transition);
@@ -134,7 +105,7 @@
 
     .room:hover {
       transform: translateY(-4px);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
     }
 
     .indicator {
@@ -192,12 +163,10 @@
     </div>
   </header>
 
-  <div class="actions">
-    <button class="action-btn" onclick="window.location='tendencias.html'"><i class="fa-solid fa-chart-line"></i> Tendencias</button>
-    <button class="action-btn" onclick="window.location='riesgo.html'"><i class="fa-solid fa-heart-pulse"></i> Riesgo Vital</button>
+  <div class="hospital">
+    <div class="row" id="row1"></div>
+    <div class="row" id="row2"></div>
   </div>
-
-  <div class="hospital" id="hospital"></div>
 
   <button id="chat-btn" title="Abrir chat" onclick="window.open('https://tuchatn8n.url', '_blank')">
     <i class="fa-solid fa-comment-medical"></i>
@@ -212,30 +181,30 @@
       const { data, error } = await supabase.from("vista_pacientes_dashboard").select("*").limit(12);
       if (error) {
         console.error(error);
-        document.getElementById("hospital").innerHTML = `<p style="color:red;">Error al cargar los pacientes.</p>`;
         return;
       }
 
-      const hospital = document.getElementById("hospital");
-      const row = document.createElement("div");
-      row.classList.add("row");
-      hospital.appendChild(row);
+      const row1 = document.getElementById("row1");
+      const row2 = document.getElementById("row2");
 
-      data.forEach(p => {
+      data.forEach((p, i) => {
         const room = document.createElement("div");
         room.className = "room";
-        const color = p.trend_score >= 0.8 ? "#27ae60" : p.trend_score >= 0.6 ? "#f1c40f" : "#e74c3c";
+        const color =
+          p.trend_score >= 0.8 ? "#27ae60" :
+          p.trend_score >= 0.6 ? "#f1c40f" : "#e74c3c";
         room.style.borderLeftColor = color;
+
         room.innerHTML = `
           <div class="indicator" style="background:${color};"></div>
-          <h3>${p.nombre}</h3>
-          <p><strong>${p.edad}</strong> años — ${p.sexo}</p>
-          <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
-          <p><strong>Ingreso:</strong> ${p.fecha_ingreso}</p>
-          <p><strong>Servicio:</strong> ${p.servicio}</p>
+          <h3>${p.nombre || p.Nombre}</h3>
+          <p><strong>${p.edad || p.Edad}</strong> años — ${p.sexo || p.Sexo}</p>
+          <p>${p.diagnostico_principal || p.DiagnosticoPrincipal || "Sin diagnóstico"}</p>
+          <p><strong>Ingreso:</strong> ${p.fecha_ingreso || p.FechaIngreso}</p>
+          <p><strong>Servicio:</strong> ${p.servicio || p.Servicio}</p>
         `;
-        room.onclick = () => window.open(`paciente.html?id=${p.paciente_id}`, "_blank");
-        row.appendChild(room);
+        room.onclick = () => window.open(`paciente.html?id=${p.paciente_id || p.PacienteID}`, "_blank");
+        (i < 6 ? row1 : row2).appendChild(room);
       });
     }
 
