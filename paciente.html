@@ -417,18 +417,30 @@ function renderHeatmap(signos) {
   if (!signos?.length) return;
 
   const zona = document.getElementById("zonaGraficos");
+
+  // Contenedor del gráfico
   const cont = document.createElement("div");
   cont.style.marginTop = "20px";
-  cont.innerHTML = "<h3>Mapa de calor de signos vitales</h3><canvas id='graficoHeat'></canvas>";
+
+  // Título y canvas
+  cont.innerHTML = `
+    <h3>Mapa de calor de signos vitales</h3>
+    <canvas id="graficoHeat"></canvas>
+    <div style="font-size:12px; margin-top:5px; text-align:center;">
+      <span style="background:#16a34a; color:white; padding:2px 6px; border-radius:4px;">Normal</span>
+      <span style="background:#f59e0b; color:white; padding:2px 6px; border-radius:4px;">Límite</span>
+      <span style="background:#dc2626; color:white; padding:2px 6px; border-radius:4px;">Crítico</span>
+    </div>
+  `;
   zona.appendChild(cont);
 
   const ctx = document.getElementById("graficoHeat");
 
-  // Parámetros
+  // Parámetros y fechas
   const parametros = ["Presión Sistólica", "FC", "Temperatura", "SpO₂"];
   const fechas = signos.map(s => new Date(s.Fecha).toLocaleDateString());
 
-  // Normalización y colores
+  // Rangos normales
   const normal = {
     "Presión Sistólica": { min: 100, max: 140 },
     "FC": { min: 60, max: 100 },
@@ -436,6 +448,7 @@ function renderHeatmap(signos) {
     "SpO₂": { min: 95, max: 100 }
   };
 
+  // Datos para el heatmap
   const valores = signos.flatMap((s, i) => [
     { x: i, y: 0, v: s.PresionSistolica },
     { x: i, y: 1, v: s.FrecuenciaCardiaca },
@@ -443,6 +456,7 @@ function renderHeatmap(signos) {
     { x: i, y: 3, v: s.SaturacionOxigeno }
   ]);
 
+  // Render del gráfico
   new Chart(ctx, {
     type: 'matrix',
     data: {
@@ -453,22 +467,24 @@ function renderHeatmap(signos) {
           const { v, y } = ctx.raw;
           const param = parametros[y];
           const { min, max } = normal[param];
-          if (v < min) return "rgba(231,76,60,0.8)";      // rojo
-          if (v > max) return "rgba(243,156,18,0.8)";     // naranja
-          return "rgba(46,204,113,0.8)";                  // verde
+          if (v < min) return "rgba(220,38,38,0.85)";    // rojo crítico
+          if (v > max) return "rgba(245,158,11,0.85)";   // naranja límite
+          return "rgba(22,163,74,0.85)";                 // verde normal
         },
         borderWidth: 1,
+        borderColor: "#fff",
         width: ctx => {
-            const area = ctx.chart.chartArea;
-            return area ? area.width / fechas.length - 2 : 20;
-          },
-          height: ctx => {
-            const area = ctx.chart.chartArea;
-            return area ? area.height / parametros.length - 2 : 20;
-          }
+          const area = ctx.chart.chartArea;
+          return area ? area.width / fechas.length - 2 : 20;
+        },
+        height: ctx => {
+          const area = ctx.chart.chartArea;
+          return area ? area.height / parametros.length - 2 : 20;
+        }
       }]
     },
     options: {
+      layout: { padding: { top: 10, bottom: 10 } },
       plugins: {
         tooltip: {
           callbacks: {
@@ -481,11 +497,11 @@ function renderHeatmap(signos) {
       },
       scales: {
         x: {
-          ticks: { callback: (v) => fechas[v] || "" },
+          ticks: { callback: v => fechas[v] || "", maxRotation: 45, minRotation: 45 },
           grid: { display: false }
         },
         y: {
-          ticks: { callback: (v) => parametros[v] || "" },
+          ticks: { callback: v => parametros[v] || "" },
           grid: { display: false }
         }
       }
