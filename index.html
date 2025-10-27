@@ -15,11 +15,8 @@
       --gray-bg: #f6f8fb;
       --gray-dark: #2d2d2d;
       --gray-mid: #666;
-      --success: #27ae60;
-      --warning: #f1c40f;
-      --danger: #e74c3c;
-      --shadow: 0 1px 6px rgba(0,0,0,0.1);
-      --radius: 6px;
+      --radius: 10px;
+      --shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
       --transition: all 0.3s ease;
     }
 
@@ -28,48 +25,42 @@
       font-family: "Inter", sans-serif;
       background: var(--gray-bg);
       color: var(--gray-dark);
-      overflow: hidden; /* Evita scroll vertical */
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     header {
       background: #fff;
-      border-bottom: 1px solid #e2e6ec;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      box-shadow: var(--shadow);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 40px;
-      flex-shrink: 0;
+      padding: 14px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     header span {
       font-weight: 700;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 1.3rem;
       color: var(--blue-main);
-    }
-
-    header i {
-      color: var(--blue-accent);
-      font-size: 1.2em;
-    }
-
-    header .buttons {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    header button {
+    .buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
       background: var(--blue-main);
-      border: none;
       color: white;
-      padding: 7px 14px;
+      border: none;
+      padding: 8px 14px;
       border-radius: var(--radius);
       font-weight: 600;
       cursor: pointer;
@@ -80,7 +71,7 @@
       font-size: 0.9rem;
     }
 
-    header button:hover {
+    button:hover {
       background: var(--blue-accent);
       transform: translateY(-2px);
     }
@@ -89,25 +80,23 @@
       display: flex;
       justify-content: center;
       gap: 14px;
-      margin: 14px auto;
+      margin: 20px 0;
       flex-wrap: wrap;
-      flex-shrink: 0;
     }
 
     .action-btn {
       background: #fff;
       color: var(--blue-main);
-      border: 1px solid #dce3f0;
-      padding: 7px 12px;
+      border: 1px solid #dbe3f0;
+      padding: 10px 18px;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       transition: var(--transition);
-      font-size: 0.85rem;
     }
 
     .action-btn:hover {
@@ -117,79 +106,58 @@
     }
 
     .hospital {
-      width: 92%;
-      max-width: 1280px;
-      margin: 0 auto;
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto 60px auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: space-evenly;
-      flex-grow: 1;
-      height: 100%;
+      gap: 25px;
     }
 
     .row {
       display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      width: 100%;
-      flex-wrap: nowrap;
-    }
-
-    .corridor {
-      width: 100%;
-      height: 6%;
-      background: rgba(58,111,248,0.05);
-      border-radius: 4px;
-      box-shadow: inset 0 0 3px rgba(0,0,0,0.04);
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .room {
       background: #fff;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 10px 12px;
-      width: calc(16.6% - 10px);
+      padding: 14px;
+      width: 260px;
       position: relative;
-      border-left: 4px solid transparent;
+      border-left: 5px solid transparent;
       transition: var(--transition);
-      cursor: pointer;
-      height: 140px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
     }
 
     .room:hover {
       transform: translateY(-4px);
-      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
     }
 
     .indicator {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 8px;
-      height: 8px;
+      top: 10px;
+      right: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
     }
 
     .room h3 {
-      margin: 4px 0 2px;
-      font-size: 0.85rem;
+      margin: 4px 0 8px;
+      font-size: 1rem;
       color: var(--blue-main);
       font-weight: 600;
     }
 
     .room p {
-      margin: 1px 0;
-      font-size: 0.75rem;
+      margin: 3px 0;
+      font-size: 0.85rem;
       color: var(--gray-mid);
-      line-height: 1.2;
-    }
-
-    .room strong {
-      color: var(--gray-dark);
+      line-height: 1.3;
     }
 
     #chat-btn {
@@ -200,29 +168,17 @@
       color: white;
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       font-size: 20px;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(0,0,0,0.25);
       transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     #chat-btn:hover {
       background: var(--blue-accent);
       transform: scale(1.08);
-    }
-
-    @media (max-width: 1000px) {
-      .room { width: calc(33.3% - 10px); height: 120px; }
-      .corridor { height: 8%; }
-    }
-
-    @media (max-width: 600px) {
-      .room { width: calc(50% - 10px); height: 110px; }
     }
   </style>
 </head>
@@ -231,40 +187,21 @@
   <header>
     <span><i class="fa-solid fa-hospital-user"></i> MedAI Evolution Ward</span>
     <div class="buttons">
-      <button onclick="window.location='ranking.html'"><i class="fa-solid fa-ranking-star"></i> Ranking</button>
-      <button onclick="alert('Chat médico próximamente')"><i class="fa-solid fa-stethoscope"></i> Asistente</button>
+      <button onclick="window.location='decisiones.html'"><i class="fa-solid fa-user-md"></i> Decisiones AI</button>
+      <button onclick="window.location='exportar.html'"><i class="fa-solid fa-file-export"></i> Exportar</button>
     </div>
   </header>
 
-<div class="actions">
-  <button class="action-btn" onclick="window.location='tendencias.html'">
-    <i class="fa-solid fa-chart-line"></i> Tendencias
-  </button>
-
-  <button class="action-btn" onclick="window.location='riesgo.html'">
-    <i class="fa-solid fa-heart-pulse"></i> Riesgo vital
-  </button>
-
-  <button class="action-btn" onclick="window.location='predicciones.html'">
-    <i class="fa-solid fa-brain"></i> Predicciones AI
-  </button>
-
-  <button class="action-btn" onclick="window.location='exportar.html'">
-    <i class="fa-solid fa-file-export"></i> Exportar
-  </button>
-
-  <button class="action-btn" onclick="window.location='alertas.html'">
-    <i class="fa-solid fa-bell"></i> Alertas
-  </button>
-</div>
-
-  <div class="hospital">
-    <div class="row" id="row1"></div>
-    <div class="corridor"></div>
-    <div class="row" id="row2"></div>
+  <div class="actions">
+    <button class="action-btn" onclick="window.location='tendencias.html'"><i class="fa-solid fa-chart-line"></i> Tendencias</button>
+    <button class="action-btn" onclick="window.location='riesgo.html'"><i class="fa-solid fa-heart-pulse"></i> Riesgo Vital</button>
   </div>
 
-  <button id="chat-btn" title="Abrir chat"><i class="fa-solid fa-comment-medical"></i></button>
+  <div class="hospital" id="hospital"></div>
+
+  <button id="chat-btn" title="Abrir chat" onclick="window.open('https://tuchatn8n.url', '_blank')">
+    <i class="fa-solid fa-comment-medical"></i>
+  </button>
 
   <script>
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
@@ -272,41 +209,33 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function loadPatients() {
-      const { data, error } = await supabase
-        .from("vista_pacientes_dashboard")
-        .select("*")
-        .limit(12);
-
-      if (error || !data) {
+      const { data, error } = await supabase.from("vista_pacientes_dashboard").select("*").limit(12);
+      if (error) {
         console.error(error);
-        document.querySelector(".hospital").innerHTML = `<p style="color:red;">Error al cargar los pacientes.</p>`;
+        document.getElementById("hospital").innerHTML = `<p style="color:red;">Error al cargar los pacientes.</p>`;
         return;
       }
 
-      const row1 = document.getElementById("row1");
-      const row2 = document.getElementById("row2");
+      const hospital = document.getElementById("hospital");
+      const row = document.createElement("div");
+      row.classList.add("row");
+      hospital.appendChild(row);
 
-      data.forEach((p, i) => {
+      data.forEach(p => {
         const room = document.createElement("div");
         room.className = "room";
-
-        const color =
-          p.trend_score >= 0.8 ? "var(--success)" :
-          p.trend_score >= 0.6 ? "var(--warning)" : "var(--danger)";
-
+        const color = p.trend_score >= 0.8 ? "#27ae60" : p.trend_score >= 0.6 ? "#f1c40f" : "#e74c3c";
         room.style.borderLeftColor = color;
-
         room.innerHTML = `
           <div class="indicator" style="background:${color};"></div>
           <h3>${p.nombre}</h3>
           <p><strong>${p.edad}</strong> años — ${p.sexo}</p>
           <p>${p.diagnostico_principal || "Sin diagnóstico"}</p>
-          <p>Ingreso: ${p.fecha_ingreso}</p>
-          <p>Servicio: <strong>${p.servicio}</strong></p>
+          <p><strong>Ingreso:</strong> ${p.fecha_ingreso}</p>
+          <p><strong>Servicio:</strong> ${p.servicio}</p>
         `;
-
         room.onclick = () => window.open(`paciente.html?id=${p.paciente_id}`, "_blank");
-        (i < 6 ? row1 : row2).appendChild(room);
+        row.appendChild(room);
       });
     }
 
