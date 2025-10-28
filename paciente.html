@@ -308,69 +308,85 @@ async function cargar() {
     }
 
     console.log("🩺 Cargando paciente", id);
-    const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
+
+    const { data: p } = await supabase
+      .from('pacientes')
+      .select('*')
+      .eq('PacienteID', id)
+      .single();
     if (!p) { alert("Paciente no encontrado."); return; }
 
-    const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
-    const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
-    const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
-
-    // === EQUIPO MÉDICO (Notas con nombre y rol del médico) ===
-    const { data: notasCompletas, error: errorNotas } = await supabase
-      .from("notas")
-      .select("Fecha, Nota, personal_medico (Nombre, Rol)")
-      .eq("PacienteID", id)
-      .order("Fecha");
-    
-    if (errorNotas) {
-      console.error("Error cargando notas:", errorNotas);
-    } else {
-      renderNotas(notasCompletas);
-    }
-    // === PRUEBAS Y RESULTADOS (lab_iniciales) ===
-    const { data: lab, error: errorLab } = await supabase
-      .from("lab_iniciales")
-      .select("Glucosa, pH, Cetonas, Creatinina, Hemoglobina, Leucocitos, Sodio, Potasio, Urea, Amilasa")
-      .eq("PacienteID", id)
-      .limit(1);
-    
-    if (!errorLab && lab?.length) {
-      const resultados = lab[0];
-      const tbody = document.getElementById("tablaLab");
-    
-      tbody.innerHTML = `
-        <tr><td>Glucosa</td><td>${resultados.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
-        <tr><td>pH</td><td>${resultados.pH ?? "—"}</td><td>7.35–7.45</td></tr>
-        <tr><td>Cetonas</td><td>${resultados.Cetonas ?? "—"}</td><td>Negativas</td></tr>
-        <tr><td>Creatinina</td><td>${resultados.Creatinina ?? "—"}</td><td>0.6–1.3 mg/dL</td></tr>
-        <tr><td>Hemoglobina</td><td>${resultados.Hemoglobina ?? "—"}</td><td>12–17 g/dL</td></tr>
-        <tr><td>Leucocitos</td><td>${resultados.Leucocitos ?? "—"}</td><td>4–11 ×10⁹/L</td></tr>
-        <tr><td>Sodio</td><td>${resultados.Sodio ?? "—"}</td><td>135–145 mmol/L</td></tr>
-        <tr><td>Potasio</td><td>${resultados.Potasio ?? "—"}</td><td>3.5–5.1 mmol/L</td></tr>
-        <tr><td>Urea</td><td>${resultados.Urea ?? "—"}</td><td>10–50 mg/dL</td></tr>
-        <tr><td>Amilasa</td><td>${resultados.Amilasa ?? "—"}</td><td>30–110 U/L</td></tr>
-      `;
-    }
-
+    // === Datos principales ===
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
     document.getElementById('sexo').textContent = p.Sexo;
     document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal;
     document.getElementById('servicio').textContent = p.Servicio;
 
-    const ult = signos?.[signos.length - 1];
-    if (ult) {
+    // === Datos clínicos ===
+    const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
+    const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
+    const { data: signos, error: errorSignos } = await supabase
+      .from('signos_vitales')
+      .select('*')
+      .eq('PacienteID', id)
+      .order('Fecha');
+
+    if (errorSignos) console.error("Error cargando signos vitales:", errorSignos);
+
+    if (!signos || signos.length === 0) {
+      console.warn("⚠️ No hay registros de signos vitales para este paciente.");
+      document.getElementById('pa').textContent = '—';
+      document.getElementById('fc').textContent = '—';
+      document.getElementById('spo2').textContent = '—';
+      document.getElementById('temp').textContent = '—';
+    } else {
+      const ult = signos[signos.length - 1];
       document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
       document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
       document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
       document.getElementById('temp').textContent = ult.Temperatura;
+
+      renderConstantes(signos);
+      renderHeatmap(signos);
     }
 
+    // === EQUIPO MÉDICO ===
+    const { data: notasCompletas, error: errorNotas } = await supabase
+      .from("notas")
+      .select("Fecha, Nota, personal_medico (Nombre, Rol)")
+      .eq("PacienteID", id)
+      .order("Fecha");
+
+    if (errorNotas) console.error("Error cargando notas:", errorNotas);
+    else renderNotas(notasCompletas);
+
+    // === PRUEBAS Y RESULTADOS ===
+    const { data: lab, error: errorLab } = await supabase
+      .from("lab_iniciales")
+      .select("Glucosa, pH, Cetonas, Creatinina, Hemoglobina, Leucocitos, Sodio, Potasio, Urea, Amilasa")
+      .eq("PacienteID", id)
+      .limit(1);
+
+    if (!errorLab && lab?.length) {
+      const r = lab[0];
+      document.getElementById("tablaLab").innerHTML = `
+        <tr><td>Glucosa</td><td>${r.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
+        <tr><td>pH</td><td>${r.pH ?? "—"}</td><td>7.35–7.45</td></tr>
+        <tr><td>Cetonas</td><td>${r.Cetonas ?? "—"}</td><td>Negativas</td></tr>
+        <tr><td>Creatinina</td><td>${r.Creatinina ?? "—"}</td><td>0.6–1.3 mg/dL</td></tr>
+        <tr><td>Hemoglobina</td><td>${r.Hemoglobina ?? "—"}</td><td>12–17 g/dL</td></tr>
+        <tr><td>Leucocitos</td><td>${r.Leucocitos ?? "—"}</td><td>4–11 ×10⁹/L</td></tr>
+        <tr><td>Sodio</td><td>${r.Sodio ?? "—"}</td><td>135–145 mmol/L</td></tr>
+        <tr><td>Potasio</td><td>${r.Potasio ?? "—"}</td><td>3.5–5.1 mmol/L</td></tr>
+        <tr><td>Urea</td><td>${r.Urea ?? "—"}</td><td>10–50 mg/dL</td></tr>
+        <tr><td>Amilasa</td><td>${r.Amilasa ?? "—"}</td><td>30–110 U/L</td></tr>
+      `;
+    }
+
+    // === Render de gráficos y resumen IA ===
     renderRadar(evol);
-    renderConstantes(signos);
-    renderHeatmap(signos);
     renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
-    renderNotas(notasCompletas);
     await generarResumenIA(p, evol, signos);
 
   } catch (err) {
@@ -378,6 +394,7 @@ async function cargar() {
     document.getElementById("resumenIA").textContent = "Error al cargar los datos del paciente.";
   }
 }
+
 
 /* === RADAR === */
 function renderRadar(evol) {
