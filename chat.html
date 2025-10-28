@@ -318,35 +318,47 @@
       if (t) t.remove();
     }
 
-    async function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      addMessage(text, "user");
-      input.value = "";
-      showTyping();
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage(text, "user");
+  input.value = "";
 
-      const payload = {
-        sessionId,
-        usuario: usuario.Nombre,
-        rol: usuario.Rol,
-        especialidad: usuario.Especialidad,
-        mensaje: text
-      };
+  showTyping();
 
-      try {
-        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json().catch(() => ({}));
-        removeTyping();
-        addMessage(data.respuesta || "💬 Procesando tu solicitud...", "bot");
-      } catch {
-        removeTyping();
-        addMessage("⚠️ No se pudo conectar con el asistente.", "bot");
-      }
+  const payload = {
+    mensaje: text,
+    usuario: usuario.Nombre || usuario.nombre,
+    rol: usuario.Rol || usuario.rol,
+    especialidad: usuario.Especialidad || usuario.especialidad
+  };
+
+  try {
+    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    let respuestaTexto = "";
+
+    // 💡 Si el servidor responde texto plano:
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const data = await res.json();
+      respuestaTexto = data.respuesta || JSON.stringify(data);
+    } else {
+      respuestaTexto = await res.text();
     }
+
+    removeTyping();
+    addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
+  } catch (err) {
+    console.error(err);
+    removeTyping();
+    addMessage("⚠️ No se pudo conectar con el asistente. Intenta más tarde.", "bot");
+  }
+}
 
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
