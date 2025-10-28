@@ -471,7 +471,7 @@ async function cargar() {
 
   try {
     // Endpoint de recomendaciones sigue siendo /recomendacion
-    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/recomendacion", {
+    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/recomendacion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -592,7 +592,7 @@ async function generarResumenIA(p, evol, signos) {
   };
 
   try {
-    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/evolucion", {
+    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/evolucion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
