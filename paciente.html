@@ -462,6 +462,7 @@ async function cargar() {
   resumenDiv.textContent = "Enviando datos a IA para recomendaciones...";
   barra.style.width = "0%";
 
+  // Mismo payload que se envía a /evolucion
   const payload = {
     paciente: p,
     evolucion: evol,
@@ -469,6 +470,7 @@ async function cargar() {
   };
 
   try {
+    // Endpoint de recomendaciones sigue siendo /recomendacion
     const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/recomendacion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
