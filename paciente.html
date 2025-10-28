@@ -240,16 +240,25 @@ th {
       <p>SpO₂: <span id="spo2"></span>% — Tª: <span id="temp"></span> °C</p>
     </div>
   </div>
+  <!-- RESUMEN IA Y RECOMENDACIONES EN DOS COLUMNAS -->
+  <div id="bloqueIA" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:18px;">
+    <!-- Evolución clínica -->
+    <div id="colEvolucion" style="background:#f9fafb;border:1px solid var(--borde);border-radius:8px;padding:10px 15px;">
+      <h3>Evolución clínica (IA)</h3>
+      <div id="barraEvolucion" style="height:6px;width:0;background:var(--azul);border-radius:4px;transition:width 0.4s;"></div>
+      <div id="resumenIA" style="margin-top:8px;font-size:0.9rem;min-height:45px;">Cargando evolución...</div>
+    </div>
 
-  <!-- RESUMEN IA -->
-  <div id="bloqueIA">
-    <h3>Resumen clínico (IA)</h3>
-    <div id="barraProgreso"></div>
-    <div id="resumenIA">Cargando análisis...</div>
-
-    <h3 style="margin-top:15px;">Recomendaciones (IA)</h3>
-    <div id="barraRecom"></div>
-    <div id="recomendacionesIA">Esperando respuesta...</div>
+    <!-- Recomendaciones -->
+    <div id="colRecomendaciones" style="background:#f9fafb;border:1px solid var(--borde);border-radius:8px;padding:10px 15px;">
+      <h3>Recomendaciones (IA)</h3>
+      <div id="barraRecom" style="height:6px;width:0;background:var(--verde);border-radius:4px;transition:width 0.4s;"></div>
+      <div id="recomendacionesIA" style="margin-top:8px;font-size:0.9rem;min-height:45px;">Cargando recomendaciones...</div>
+      <div id="valoracionIA" style="margin-top:10px;text-align:center;display:none;">
+        <label>Valoración de las recomendaciones:</label><br>
+        <span id="stars" style="font-size:20px;color:#ccc;cursor:pointer;">★★★★★</span>
+      </div>
+    </div>
   </div>
 
   <!-- DOS COLUMNAS -->
@@ -519,17 +528,19 @@ function renderTabla(id, datos, columnas) {
 }
 
 /* === RESUMEN IA === */
-/* === RESUMEN IA + RECOMENDACIONES === */
+/* === EVOLUCIÓN + RECOMENDACIONES === */
 async function generarResumenIA(paciente, evolucion, signos) {
-  const barra = document.getElementById("barraProgreso");
-  const resumenDiv = document.getElementById("resumenIA");
+  const barraEvol = document.getElementById("barraEvolucion");
   const barraRecom = document.getElementById("barraRecom");
+  const resumenDiv = document.getElementById("resumenIA");
   const recomDiv = document.getElementById("recomendacionesIA");
+  const valoracionDiv = document.getElementById("valoracionIA");
 
-  resumenDiv.textContent = "Enviando datos a IA para resumen...";
-  recomDiv.textContent = "Esperando recomendaciones...";
-  barra.style.width = "0%";
+  resumenDiv.textContent = "Enviando datos a IA para análisis de evolución...";
+  recomDiv.textContent = "Generando recomendaciones personalizadas...";
+  barraEvol.style.width = "0%";
   barraRecom.style.width = "0%";
+  valoracionDiv.style.display = "none";
 
   const payload = {
     paciente_id: paciente.PacienteID,
@@ -543,34 +554,28 @@ async function generarResumenIA(paciente, evolucion, signos) {
   };
 
   try {
-    // === SOLICITUD 1: Resumen ===
-    const resResumen = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
+    // === 1️⃣ EVOLUCIÓN CLÍNICA ===
+    const resEvol = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/evolucion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tipo: "resumen",
-        datos: payload
-      })
+      body: JSON.stringify(payload)
     });
 
-    const textoResumen = await resResumen.text();
-    console.log("✅ Resumen IA:", textoResumen);
+    const textoEvol = await resEvol.text();
+    console.log("✅ Evolución IA:", textoEvol);
 
-    if (textoResumen.trim().length > 0) {
-      barra.style.width = "100%";
-      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoResumen}</div>`;
+    if (textoEvol.trim().length > 0) {
+      barraEvol.style.width = "100%";
+      resumenDiv.innerHTML = `<div style="white-space:pre-wrap;">${textoEvol}</div>`;
     } else {
-      resumenDiv.textContent = "⚠️ La IA no devolvió resumen.";
+      resumenDiv.textContent = "⚠️ La IA no devolvió evolución.";
     }
 
-    // === SOLICITUD 2: Recomendaciones ===
-    const resRecom = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
+    // === 2️⃣ RECOMENDACIONES ===
+    const resRecom = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/recomendacion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tipo: "recomendaciones",
-        datos: payload
-      })
+      body: JSON.stringify(payload)
     });
 
     const textoRecom = await resRecom.text();
@@ -578,27 +583,19 @@ async function generarResumenIA(paciente, evolucion, signos) {
 
     if (textoRecom.trim().length > 0) {
       barraRecom.style.width = "100%";
-      recomDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoRecom}</div>`;
+      recomDiv.innerHTML = `<div style="white-space:pre-wrap;">${textoRecom}</div>`;
+      valoracionDiv.style.display = "block";
+      activarValoracion();
     } else {
       recomDiv.textContent = "⚠️ La IA no devolvió recomendaciones.";
     }
 
   } catch (err) {
     console.error("❌ Error IA:", err);
-    resumenDiv.textContent = "Error al conectar con el asistente IA.";
-    recomDiv.textContent = "Error al generar recomendaciones.";
+    resumenDiv.textContent = "Error al conectar con el análisis de evolución.";
+    recomDiv.textContent = "Error al conectar con las recomendaciones.";
   }
 }
-
-function activarValoracion() {
-  const stars = document.getElementById("stars");
-  stars.addEventListener("click", e => {
-    let n = Math.ceil(e.offsetX / (stars.offsetWidth / 5));
-    stars.innerHTML = "★★★★★".slice(0,n) + "<span style='color:#ccc;'>" + "★★★★★".slice(n) + "</span>";
-    console.log(`⭐ Valoración: ${n}/5`);
-  });
-}
-
 
 /* === GRAFICO DE CONSTANTES VITALES === */
 function renderConstantes(signos) {
