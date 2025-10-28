@@ -533,7 +533,7 @@ async function generarResumenIA(paciente, evolucion, signos) {
   };
 
   try {
-    const res = await fetch("https://nano33.app.n8n.cloud/webhook-test/evolucion", {
+    const res = await fetch("https://nano33.app.n8n.cloud/webhook-test/chat-reto1", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
