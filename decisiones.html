@@ -33,6 +33,7 @@
       transition: all .2s;
     }
     button:hover { background: #3a6ff8; transform: translateY(-2px); }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
   </style>
 </head>
 
@@ -60,6 +61,17 @@
 
     let ocupadas = JSON.parse(localStorage.getItem('habitaciones_ocupadas')) || [];
 
+    // Generador de score determinista (basado en ID)
+    function scoreDeterminista(id) {
+      let num = parseInt(id.replace(/\D/g, "")) || 0;
+      const base = Math.sin(num * 12.345) * 10000;
+      const norm = base - Math.floor(base);
+      // IDs bajos: pacientes ya ingresados → score alto o medio
+      if (num <= 11) return 0.6 + norm * 0.35;
+      // IDs nuevos → score bajo
+      return 0.25 + norm * 0.2;
+    }
+
     async function loadDecisiones() {
       const { data: pacientes, error } = await supabase.from("pacientes").select("*");
       if (error) {
@@ -74,57 +86,67 @@
       altasDiv.innerHTML = `<h2><i class="fa-solid fa-bed"></i> Sugerencias de alta</h2>`;
       ingresosDiv.innerHTML = `<h2><i class="fa-solid fa-user-plus"></i> Sugerencias de ingreso</h2>`;
 
-      let altas = 0, ingresos = 0;
+      let sugerenciasAlta = [];
+      let sugerenciasIngreso = [];
 
       pacientes.forEach(p => {
         const idNum = parseInt(p.PacienteID.replace(/\D/g, "")) || 0;
-        let score = p.trend_score;
-
-        // Simular score cuando no hay
-        if (score === null || score === undefined) {
-          if (idNum >= 12) score = 0.3 + Math.random() * 0.25; // potencial ingreso
-          else score = 0.5 + Math.random() * 0.4; // variación razonable
-        }
-
         const enPlanta = ocupadas.includes(p.PacienteID) || idNum <= 11;
-        let motivos = [], tipo = null;
+        let score = p.trend_score ?? scoreDeterminista(p.PacienteID);
 
-        // Reglas coherentes con el dashboard
         if (enPlanta && score >= 0.8) {
-          tipo = "alta";
-          motivos.push("Evolución favorable según IA. Signos vitales estables.");
+          sugerenciasAlta.push({ ...p, score });
         } 
         else if (!enPlanta && score <= 0.45) {
-          tipo = "ingreso";
-          motivos.push("Deterioro clínico detectado. Requiere ingreso para observación.");
+          sugerenciasIngreso.push({ ...p, score });
         }
+      });
 
-        // Render
-        if (tipo === "alta") {
-          altas++;
+      // Ordenar por score
+      sugerenciasAlta.sort((a,b) => b.score - a.score);
+      sugerenciasIngreso.sort((a,b) => a.score - b.score);
+
+      // Render altas
+      if (sugerenciasAlta.length > 0) {
+        sugerenciasAlta.forEach(p => {
           altasDiv.innerHTML += `
             <div class="card" id="card-${p.PacienteID}">
               <strong>${p.Nombre}</strong> (${p.Edad} años, ${p.Sexo})<br>
               Diagnóstico: ${p.DiagnosticoPrincipal || "No especificado"}<br>
-              <div class="reason">${motivos.join(" ")}<br><b>Score IA:</b> ${(score*100).toFixed(1)}%</div>
-              <button onclick="darAlta('${p.PacienteID}')">Dar alta</button>
+              <div class="reason">Evolución favorable según IA. Signos vitales estables.<br>
+              <b>Score IA:</b> ${(p.score*100).toFixed(1)}%</div>
+              <div class="actions">
+                <button onclick="verDetalles('${p.PacienteID}')"><i class="fa-solid fa-notes-medical"></i> Ver resumen</button>
+                <button onclick="darAlta('${p.PacienteID}')"><i class="fa-solid fa-up-right-from-square"></i> Dar alta</button>
+              </div>
             </div>`;
-        }
+        });
+      } else {
+        altasDiv.innerHTML += `<p>No hay pacientes listos para el alta.</p>`;
+      }
 
-        if (tipo === "ingreso") {
-          ingresos++;
+      // Render ingresos
+      if (sugerenciasIngreso.length > 0) {
+        sugerenciasIngreso.forEach(p => {
           ingresosDiv.innerHTML += `
             <div class="card" id="card-${p.PacienteID}">
               <strong>${p.Nombre}</strong> (${p.Edad} años, ${p.Sexo})<br>
               Motivo: ${p.MotivoIngreso || "No registrado"}<br>
-              <div class="reason">${motivos.join(" ")}<br><b>Score IA:</b> ${(score*100).toFixed(1)}%</div>
-              <button onclick="ingresar('${p.PacienteID}')">Ingresar</button>
+              <div class="reason">Deterioro clínico detectado. Requiere ingreso para observación.<br>
+              <b>Score IA:</b> ${(p.score*100).toFixed(1)}%</div>
+              <div class="actions">
+                <button onclick="verDetalles('${p.PacienteID}')"><i class="fa-solid fa-notes-medical"></i> Ver resumen</button>
+                <button onclick="ingresar('${p.PacienteID}')"><i class="fa-solid fa-bed-pulse"></i> Ingresar</button>
+              </div>
             </div>`;
-        }
-      });
+        });
+      } else {
+        ingresosDiv.innerHTML += `<p>No hay pacientes pendientes de ingreso.</p>`;
+      }
+    }
 
-      if (altas === 0) altasDiv.innerHTML += `<p>No hay pacientes listos para el alta.</p>`;
-      if (ingresos === 0) ingresosDiv.innerHTML += `<p>No hay pacientes pendientes de ingreso.</p>`;
+    function verDetalles(id) {
+      window.open(`paciente.html?id=${id}`, "_blank");
     }
 
     function darAlta(id) {
