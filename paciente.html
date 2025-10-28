@@ -555,7 +555,7 @@ async function generarResumenIA(paciente, evolucion, signos) {
 
   try {
     // === 1️⃣ EVOLUCIÓN CLÍNICA ===
-    const resEvol = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/evolucion", {
+    const resEvol = await fetch("https://rubaseval.app.n8n.cloud/webhook/evolucion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
