@@ -349,10 +349,9 @@ function renderRadar(evol) {
     type: "bar",
     data: {
       labels: [
-        "PA Sistólica (mmHg)",
-        "FC (bpm)",
-        "Temp (°C)",
-        "SpO₂ (%)",
+        "Presión Sistólica (mmHg)",
+        "Frecuencia Cardiaca (bpm)",
+        "Saturación O₂ (%)",
         "Glucosa (mg/dl)"
       ],
       datasets: [
@@ -361,41 +360,57 @@ function renderRadar(evol) {
           data: [
             ingreso.PresionSistolica,
             ingreso.FrecuenciaCardiaca,
-            ingreso.Temperatura,
             ingreso.SaturacionOxigeno,
             ingreso.Glucosa
           ],
-          backgroundColor: "rgba(0, 74, 173, 0.6)"
+          backgroundColor: "rgba(0, 74, 173, 0.7)",
+          borderRadius: 6
         },
         {
           label: "Alta",
           data: [
             alta.PresionSistolica,
             alta.FrecuenciaCardiaca,
-            alta.Temperatura,
             alta.SaturacionOxigeno,
             alta.Glucosa
           ],
-          backgroundColor: "rgba(22, 163, 74, 0.6)"
+          backgroundColor: "rgba(22, 163, 74, 0.7)",
+          borderRadius: 6
         }
       ]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: false, title: { display: true, text: "Valor" } }
+        x: {
+          ticks: { font: { size: 12 } },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: false,
+          ticks: { font: { size: 12 } },
+          title: {
+            display: true,
+            text: "Valor",
+            font: { weight: "bold" }
+          }
+        }
       },
       plugins: {
-        legend: { position: "bottom" },
+        legend: {
+          position: "bottom",
+          labels: { font: { size: 13, weight: "600" } }
+        },
         title: {
           display: true,
-          text: "Comparativa de signos vitales (Ingreso vs Alta)"
+          text: "Comparativa de signos vitales (Ingreso vs Alta)",
+          font: { size: 16, weight: "bold" }
         }
       }
     }
   });
 }
-
 
 
 /* === TABLAS === */
