@@ -559,10 +559,15 @@ function renderConstantes(signos) {
         { label: "Temperatura (°C)", data: temp, borderColor: "#f39c12", borderWidth: 2, fill: false }
       ]
     },
-    options: {
-      plugins: { title: { display: true, text: "Constantes vitales durante la estancia" } },
-      scales: { y: { beginAtZero: false } }
-    }
+    plugins: { 
+      title: { 
+        display: true, 
+        text: "Constantes vitales durante la estancia",
+        color: "#004aad",
+        font: { size: 16, weight: "bold" },
+        padding: { top: 10, bottom: 15 }
+      } 
+    },
   });
 }
 
