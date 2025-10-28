@@ -106,7 +106,13 @@ main {
 }
 
 /* ==== GRAFICOS ==== */
-#graficoRadar { max-height: 230px; }
+#graficoRadar {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
 .navGraf {
   background: white;
   border-radius: 50%;
@@ -334,43 +340,97 @@ async function cargar() {
 /* === RADAR === */
 function renderRadar(evol) {
   if (!evol?.length) return;
-  const ingreso = evol[0], alta = evol[evol.length - 1];
+  const ingreso = evol[0];
+  const alta = evol[evol.length - 1];
 
   const ctx = document.getElementById("graficoRadar");
-  new Chart(ctx, {
+
+  // Destruye gráfico previo si ya existía
+  if (ctx.chartInstance) {
+    ctx.chartInstance.destroy();
+  }
+
+  const labels = [
+    "Presión Sistólica (mmHg)",
+    "Frecuencia Cardiaca (bpm)",
+    "Temperatura (°C)",
+    "Saturación O₂ (%)",
+    "Glucosa (mg/dl)",
+    "Creatinina (mg/dl)"
+  ];
+
+  const ingresoData = [
+    ingreso.PresionSistolica,
+    ingreso.FrecuenciaCardiaca,
+    ingreso.Temperatura,
+    ingreso.SaturacionOxigeno,
+    ingreso.Glucosa,
+    ingreso.Creatinina
+  ];
+
+  const altaData = [
+    alta.PresionSistolica,
+    alta.FrecuenciaCardiaca,
+    alta.Temperatura,
+    alta.SaturacionOxigeno,
+    alta.Glucosa,
+    alta.Creatinina
+  ];
+
+  const chart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: ["PA Sistólica (mmHg)", "FC (bpm)", "Temp (°C)", "SpO₂ (%)", "Glucosa (mg/dl)", "Creatinina (mg/dl)"],
+      labels: labels,
       datasets: [
         {
           label: "Ingreso",
-          data: [
-            ingreso.PresionSistolica, ingreso.FrecuenciaCardiaca,
-            ingreso.Temperatura, ingreso.SaturacionOxigeno,
-            ingreso.Glucosa, ingreso.Creatinina
-          ],
-          backgroundColor: "rgba(0, 74, 173, 0.6)"
+          data: ingresoData,
+          backgroundColor: "rgba(0, 74, 173, 0.7)",
+          borderRadius: 6
         },
         {
           label: "Alta",
-          data: [
-            alta.PresionSistolica, alta.FrecuenciaCardiaca,
-            alta.Temperatura, alta.SaturacionOxigeno,
-            alta.Glucosa, alta.Creatinina
-          ],
-          backgroundColor: "rgba(22, 163, 74, 0.6)"
+          data: altaData,
+          backgroundColor: "rgba(22, 163, 74, 0.7)",
+          borderRadius: 6
         }
       ]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: false, title: { display: true, text: "Valor" } }
+        x: {
+          ticks: { font: { size: 12 } },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: false,
+          ticks: { font: { size: 12 } },
+          title: {
+            display: true,
+            text: "Valor",
+            font: { weight: "bold" }
+          }
+        }
       },
-      plugins: { legend: { position: "bottom" } }
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { font: { size: 13, weight: "600" } }
+        },
+        title: {
+          display: true,
+          text: "Comparativa de valores al ingreso y al alta",
+          font: { size: 16, weight: "bold" }
+        }
+      }
     }
   });
+
+  ctx.chartInstance = chart;
 }
+
 
 /* === TABLAS === */
 function renderTabla(id, datos, columnas) {
