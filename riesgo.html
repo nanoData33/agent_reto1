@@ -25,10 +25,8 @@
     <canvas id="graficoServicio"></canvas>
   </div>
 
-  <script>
-    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <script type="module">
+    import { supabase } from './supabaseClient.js';
 
     async function analizarRiesgo() {
       const { data, error } = await supabase.from('evolucion').select('PacienteID, SaturacionOxigeno, Temperatura, PresionSistolica');
