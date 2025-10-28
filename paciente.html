@@ -486,9 +486,16 @@ async function cargar() {
     console.log("✅ Respuesta Recomendación IA:", texto);
 
     if (texto.trim().length > 0) {
-      barra.style.width = "100%";
-      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
-    } else {
+      barra.style.width = "100%";
+      
+      // Convertimos **texto** a <strong style="color:var(--azul);>texto</strong>
+      const textoHtml = texto.replace(
+        /\*\*(.*?)\*\*/g, 
+        '<strong style="color:var(--azul);">$1</strong>'
+      );
+      
+      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoHtml}</div>`;
+    } else {
       resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
     }
 
@@ -607,9 +614,16 @@ async function generarResumenIA(p, evol, signos) {
     console.log("✅ Respuesta IA:", texto);
 
     if (texto.trim().length > 0) {
-      barra.style.width = "100%";
-      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
-    } else {
+      barra.style.width = "100%";
+      
+      // Convertimos **texto** a <strong style="color:var(--azul);>texto</strong>
+      const textoHtml = texto.replace(
+        /\*\*(.*?)\*\*/g, 
+        '<strong style="color:var(--azul);">$1</strong>'
+      );
+
+      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoHtml}</div>`;
+    } else {
       resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
     }
 
