@@ -6,16 +6,15 @@
 <title>MedAI Smart Ward — Exportar Informes</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <style>
 :root {
   --blue-main:#1f3b73;
   --blue-accent:#3a6ff8;
   --gray-bg:#f4f7fc;
   --gray-dark:#2d2d2d;
-  --gray-mid:#666;
   --radius:10px;
   --shadow:0 3px 10px rgba(0,0,0,0.08);
   --transition:all 0.3s ease;
@@ -80,82 +79,85 @@ const opciones = [
   { id: "actividad", texto: "Resumen de actividad del servicio", icon: "fa-hospital-user" }
 ];
 exportList.innerHTML = opciones.map(o =>
-  `<div class='option'><div><i class='fa-solid ${o.icon} text-[var(--blue-main)]'></i> ${o.texto}</div>
+  `<div class='option'><div><i class='fa-solid ${o.icon}'></i> ${o.texto}</div>
    <button onclick="generarPDF('${o.id}')"><i class='fa-solid fa-file-pdf'></i> Exportar</button></div>`).join("");
 
-async function generarPDF(tipo) {
+async function generarPDF(tipo){
   const rol = usuario.Rol;
-  const especialidad = usuario.Especialidad;
-  const nombre = usuario.Nombre;
-  const doc = new jsPDF();
-  let title = "Informe Médico";
-  let content = [];
+  const esp = usuario.Especialidad || "";
+  const filtro = (rol==="Administrador") ? {} : { Servicio: esp };
+  let data=[], titulo="", resumen="";
 
-  document.getElementById("msg").innerText = "Generando informe, espera unos segundos...";
-
-  try {
-    if (tipo === "pacientes") {
-      const { data } = await supabase.from("pacientes").select("*").limit(50);
-      title = `Pacientes del servicio: ${especialidad}`;
-      content = data.filter(p => rol==="Administrador" || p.Servicio === especialidad)
-                    .map(p => `${p.Nombre} — ${p.DiagnosticoPrincipal || "Sin diagnóstico"} (${p.Servicio})`);
-    }
-
-    if (tipo === "evolucion") {
-      const { data } = await supabase.from("evolucion").select("*").limit(30);
-      title = "Evolución clínica general (últimos registros)";
-      content = data.slice(0, 30).map(e => `${e.PacienteID} — T: ${e.Temperatura}°C, FC: ${e.FrecuenciaCardiaca}, SpO2: ${e.SaturacionOxigeno}%`);
-    }
-
-    if (tipo === "medicacion") {
-      const { data } = await supabase.from("medicacion").select("*").limit(50);
-      title = "Listado de medicaciones activas";
-      content = data.map(m => `${m.Medicamento} — ${m.Dosis} (${m.Via})`);
-    }
-
-    if (tipo === "personal") {
-      const { data } = await supabase.from("personal_medico").select("*").eq("Activo", true);
-      title = "Personal médico activo";
-      content = data.map(p => `${p.Nombre} — ${p.Especialidad} (${p.Rol})`);
-    }
-
-    if (tipo === "actividad") {
-      const { data: notas } = await supabase.from("notas").select("*").limit(30);
-      title = `Resumen de actividad — ${especialidad}`;
-      content = notas.map(n => `${n.Fecha} — ${n.Nota.substring(0, 60)}...`);
-    }
-
-    // === Generar PDF ===
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text(title, 15, 20);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.text(`Generado por: ${nombre} (${rol}${especialidad ? " · " + especialidad : ""})`, 15, 30);
-    doc.line(15, 33, 195, 33);
-
-    let y = 45;
-    content.forEach((linea, i) => {
-      if (y > 280) { doc.addPage(); y = 20; }
-      doc.text(`${i+1}. ${linea}`, 15, y);
-      y += 8;
-    });
-
-    doc.setFontSize(10);
-    doc.setTextColor(120);
-    doc.text("MedAI Smart Ward — Informe automático", 15, 290);
-    doc.save(`${tipo}_${Date.now()}.pdf`);
-    document.getElementById("msg").innerText = "Informe descargado correctamente.";
-  } catch (err) {
-    console.error(err);
-    document.getElementById("msg").innerText = "Error al generar el informe.";
+  if(tipo==="pacientes"){
+    const { data:d } = await supabase.from("pacientes").select("*");
+    data=(rol==="Administrador")?d:d.filter(p=>p.Servicio===esp);
+    titulo="Informe de Pacientes";
+    resumen=`Este informe incluye a los pacientes registrados en el servicio de ${esp||"todas las áreas"}, mostrando sus datos básicos y diagnóstico principal.`;
+  }else if(tipo==="evolucion"){
+    const { data:d } = await supabase.from("evolucion").select("PacienteID,Fecha,PresionSistolica,PresionDiastolica,FrecuenciaCardiaca,Temperatura");
+    const { data:pac } = await supabase.from("pacientes").select("PacienteID,Servicio");
+    const mapServ=Object.fromEntries(pac.map(x=>[x.PacienteID,x.Servicio]));
+    data=(rol==="Administrador")?d:d.filter(x=>mapServ[x.PacienteID]===esp);
+    titulo="Evolución Clínica";
+    resumen=`Registro resumido de signos vitales y evolución reciente de pacientes bajo seguimiento en ${esp||"todas las áreas"}.`;
+  }else if(tipo==="medicacion"){
+    const { data:d } = await supabase.from("medicacion").select("PacienteID,Medicamento,Dosis,Via");
+    const { data:pac } = await supabase.from("pacientes").select("PacienteID,Servicio");
+    const mapServ=Object.fromEntries(pac.map(x=>[x.PacienteID,x.Servicio]));
+    data=(rol==="Administrador")?d:d.filter(x=>mapServ[x.PacienteID]===esp);
+    titulo="Medicación Activa";
+    resumen=`Listado de medicaciones actuales de los pacientes del servicio de ${esp||"todas las áreas"}.`;
+  }else if(tipo==="personal"){
+    const { data:d } = await supabase.from("personal_medico").select("Nombre,Especialidad,Rol,Email,Telefono");
+    data=(rol==="Administrador")?d:d.filter(p=>p.Especialidad===esp);
+    titulo="Personal Médico Activo";
+    resumen=`Profesionales activos en ${esp||"todas las áreas"} durante el presente periodo.`;
+  }else if(tipo==="actividad"){
+    const { data:pac } = await supabase.from("pacientes").select("Servicio,FechaIngreso");
+    const servicios=rol==="Administrador"?pac:pac.filter(p=>p.Servicio===esp);
+    const resumenDatos=servicios.reduce((a,b)=>{a[b.Servicio]=(a[b.Servicio]||0)+1;return a;},{});
+    data=Object.entries(resumenDatos).map(([s,v])=>({Servicio:s,Pacientes:v}));
+    titulo="Resumen de Actividad";
+    resumen=`Resumen general de la carga asistencial por servicio.`;
   }
+
+  crearPDF(titulo,resumen,data);
 }
 
-document.getElementById("logout-btn").addEventListener("click", async () => {
-  await supabase.auth.signOut();
-  localStorage.clear();
-  window.location.href = "login.html";
+function crearPDF(titulo,resumen,data){
+  const doc=new jsPDF();
+  const svgIcon=`<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231f3b73' viewBox='0 0 16 16'><path d='M8 0a8 8 0 100 16A8 8 0 008 0zM4.5 7.5a.5.5 0 010-1H7V4.5a.5.5 0 011 0V6.5h2.5a.5.5 0 010 1H8V9.5a.5.5 0 01-1 0V7.5H4.5z'/></svg>`;
+  doc.setFillColor(31,59,115);
+  doc.rect(0,0,210,20,"F");
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(16);
+  doc.text("MedAI Smart Ward",14,13);
+  doc.setTextColor(31,59,115);
+  doc.setFontSize(18);
+  doc.text(titulo,14,35);
+  doc.setFontSize(11);
+  doc.text(`Generado por: ${usuario.Nombre||"—"} (${usuario.Especialidad||usuario.Rol})`,14,43);
+  doc.text(`Fecha: ${new Date().toLocaleDateString()}`,150,43);
+  doc.setDrawColor(31,59,115);
+  doc.line(14,46,196,46);
+  doc.setFontSize(11);
+  doc.text(resumen,14,55,{maxWidth:180});
+  if(data.length){
+    const cols=Object.keys(data[0]);
+    const rows=data.map(d=>cols.map(c=>d[c]||"-"));
+    doc.autoTable({startY:70,head:[cols],body:rows,styles:{fontSize:9},headStyles:{fillColor:[58,111,248]},alternateRowStyles:{fillColor:[245,247,250]}});
+  }else{
+    doc.text("No hay datos disponibles según su rol o servicio.",14,70);
+  }
+  doc.setFontSize(9);
+  doc.setTextColor(120,120,120);
+  doc.text("Documento generado automáticamente por MedAI Smart Ward",14,285);
+  doc.save(titulo.replaceAll(" ","_")+".pdf");
+}
+
+document.getElementById("logout-btn")?.addEventListener("click",async()=>{
+  const { error }=await supabase.auth.signOut();
+  if(!error){localStorage.clear();window.location.href="login.html";}
 });
 </script>
 </body>
