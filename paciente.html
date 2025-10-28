@@ -333,29 +333,7 @@ async function cargar() {
 
     const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
-    // === PRUEBAS Y RESULTADOS (lab_iniciales) ===
-    const { data: lab, error: errorLab } = await supabase
-      .from("lab_iniciales")
-      .select("Glucosa, pH, Cetonas, Creatinina, Hemoglobina, Leucocitos, Sodio, Potasio, Urea, Amilasa")
-      .eq("PacienteID", id)
-      .limit(1);
-    
-    if (!errorLab && lab?.length) {
-      const resultados = lab[0];
-      const tbody = document.getElementById("tablaLab");
-      tbody.innerHTML = `
-        <tr><td>Glucosa</td><td>${resultados.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
-        <tr><td>pH</td><td>${resultados.pH ?? "—"}</td><td>7.35–7.45</td></tr>
-        <tr><td>Cetonas</td><td>${resultados.Cetonas ?? "—"}</td><td>Negativas</td></tr>
-        <tr><td>Creatinina</td><td>${resultados.Creatinina ?? "—"}</td><td>0.6–1.3 mg/dL</td></tr>
-        <tr><td>Hemoglobina</td><td>${resultados.Hemoglobina ?? "—"}</td><td>12–17 g/dL</td></tr>
-        <tr><td>Leucocitos</td><td>${resultados.Leucocitos ?? "—"}</td><td>4–11 ×10⁹/L</td></tr>
-        <tr><td>Sodio</td><td>${resultados.Sodio ?? "—"}</td><td>135–145 mmol/L</td></tr>
-        <tr><td>Potasio</td><td>${resultados.Potasio ?? "—"}</td><td>3.5–5.1 mmol/L</td></tr>
-        <tr><td>Urea</td><td>${resultados.Urea ?? "—"}</td><td>10–50 mg/dL</td></tr>
-        <tr><td>Amilasa</td><td>${resultados.Amilasa ?? "—"}</td><td>30–110 U/L</td></tr>
-      `;
-      }
+    const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
 
     // === EQUIPO MÉDICO (Notas con nombre y rol del médico) ===
     const { data: notasCompletas, error: errorNotas } = await supabase
