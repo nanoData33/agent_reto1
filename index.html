@@ -151,6 +151,12 @@
       background: var(--blue-accent);
       transform: scale(1.08);
     }
+    #logout-btn {
+      background-color: #c0392b;
+    }
+    #logout-btn:hover {
+      background-color: #a93226;
+    }
   </style>
 </head>
 
@@ -160,6 +166,7 @@
     <div class="buttons">
       <button onclick="window.location='decisiones.html'"><i class="fa-solid fa-user-md"></i> Decisiones AI</button>
       <button onclick="window.location='exportar.html'"><i class="fa-solid fa-file-export"></i> Exportar</button>
+      <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
     </div>
   </header>
 
@@ -216,6 +223,18 @@
     }
 
     loadPatients();
+
+    // 🧹 Botón de cerrar sesión
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        localStorage.clear();
+        window.location.href = 'login.html';
+      } else {
+        console.error('Error al cerrar sesión:', error.message);
+      }
+    });
+
   </script>
 </body>
 </html>
