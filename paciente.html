@@ -549,12 +549,14 @@ function renderConstantes(signos) {
   cont.style.marginTop = "20px";
 
   // Título con el mismo formato que el del mapa de calor
+  // Título con el mismo formato que el del mapa de calor
   cont.innerHTML = `
     <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2 text-center border-b-2 border-blue-300 pb-2">
       Constantes vitales durante la estancia
     </h3>
-    <canvas id="graficoConstantes"></canvas>
+    <canvas id="graficoConstantes" style="width:100%;max-width:600px;height:260px;max-height:260px;"></canvas>
   `;
+
   zona.appendChild(cont);
 
   const ctx = document.getElementById("graficoConstantes");
