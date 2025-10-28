@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MedAI Evolution Ward</title>
+  <title>MedAI Smart Ward — Unidad Inteligente de Evolución Clínica</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -12,7 +12,7 @@
     :root {
       --blue-main: #1f3b73;
       --blue-accent: #3a6ff8;
-      --gray-bg: #f6f8fb;
+      --gray-bg: #f4f7fc;
       --gray-dark: #2d2d2d;
       --gray-mid: #666;
       --radius: 10px;
@@ -77,12 +77,27 @@
     }
 
     .hospital {
-      width: 92%;
-      max-width: 1200px;
+      width: 94%;
+      max-width: 1300px;
       margin: 30px auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
+      position: relative;
+    }
+
+    /* 🏥 Pasillo central */
+    .pasillo {
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 60px;
+      background: linear-gradient(180deg, #e9ecf3 0%, #d8dce6 100%);
+      border-radius: 20px;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.1);
+      z-index: 0;
     }
 
     .row {
@@ -90,6 +105,8 @@
       justify-content: space-between;
       flex-wrap: nowrap;
       gap: 14px;
+      z-index: 2;
+      position: relative;
     }
 
     .room {
@@ -151,9 +168,11 @@
       background: var(--blue-accent);
       transform: scale(1.08);
     }
+
     #logout-btn {
       background-color: #c0392b;
     }
+
     #logout-btn:hover {
       background-color: #a93226;
     }
@@ -164,78 +183,77 @@
       filter: grayscale(100%);
     }
 
-    .user-chip{
-      background:#eef3ff;
-      color:#1f3b73;
-      border:1px solid #d8e2ff;
-      padding:6px 10px;
-      border-radius:999px;
-      font-weight:600;
-      font-size:0.9rem;
-    }
-    @media (max-width: 820px){
-      .user-chip{ display:none; } /* en móvil, quita ruido */
+    .user-chip {
+      background: #eef3ff;
+      color: #1f3b73;
+      border: 1px solid #d8e2ff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
     }
 
+    @media (max-width: 820px) {
+      .user-chip {
+        display: none;
+      }
+      .hospital {
+        width: 98%;
+      }
+      .room {
+        width: 48%;
+      }
+      .pasillo {
+        display: none;
+      }
+    }
   </style>
 </head>
 
 <body>
   <header>
-    <span><i class="fa-solid fa-hospital-user"></i> MedAI Evolution Ward</span>
-    
-    <!-- 👇 añade esto -->
+    <span><i class="fa-solid fa-stethoscope"></i> MedAI Smart Ward</span>
     <span id="user-info" class="user-chip"></span>
-  
+
     <div class="buttons">
       <button onclick="window.location='decisiones.html'"><i class="fa-solid fa-user-md"></i> Decisiones AI</button>
       <button onclick="window.location='exportar.html'"><i class="fa-solid fa-file-export"></i> Exportar</button>
       <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
-      </div>
+    </div>
   </header>
 
-
   <div class="hospital">
-    <div class="row" id="row1"></div>
-    <div class="row" id="row2"></div>
+    <div id="row1" class="row"></div>
+    <div class="pasillo"></div>
+    <div id="row2" class="row"></div>
   </div>
 
-  <button id="chat-btn" title="Abrir chat" onclick="window.open('https://tuchatn8n.url', '_blank')">
+  <button id="chat-btn" title="Abrir chat" onclick="window.open('chat.html','_blank')">
     <i class="fa-solid fa-comment-medical"></i>
   </button>
 
   <script>
-
-      // 🔒 Protección: redirigir si no hay sesión activa
     const usuario = JSON.parse(localStorage.getItem('usuario'));
     if (!usuario) {
       window.location.href = 'login.html';
     }
-    
+
     const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function puedeVerPaciente(servicioPaciente, especialidadMedico, rolMedico) {
       const accesoTotal = ['Medicina Interna', 'Enfermería', 'Administración'];
-      // Administrador siempre tiene acceso completo
       if (rolMedico === 'Administrador') return true;
-      // Especialidades con acceso total (Interna, Enfermería, Administración)
       if (accesoTotal.includes(especialidadMedico)) return true;
-      // El resto solo puede ver su propia especialidad
       return servicioPaciente === especialidadMedico;
     }
 
-
     async function loadPatients() {
       const { data, error } = await supabase.from("vista_pacientes_dashboard").select("*").limit(12);
-      if (error) {
-        console.error(error);
-        return;
-      }
+      if (error) return console.error(error);
 
-      const medico = usuario; // el médico logueado del localStorage
-
+      const medico = usuario;
       const row1 = document.getElementById("row1");
       const row2 = document.getElementById("row2");
 
@@ -255,36 +273,25 @@
           <p><strong>Ingreso:</strong> ${p.fecha_ingreso || p.FechaIngreso}</p>
           <p><strong>Servicio:</strong> ${p.servicio || p.Servicio}</p>
         `;
-        const autorizado = puedeVerPaciente(
-          p.servicio || p.Servicio,
-          usuario.Especialidad,
-          usuario.Rol
-        );
 
-        if (!autorizado) {
-          room.classList.add('disabled');
-        } else {
-          room.addEventListener('click', () => {
-            window.open(`paciente.html?id=${p.paciente_id || p.PacienteID}`, "_blank");
-          });
-        }
-        
+        const autorizado = puedeVerPaciente(p.servicio || p.Servicio, usuario.Especialidad, usuario.Rol);
+        if (!autorizado) room.classList.add("disabled");
+        else room.addEventListener("click", () => {
+          window.open(`paciente.html?id=${p.paciente_id || p.PacienteID}`, "_blank");
+        });
+
         (i < 6 ? row1 : row2).appendChild(room);
-
       });
     }
 
     loadPatients();
 
-    // 🧹 Botón de cerrar sesión
-    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    document.getElementById("logout-btn")?.addEventListener("click", async () => {
       const { error } = await supabase.auth.signOut();
       if (!error) {
         localStorage.clear();
-        window.location.href = 'login.html';
-      } else {
-        console.error('Error al cerrar sesión:', error.message);
-      }
+        window.location.href = "login.html";
+      } else console.error("Error al cerrar sesión:", error.message);
     });
 
     const chip = document.getElementById("user-info");
@@ -294,7 +301,6 @@
       const esp = usuario.Especialidad || usuario.especialidad || "";
       chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
     }
-
   </script>
 </body>
 </html>
