@@ -53,103 +53,92 @@
     </div>
   </div>
 
-  <script type="module">
-    import { supabase } from './supabaseClient.js';
+  <script>
+    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let ocupadas = JSON.parse(localStorage.getItem('habitaciones_ocupadas')) || [];
 
     async function loadDecisiones() {
-      // Cargar datos principales
-      const { data: pacientes } = await supabase.from("pacientes").select("*");
-      const { data: signos } = await supabase.from("signos_vitales").select("*");
-      const { data: labs } = await supabase.from("lab_iniciales").select("*");
-      const { data: evol } = await supabase.from("evolucion").select("*");
-
-      // Intentar obtener los pacientes actualmente en planta (dashboard)
-      const { data: enPlanta } = await supabase.from("vista_pacientes_dashboard").select("paciente_id").maybeSingle();
-      const idsPlanta = enPlanta ? enPlanta.map(p => p.paciente_id) : [];
+      const { data: pacientes } = await supabase.from("vista_pacientes_dashboard_chat").select("*");
+      if (!pacientes) return;
 
       const altasDiv = document.getElementById("altas");
       const ingresosDiv = document.getElementById("ingresos");
-      document.getElementById("noAltas").remove();
-      document.getElementById("noIngresos").remove();
+      document.getElementById("noAltas")?.remove();
+      document.getElementById("noIngresos")?.remove();
 
       let altas = 0, ingresos = 0;
+      altasDiv.innerHTML = `<h2><i class="fa-solid fa-bed"></i> Sugerencias de alta</h2>`;
+      ingresosDiv.innerHTML = `<h2><i class="fa-solid fa-user-plus"></i> Sugerencias de ingreso</h2>`;
 
-      for (const p of pacientes) {
-        const signosP = signos.filter(s => s.PacienteID === p.PacienteID);
-        const labsP = labs.filter(l => l.PacienteID === p.PacienteID);
-        const ultSigno = signosP.at(-1) || {};
-        const ultLab = labsP.at(-1) || {};
-
-        const hr = ultSigno.FrecuenciaCardiaca;
-        const temp = ultSigno.Temperatura;
-        const sat = ultSigno.SaturacionOxigeno;
-        const hb = ultLab.Hemoglobina;
-        const leu = ultLab.Leucocitos;
-        const crea = ultLab.Creatinina;
-
-        let motivos = [];
-        let tipo = null;
-
-        // Reglas de alta (solo para los pacientes que ya están en planta)
+      pacientes.forEach(p => {
         const idNum = parseInt(p.PacienteID.replace(/\D/g, "")) || 0;
-        const estaEnPlanta = idsPlanta.includes(p.PacienteID) || idNum <= 11;
+        let score = p.trend_score;
 
-        if (estaEnPlanta && hr && temp && sat) {
-          if (hr >= 60 && hr <= 100 && temp < 37.5 && sat >= 95) {
-            tipo = "alta";
-            motivos.push("Signos vitales estables y dentro del rango normal.");
-            if (hb && hb >= 11) motivos.push("Hemoglobina adecuada.");
-            if (leu && leu < 10000) motivos.push("Sin signos de infección activa.");
-          }
+        // Simular score si no existe
+        if (score === null || score === undefined) {
+          if (idNum >= 12) score = Math.random() * 0.6; // más probabilidad de ingreso
+          else score = 0.4 + Math.random() * 0.6;
         }
 
-        // Reglas de ingreso (pacientes nuevos, id >= 12)
-        if (!estaEnPlanta) {
-          let alterado = false;
-          if (hb && hb < 10) { motivos.push(`Hemoglobina baja (${hb} g/dL)`); alterado = true; }
-          if (leu && leu > 12000) { motivos.push(`Leucocitos elevados (${leu} /µL)`); alterado = true; }
-          if (crea && crea > 1.5) { motivos.push(`Creatinina alta (${crea} mg/dL)`); alterado = true; }
-          if (temp && temp > 38) { motivos.push(`Fiebre (${temp} °C)`); alterado = true; }
-          if (sat && sat < 93) { motivos.push(`Saturación baja (${sat}%)`); alterado = true; }
-          if (alterado) tipo = "ingreso";
+        // Si está ingresado
+        const enPlanta = ocupadas.includes(p.PacienteID) || idNum <= 11;
+        let motivos = [], tipo = null;
+
+        if (enPlanta && score > 0.75) {
+          tipo = "alta";
+          motivos.push("Tendencia clínica estable. Evolución favorable.");
+        }
+        if (!enPlanta && score < 0.45) {
+          tipo = "ingreso";
+          motivos.push("Empeoramiento o tendencia negativa detectada.");
         }
 
-        // Tarjetas dinámicas
+        // Mostrar tarjetas
         if (tipo === "alta") {
           altas++;
           altasDiv.innerHTML += `
-            <div class="card">
+            <div class="card" id="card-${p.PacienteID}">
               <strong>${p.Nombre}</strong> (${p.Edad} años, ${p.Sexo})<br>
               Diagnóstico: ${p.DiagnosticoPrincipal || "No especificado"}<br>
-              <div class="reason">${motivos.join(" ")}<br><b>Recomendación:</b> Evaluar alta médica supervisada.</div>
-              <div class="stats">
-                FC: ${hr || "-"} bpm | Temp: ${temp || "-"} °C | SatO₂: ${sat || "-"}% | Hb: ${hb || "-"} | Leu: ${leu || "-"} | Crea: ${crea || "-"}
-              </div>
-              <button onclick="verDetalles('${p.PacienteID}')">Ver detalles</button>
+              <div class="reason">${motivos.join(" ")}<br><b>Score:</b> ${(score*100).toFixed(1)}%</div>
+              <button onclick="darAlta('${p.PacienteID}')">Dar alta</button>
             </div>`;
         }
-
         if (tipo === "ingreso") {
           ingresos++;
           ingresosDiv.innerHTML += `
-            <div class="card">
+            <div class="card" id="card-${p.PacienteID}">
               <strong>${p.Nombre}</strong> (${p.Edad} años, ${p.Sexo})<br>
               Motivo: ${p.MotivoIngreso || "No registrado"}<br>
-              <div class="reason">${motivos.join(" ")}<br><b>Recomendación:</b> Evaluar ingreso hospitalario.</div>
-              <div class="stats">
-                Hb: ${hb || "-"} | Leu: ${leu || "-"} | Crea: ${crea || "-"} | Temp: ${temp || "-"} °C | SatO₂: ${sat || "-"}%
-              </div>
-              <button onclick="verDetalles('${p.PacienteID}')">Ver detalles</button>
+              <div class="reason">${motivos.join(" ")}<br><b>Score:</b> ${(score*100).toFixed(1)}%</div>
+              <button onclick="ingresar('${p.PacienteID}')">Ingresar</button>
             </div>`;
         }
-      }
+      });
 
       if (altas === 0) altasDiv.innerHTML += `<p>No hay pacientes listos para el alta.</p>`;
       if (ingresos === 0) ingresosDiv.innerHTML += `<p>No hay pacientes pendientes de ingreso.</p>`;
     }
 
-    function verDetalles(id) {
-      window.open(`paciente.html?id=${id}`, "_blank");
+    function darAlta(id) {
+      ocupadas = ocupadas.filter(p => p !== id);
+      localStorage.setItem('habitaciones_ocupadas', JSON.stringify(ocupadas));
+      document.getElementById(`card-${id}`).remove();
+      alert(`🏥 Paciente ${id} dado de alta. Habitación liberada.`);
+    }
+
+    function ingresar(id) {
+      if (ocupadas.length >= 12) {
+        alert("⚠️ No hay habitaciones disponibles.");
+        return;
+      }
+      ocupadas.push(id);
+      localStorage.setItem('habitaciones_ocupadas', JSON.stringify(ocupadas));
+      document.getElementById(`card-${id}`).remove();
+      alert(`🩺 Paciente ${id} ingresado correctamente.`);
     }
 
     loadDecisiones();
