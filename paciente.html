@@ -820,9 +820,7 @@ function renderNotas(notas) {
 async function generarPDF() {
   const { jsPDF } = window.jspdf;
 
-  // Captura solo el contenido clínico (sin cabecera)
   const contenedor = document.getElementById("panel");
-
   const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
   const imgData = canvas.toDataURL("image/png");
 
@@ -851,6 +849,10 @@ async function generarPDF() {
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
+
+// 👇 AÑADE ESTA LÍNEA JUSTO DESPUÉS:
+window.generarPDF = generarPDF;
+
 
 
 
