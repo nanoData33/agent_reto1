@@ -760,7 +760,8 @@ botonManual.onclick = async () => {
   
   if (!errorLab && lab?.length) {
     const resultados = lab[0];
-    const tbody = document.getElementById("tablaPruebas");
+    const tbody = document.getElementById("tablaLab");
+
     tbody.innerHTML = `
       <tr><td>Glucosa</td><td>${resultados.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
       <tr><td>pH</td><td>${resultados.pH ?? "—"}</td><td>7.35–7.45</td></tr>
