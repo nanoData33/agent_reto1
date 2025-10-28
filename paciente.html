@@ -85,12 +85,32 @@ main {
   border-radius: 8px;
   margin-bottom: 18px;
 }
+
 #barraProgreso {
   height: 6px;
   width: 0;
   background: var(--azul);
   border-radius: 4px;
   transition: width 0.4s;
+}
+#bloqueRecomendacion {
+  background: #f9fafb;
+  border: 1px solid var(--borde);
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+#barraProgresoRec {
+  height: 6px;
+  width: 0;
+  background: var(--azul);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+#resumenRec {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  min-height: 45px;
 }
 #resumenIA {
   margin-top: 8px;
@@ -246,6 +266,12 @@ th {
     <h3>Resumen clínico (IA)</h3>
     <div id="barraProgreso"></div>
     <div id="resumenIA">Cargando análisis...</div>
+  </div>
+
+  <div id="bloqueRecomendacion">
+    <h3>Recomendaciones clínicas (IA)</h3>
+    <div id="barraProgresoRec"></div>
+    <div id="resumenRec">Cargando recomendaciones...</div>
   </div>
 
   <!-- DOS COLUMNAS -->
@@ -429,6 +455,41 @@ async function cargar() {
   }
 }
 
+
+  async function generarRecomendacionIA(p, evol, signos) {
+  const barra = document.getElementById("barraProgresoRec");
+  const resumenDiv = document.getElementById("resumenRec");
+  resumenDiv.textContent = "Enviando datos a IA para recomendaciones...";
+  barra.style.width = "0%";
+
+  const payload = {
+    paciente: p,
+    evolucion: evol,
+    signos_vitales: signos
+  };
+
+  try {
+    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/recomendacion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const texto = await res.text();
+    console.log("✅ Respuesta Recomendación IA:", texto);
+
+    if (texto.trim().length > 0) {
+      barra.style.width = "100%";
+      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
+    } else {
+      resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
+    }
+
+  } catch (err) {
+    console.error("❌ Error Recomendación IA:", err);
+    resumenDiv.textContent = "Error al conectar con el asistente IA.";
+  }
+}
 
 
 /* === RADAR === */
@@ -842,6 +903,7 @@ botonManual.onclick = async () => {
   }
 
   await generarResumenIA(p, evol, signos);
+  await generarRecomendacionIA(p, evol, signos);
 };
 document.getElementById("bloqueIA").appendChild(botonManual);
 
