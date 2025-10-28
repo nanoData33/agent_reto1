@@ -515,21 +515,21 @@ function renderTabla(id, datos, columnas) {
 }
 
 /* === RESUMEN IA === */
-async function generarResumenIA(paciente, evolucion, signos) {
+async function generarResumenIA() {
   const barra = document.getElementById("barraProgreso");
   const resumenDiv = document.getElementById("resumenIA");
   resumenDiv.textContent = "Enviando datos a IA...";
   barra.style.width = "0%";
 
+  // Obtener el id directamente de la URL
+  const pacienteId = new URLSearchParams(window.location.search).get("id");
+  if (!pacienteId) {
+    resumenDiv.textContent = "❌ No se encontró paciente en la URL.";
+    return;
+  }
+
   const payload = {
-    paciente_id: paciente.PacienteID,
-    nombre: paciente.Nombre,
-    edad: paciente.Edad,
-    sexo: paciente.Sexo,
-    diagnostico: paciente.DiagnosticoPrincipal,
-    servicio: paciente.Servicio,
-    evolucion,
-    signos
+    paciente_id: pacienteId
   };
 
   try {
@@ -544,13 +544,7 @@ async function generarResumenIA(paciente, evolucion, signos) {
 
     if (texto.trim().length > 0) {
       barra.style.width = "100%";
-      resumenDiv.innerHTML = `
-        <div style="white-space: pre-wrap;">${texto}</div>
-        <div style="margin-top:10px;">
-          <label>Valoración del resumen:</label><br>
-          <span id="stars" style="font-size:18px; color:#ccc; cursor:pointer;">★★★★★</span>
-        </div>`;
-      activarValoracion();
+      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
     } else {
       resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
     }
