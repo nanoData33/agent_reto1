@@ -310,23 +310,24 @@ async function cargar() {
     console.log("🩺 Cargando paciente", id);
 
     // === PACIENTE ===
-    const { data: p } = await supabase
+    const { data: p, error: errorPaciente } = await supabase
       .from('pacientes')
       .select('*')
       .eq('PacienteID', id)
       .single();
 
-    if (!p) {
-      alert("Paciente no encontrado.");
+    if (errorPaciente || !p) {
+      console.error("Error cargando paciente:", errorPaciente);
+      alert("Paciente no encontrado o error en la carga.");
       return;
     }
 
     // === DATOS PRINCIPALES ===
-    document.getElementById('nombre').textContent = p.Nombre;
-    document.getElementById('edad').textContent = p.Edad;
-    document.getElementById('sexo').textContent = p.Sexo;
-    document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal;
-    document.getElementById('servicio').textContent = p.Servicio;
+    document.getElementById('nombre').textContent = p.Nombre || '—';
+    document.getElementById('edad').textContent = p.Edad || '—';
+    document.getElementById('sexo').textContent = p.Sexo || '—';
+    document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal || '—';
+    document.getElementById('servicio').textContent = p.Servicio || '—';
 
     // === CONSULTAS A SUPABASE ===
     const { data: evol } = await supabase
@@ -340,17 +341,24 @@ async function cargar() {
       .select('*')
       .eq('PacienteID', id);
 
-    const { data: signos, error: errorSignos } = await supabase
+    const { data: signosRaw, error: errorSignos } = await supabase
       .from('signos_vitales')
       .select('*')
-      .eq('PacienteID', id)
-      .order('Fecha', { ascending: true })
-      .order('Hora', { ascending: true });
+      .eq('PacienteID', id);
 
     if (errorSignos) console.error("Error cargando signos vitales:", errorSignos);
 
+    // === ORDENAR LOCALMENTE ===
+    const signos = (signosRaw || [])
+      .filter(s => s.Fecha && s.Hora)
+      .sort((a, b) => {
+        const f1 = new Date(`${a.Fecha}T${a.Hora}`);
+        const f2 = new Date(`${b.Fecha}T${b.Hora}`);
+        return f1 - f2;
+      });
+
     // === SIGNOS VITALES ===
-    if (!signos || signos.length === 0) {
+    if (!signos.length) {
       console.warn("⚠️ No hay registros de signos vitales para este paciente");
       document.getElementById('pa').textContent = '—';
       document.getElementById('fc').textContent = '—';
