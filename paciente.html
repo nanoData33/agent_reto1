@@ -26,11 +26,14 @@
 
 <style>
 :root {
-  --azul: #004aad;
-  --gris: #f6f8fb;
-  --panel: #ffffff;
-  --borde: #e5e7eb;
-  --verde: #16a34a;
+  --azul: #1f3b73;           /* azul institucional */
+  --azul-acento: #3a6ff8;    /* azul más brillante para hover */
+  --gris-fondo: #f4f7fc;     /* fondo general */
+  --gris-panel: #ffffff;     /* paneles */
+  --gris-borde: #d8dee9;     /* bordes suaves */
+  --verde: #27ae60;          /* verde positivo */
+  --rojo: #e74c3c;           /* rojo alerta */
+  --sombra: 0 3px 10px rgba(0,0,0,0.08);
 }
 body {
   font-family: 'Poppins', sans-serif;
@@ -42,14 +45,30 @@ body {
 
 /* ==== CABECERA ==== */
 header {
-  background: var(--azul);
-  color: white;
-  padding: 12px 30px;
+  background: #fff;
+  color: var(--azul);
+  padding: 16px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
-header h1 { font-size: 1rem; font-weight: 600; }
+
+header h1 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+header h1::before {
+  content: "🩺";
+  font-size: 1.3rem;
+}
 
 /* ==== CONTENEDOR ==== */
 main {
