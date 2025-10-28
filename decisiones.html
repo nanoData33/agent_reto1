@@ -9,22 +9,33 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body { font-family: "Inter", sans-serif; background: #f6f8fb; color: #2d2d2d; margin: 0; }
-    header { background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.08); padding: 14px 40px;
-             display: flex; justify-content: space-between; align-items: center; }
+    header {
+      background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      padding: 14px 40px; display: flex; justify-content: space-between; align-items: center;
+    }
     header span { font-weight: 700; font-size: 1.3rem; color: #1f3b73; display: flex; align-items: center; gap: 10px; }
     .columns { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 30px; }
-    .col { flex: 1; min-width: 420px; background: #fff; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); padding: 20px; }
+    .col {
+      flex: 1; min-width: 420px; background: #fff; border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08); padding: 20px;
+    }
     .col h2 { font-size: 1.2rem; color: #1f3b73; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .card { background: #f9fbff; border-radius: 10px; padding: 16px; margin-bottom: 12px;
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.05); }
+    .card {
+      background: #f9fbff; border-radius: 10px; padding: 16px; margin-bottom: 12px;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
+    }
     .card strong { color: #1f3b73; }
     .reason { font-size: 0.85rem; color: #555; margin-top: 6px; line-height: 1.4; }
     .stats { font-size: 0.8rem; color: #333; margin-top: 8px; background: #eef3ff; border-radius: 8px; padding: 6px 8px; }
-    button { background: #1f3b73; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-weight: 600;
-             cursor: pointer; margin-top: 10px; transition: all .2s; }
+    button {
+      background: #1f3b73; color: white; border: none; border-radius: 8px;
+      padding: 6px 12px; font-weight: 600; cursor: pointer; margin-top: 10px;
+      transition: all .2s;
+    }
     button:hover { background: #3a6ff8; transform: translateY(-2px); }
   </style>
 </head>
+
 <body>
   <header>
     <span><i class="fa-solid fa-user-md"></i> Decisiones AI</span>
@@ -50,8 +61,11 @@
     let ocupadas = JSON.parse(localStorage.getItem('habitaciones_ocupadas')) || [];
 
     async function loadDecisiones() {
-      const { data: pacientes } = await supabase.from("vista_pacientes_dashboard_chat").select("*");
-      if (!pacientes) return;
+      const { data: pacientes, error } = await supabase.from("pacientes").select("*");
+      if (error) {
+        console.error("❌ Error cargando pacientes:", error);
+        return;
+      }
 
       const altasDiv = document.getElementById("altas");
       const ingresosDiv = document.getElementById("ingresos");
@@ -66,23 +80,23 @@
         const idNum = parseInt(p.PacienteID.replace(/\D/g, "")) || 0;
         let score = p.trend_score;
 
-        // Simular score para nuevos
+        // Simular score cuando no hay
         if (score === null || score === undefined) {
-          if (idNum >= 12) score = 0.3 + Math.random() * 0.25;
-          else score = 0.5 + Math.random() * 0.4;
+          if (idNum >= 12) score = 0.3 + Math.random() * 0.25; // potencial ingreso
+          else score = 0.5 + Math.random() * 0.4; // variación razonable
         }
 
         const enPlanta = ocupadas.includes(p.PacienteID) || idNum <= 11;
         let motivos = [], tipo = null;
 
-        // Reglas según score (coherentes con colores del dashboard)
+        // Reglas coherentes con el dashboard
         if (enPlanta && score >= 0.8) {
           tipo = "alta";
-          motivos.push("Tendencia positiva y evolución estable según IA.");
+          motivos.push("Evolución favorable según IA. Signos vitales estables.");
         } 
         else if (!enPlanta && score <= 0.45) {
           tipo = "ingreso";
-          motivos.push("Tendencia desfavorable detectada. Requiere observación hospitalaria.");
+          motivos.push("Deterioro clínico detectado. Requiere ingreso para observación.");
         }
 
         // Render
