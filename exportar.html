@@ -1,60 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MedAI Smart Ward — Exportar</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MedAI Smart Ward — Exportar informes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://kit.fontawesome.com/3d2d3f8f73.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 :root {
   --azul: #1f3b73;
-  --azul-claro: #3a6ff8;
+  --azul-sec: #3a6ff8;
   --gris-fondo: #f6f8fb;
-  --gris-borde: #e3e5ea;
+  --gris-borde: #e0e3eb;
   --radius: 10px;
-  --shadow: 0 3px 10px rgba(0,0,0,0.08);
-  --transition: all 0.25s ease;
+  --sombra: 0 2px 10px rgba(0,0,0,0.05);
 }
 body {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
+  font-family: "Inter", sans-serif;
   background: var(--gris-fondo);
-  color: #2b2b2b;
+  margin: 0;
+  padding: 0;
+  color: #2d2d2d;
 }
 header {
   background: #fff;
-  box-shadow: var(--shadow);
-  padding: 14px 40px;
+  padding: 14px 36px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
-header span {
-  font-weight: 700;
+header h1 {
   font-size: 1.3rem;
   color: var(--azul);
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
-.user-chip {
-  background:#eef3ff;
-  color:#1f3b73;
-  border:1px solid #d8e2ff;
-  padding:6px 10px;
-  border-radius:999px;
-  font-weight:600;
-  font-size:0.9rem;
-}
-.buttons { display: flex; gap: 12px; }
-button {
+header button {
   background: var(--azul);
   color: white;
   border: none;
@@ -62,210 +53,233 @@ button {
   border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
+  transition: 0.2s;
 }
-button:hover { background: var(--azul-claro); transform: translateY(-2px); }
-#logout-btn { background: #c0392b; } #logout-btn:hover { background:#a93226; }
+header button:hover { background: var(--azul-sec); }
 
-main { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+main {
+  width: 92%;
+  max-width: 1100px;
+  margin: 30px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-h2 { color: var(--azul); margin-bottom: 12px; }
 .card {
   background: white;
-  padding: 1.5rem;
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  margin-bottom: 1.5rem;
+  box-shadow: var(--sombra);
+  padding: 20px;
 }
-.card h3 { margin-top: 0; color: var(--azul); }
-
-input, select {
-  border: 1px solid var(--gris-borde);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  width: 100%;
+.card h2 {
+  color: var(--azul);
+  font-size: 1.1rem;
+  font-weight: 600;
   margin-bottom: 10px;
 }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
+.card p {
+  font-size: 0.9rem;
+  color: #555;
 }
-.export-btn {
-  background: var(--azul-claro);
+.btn {
+  background: var(--azul);
   color: white;
   border: none;
-  padding: 7px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
   font-weight: 600;
-  font-size: 0.85rem;
   cursor: pointer;
-  transition: 0.25s;
+  transition: 0.2s;
 }
-.export-btn:hover { background: var(--azul); }
+.btn:hover { background: var(--azul-sec); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+canvas { display: block; max-width: 100%; margin-top: 15px; }
+@media (max-width:600px){
+  header { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
 </style>
 </head>
 
 <body>
 <header>
-  <span><i class="fa-solid fa-file-export"></i> MedAI Smart Ward — Exportar</span>
-  <span id="user-info" class="user-chip"></span>
-  <div class="buttons">
-    <button onclick="window.location='index.html'"><i class="fa-solid fa-hospital-user"></i> Volver a planta</button>
-    <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
-  </div>
+  <h1><i class="fa-solid fa-file-medical"></i> Exportar Informes</h1>
+  <button onclick="window.location='index.html'"><i class="fa-solid fa-arrow-left"></i> Volver</button>
 </header>
 
 <main>
-  <h2>Exportes e Informes Clínicos</h2>
+  <section class="card">
+    <h2>Panel de exportación</h2>
+    <p id="rolInfo">Cargando permisos...</p>
+  </section>
 
-  <div class="grid">
-    <!-- INFORME INDIVIDUAL -->
-    <div class="card">
-      <h3><i class="fa-solid fa-user-doctor"></i> Informe por paciente</h3>
-      <p class="text-sm text-gray-500 mb-2">Exporta toda la información clínica consolidada en un informe PDF.</p>
-      <input id="pacienteID" placeholder="Introduce el ID del paciente (ej. P001)">
-      <button class="export-btn" onclick="exportarInformePDF()">Generar informe PDF</button>
-    </div>
-
-    <!-- BLOQUE CLÍNICO -->
-    <div class="card">
-      <h3><i class="fa-solid fa-flask-vial"></i> Exportes clínicos</h3>
-      <button class="export-btn" onclick="exportarDataset('metabolico')">Perfil metabólico</button>
-      <button class="export-btn" onclick="exportarDataset('renal')">Función renal</button>
-      <button class="export-btn" onclick="exportarDataset('hepatico')">Marcadores hepáticos</button>
-      <button class="export-btn" onclick="exportarDataset('vitales')">Signos vitales + IA</button>
-    </div>
-
-    <!-- BLOQUE ADMINISTRATIVO -->
-    <div class="card">
-      <h3><i class="fa-solid fa-clipboard-list"></i> Exportes administrativos</h3>
-      <button class="export-btn" onclick="exportarAdmin('ingresos')">Pacientes ingresados hoy</button>
-      <button class="export-btn" onclick="exportarAdmin('servicios')">Pacientes por servicio</button>
-      <button class="export-btn" onclick="exportarAdmin('notas')">Notas por médico</button>
-    </div>
-  </div>
+  <div id="exportGrid" class="grid"></div>
 </main>
 
 <script>
-const { jsPDF } = window.jspdf;
-const supabase = window.supabase.createClient(
-  "https://aczjgeleupwlvghjhkav.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM"
-);
+// ==== Simulación del usuario ====
+const usuario = JSON.parse(localStorage.getItem("usuario")) || {
+  Nombre: "Dr. Martínez",
+  Rol: "Médico",
+  Especialidad: "Medicina Interna"
+};
 
-// === CONTROL DE SESIÓN ===
-const usuario = JSON.parse(localStorage.getItem('usuario'));
-if (!usuario) window.location.href = 'login.html';
-document.getElementById("user-info").textContent = `${usuario.Nombre || usuario.nombre} (${usuario.Rol}${usuario.Especialidad ? " · " + usuario.Especialidad : ""})`;
+// ==== Definir permisos y secciones ====
+const secciones = {
+  "Médico": [
+    { titulo: "Informe evolutivo del paciente", desc: "Evolución clínica y resumen IA", accion: generarInformeEvolutivo },
+    { titulo: "Informe de laboratorio", desc: "Resultados recientes de analíticas", accion: generarInformeLaboratorio }
+  ],
+  "Enfermero": [
+    { titulo: "Control de signos vitales", desc: "Tendencia de constantes vitales", accion: generarSignosVitales },
+    { titulo: "Registro de medicaciones", desc: "Listado de administración diaria", accion: generarMedicaciones }
+  ],
+  "Administrador": [
+    { titulo: "Resumen global del hospital", desc: "Ocupación, medias clínicas y actividad", accion: generarInformeGlobal },
+    { titulo: "Informe de personal", desc: "Resumen por departamento y rol", accion: generarInformePersonal }
+  ]
+};
 
-document.getElementById('logout-btn').addEventListener('click', () => {
-  localStorage.clear();
-  window.location.href = 'login.html';
+// ==== Render dinámico según rol ====
+document.getElementById("rolInfo").innerHTML = `${usuario.Nombre} — ${usuario.Rol}${usuario.Especialidad ? " · " + usuario.Especialidad : ""}`;
+
+const grid = document.getElementById("exportGrid");
+(secciones[usuario.Rol] || []).forEach(sec => {
+  const div = document.createElement("div");
+  div.className = "card";
+  div.innerHTML = `
+    <h2>${sec.titulo}</h2>
+    <p>${sec.desc}</p>
+    <button class="btn" onclick="(${sec.accion.toString()})();">Generar PDF</button>
+  `;
+  grid.appendChild(div);
 });
 
-// === EXPORTAR INFORME INDIVIDUAL ===
-async function exportarInformePDF() {
-  const id = document.getElementById('pacienteID').value.trim();
-  if (!id) return alert("Introduce un ID de paciente válido.");
-
-  const accesoTotal = ['Medicina Interna', 'Enfermería', 'Administración'];
-  if (!accesoTotal.includes(usuario.Especialidad) && usuario.Rol !== "Administrador") {
-    const { data: p } = await supabase.from("pacientes").select("Servicio").eq("PacienteID", id).single();
-    if (p?.Servicio && p.Servicio !== usuario.Especialidad)
-      return alert("No tienes permisos para exportar este paciente.");
-  }
-
-  const [pac, evo, meds, labs, notas] = await Promise.all([
-    supabase.from("pacientes").select("*").eq("PacienteID", id).single(),
-    supabase.from("evolucion").select("*").eq("PacienteID", id),
-    supabase.from("medicacion").select("*").eq("PacienteID", id),
-    supabase.from("lab_iniciales").select("*").eq("PacienteID", id),
-    supabase.from("notas").select("*").eq("PacienteID", id)
-  ]);
-
+// ==== Funciones de generación de PDFs ====
+function generarInformeEvolutivo() {
+  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.setFont("helvetica","bold"); doc.setFontSize(18);
-  doc.text("Informe Clínico — MedAI Smart Ward", 14, 20);
-  doc.setFontSize(12); doc.setFont("helvetica","normal");
-  doc.text(`Paciente: ${pac.data?.Nombre || "—"} (${pac.data?.PacienteID || id})`, 14, 30);
-  doc.text(`Diagnóstico principal: ${pac.data?.DiagnosticoPrincipal || "—"}`, 14, 38);
-  doc.text(`Servicio: ${pac.data?.Servicio || "—"}`, 14, 46);
-  doc.text(`Fecha de ingreso: ${pac.data?.FechaIngreso || "—"}`, 14, 54);
+  const nombre = "Juan Pérez";
+  const fecha = new Date().toLocaleDateString();
 
-  doc.setFont("helvetica","bold"); doc.text("Última evolución registrada:", 14, 68);
-  if (evo.data.length)
-    doc.autoTable({ startY: 72, head:[["Fecha","Presión","Temp.","FC","SatO2","Glucosa"]],
-      body: evo.data.slice(-5).map(e=>[e.Fecha,e.PresionSistolica+"/"+e.PresionDiastolica,e.Temperatura,e.FrecuenciaCardiaca,e.SaturacionOxigeno,e.Glucosa]) });
+  doc.setFontSize(16);
+  doc.text("📋 Informe Evolutivo del Paciente", 14, 20);
+  doc.setFontSize(11);
+  doc.text(`Paciente: ${nombre}`, 14, 30);
+  doc.text(`Fecha: ${fecha}`, 14, 37);
+  doc.text("Servicio: Medicina Interna", 14, 44);
 
-  if (meds.data.length) {
-    doc.addPage();
-    doc.setFont("helvetica","bold"); doc.text("Medicación activa:", 14, 20);
-    doc.autoTable({ startY: 24, head:[["Medicamento","Dosis","Vía"]],
-      body: meds.data.map(m=>[m.Medicamento,m.Dosis,m.Via]) });
-  }
-
-  if (labs.data.length) {
-    doc.addPage();
-    doc.setFont("helvetica","bold"); doc.text("Laboratorios iniciales:", 14, 20);
-    doc.autoTable({ startY: 24, head:[["Glucosa","Creatinina","Urea","Sodio","Potasio"]],
-      body: labs.data.map(l=>[l.Glucosa,l.Creatinina,l.Urea,l.Sodio,l.Potasio]) });
-  }
-
-  if (notas.data.length) {
-    doc.addPage();
-    doc.setFont("helvetica","bold"); doc.text("Notas clínicas:", 14, 20);
-    doc.autoTable({ startY: 24, head:[["Fecha","Nota"]],
-      body: notas.data.slice(-5).map(n=>[n.Fecha,n.Nota.substring(0,80)+"..."]) });
-  }
-
-  doc.save(`Informe_${id}.pdf`);
+  doc.text("Resumen IA:", 14, 56);
+  doc.setFont("helvetica", "normal");
+  doc.text("El paciente presenta mejoría respiratoria progresiva, con descenso sostenido de la glucemia y estabilidad hemodinámica.", 14, 63, { maxWidth: 180, lineHeightFactor: 1.4 });
+  
+  doc.text("Gráfico de evolución de glucosa:", 14, 90);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: ["Día 1","Día 2","Día 3","Día 4","Día 5"],
+      datasets: [{ label:"Glucosa (mg/dL)", data:[180,160,150,130,115], borderColor:"#1f3b73", fill:false }]
+    },
+    options:{ responsive:false, animation:false }
+  });
+  setTimeout(()=> {
+    const img = canvas.toDataURL("image/png");
+    doc.addImage(img, "PNG", 14, 95, 180, 60);
+    doc.save(`Informe_Evolutivo_${nombre}.pdf`);
+  }, 400);
 }
 
-// === EXPORTES CLÍNICOS (CSV) ===
-async function exportarDataset(tipo) {
-  let campos;
-  if (tipo==='metabolico') campos=['PacienteID','Fecha','Glucosa','Colesterol','HDL','LDL','Trigliceridos','Creatinina'];
-  if (tipo==='renal') campos=['PacienteID','Fecha','Creatinina','Urea','Sodio','Potasio','Cloro'];
-  if (tipo==='hepatico') campos=['PacienteID','Fecha','AST','ALT','Bilirrubina'];
-  if (tipo==='vitales') campos=['PacienteID','Fecha','PresionSistolica','PresionDiastolica','FrecuenciaCardiaca','Temperatura','SaturacionOxigeno','trend_ai'];
-
-  const { data } = await supabase.from('evolucion').select(campos.join(','));
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `export_${tipo}_${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
+function generarInformeLaboratorio(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text("🧪 Informe de Laboratorio", 14, 20);
+  doc.setFontSize(11);
+  doc.text("Paciente: Laura Gómez", 14, 30);
+  doc.text("Últimos valores:", 14, 40);
+  doc.autoTable({
+    startY: 45,
+    head:[["Parámetro","Valor","Unidad"]],
+    body:[
+      ["Glucosa","102","mg/dL"],
+      ["Hemoglobina","13.5","g/dL"],
+      ["Creatinina","0.9","mg/dL"],
+      ["Colesterol Total","175","mg/dL"]
+    ]
+  });
+  doc.save("Informe_Laboratorio_LauraGomez.pdf");
 }
 
-// === EXPORTES ADMINISTRATIVOS ===
-async function exportarAdmin(tipo) {
-  let query;
-  if (tipo==='ingresos') query = supabase.from('pacientes').select('*').eq('FechaIngreso', new Date().toISOString().split('T')[0]);
-  if (tipo==='servicios') query = supabase.from('pacientes').select('Servicio, count(*)').group('Servicio');
-  if (tipo==='notas') query = supabase.from('notas').select('MedicoID, Fecha, Nota');
+function generarSignosVitales(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text("📊 Control de signos vitales", 14, 20);
+  doc.autoTable({
+    startY: 30,
+    head:[["Fecha","TA (mmHg)","FC (lpm)","Temp (°C)","SatO₂ (%)"]],
+    body:[
+      ["2025-10-25","120/75","78","36.8","98"],
+      ["2025-10-26","118/72","75","36.7","98"],
+      ["2025-10-27","122/76","79","37.0","97"]
+    ]
+  });
+  doc.save("SignosVitales_Paciente.pdf");
+}
 
-  const { data } = await query;
-  if (!data?.length) return alert("No hay datos disponibles.");
+function generarMedicaciones(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text("💊 Registro de Medicaciones", 14, 20);
+  doc.autoTable({
+    startY: 30,
+    head:[["Medicamento","Dosis","Vía","Hora"]],
+    body:[
+      ["Paracetamol","1g","VO","08:00"],
+      ["Metformina","850mg","VO","09:00"],
+      ["Furosemida","40mg","IV","18:00"]
+    ]
+  });
+  doc.save("Medicaciones_Paciente.pdf");
+}
 
-  if (tipo==='servicios') {
-    const doc = new jsPDF();
-    doc.text("Distribución de pacientes por servicio", 14, 20);
-    doc.autoTable({ startY: 26, head:[["Servicio","Pacientes"]], body: data.map(d=>[d.Servicio,d.count]) });
-    doc.save(`Distribucion_Servicios_${new Date().toISOString().split('T')[0]}.pdf`);
-  } else {
-    const blob = new Blob([Papa.unparse(data)], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${tipo}_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-  }
+function generarInformeGlobal(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text("🏥 Informe Global del Hospital", 14, 20);
+  doc.setFontSize(11);
+  doc.text("Ocupación actual: 85%", 14, 30);
+  doc.text("Pacientes activos: 126", 14, 36);
+  doc.text("Media de estancia: 4.2 días", 14, 42);
+  doc.text("Tasa de reingreso: 7%", 14, 48);
+  doc.text("Resumen IA:", 14, 60);
+  doc.text("El nivel asistencial se mantiene estable con carga moderada de hospitalización y sin incremento de urgencias graves.", 14, 67, { maxWidth: 180 });
+  doc.save("Informe_Global_Hospital.pdf");
+}
+
+function generarInformePersonal(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text("👥 Informe de Personal Médico", 14, 20);
+  doc.autoTable({
+    startY: 30,
+    head:[["Nombre","Rol","Especialidad","Activo"]],
+    body:[
+      ["Dr. López","Médico","Cardiología","Sí"],
+      ["Dra. Torres","Residente","Medicina Interna","Sí"],
+      ["D. Pérez","Enfermero","UCI","Sí"],
+      ["Dra. Ruiz","Supervisora","Rehabilitación","Sí"]
+    ]
+  });
+  doc.save("Informe_Personal_Hospital.pdf");
 }
 </script>
 </body>
