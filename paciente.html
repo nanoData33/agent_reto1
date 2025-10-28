@@ -820,10 +820,9 @@ function renderNotas(notas) {
 async function generarPDF() {
   const { jsPDF } = window.jspdf;
 
-  // Puedes limitar el área a capturar, por ejemplo un div con el contenido clínico:
-  const contenedor = document.querySelector(".main") || document.body;
+  // Captura solo el contenido clínico (sin cabecera)
+  const contenedor = document.getElementById("panel");
 
-  // Convierte el área visible a imagen
   const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
   const imgData = canvas.toDataURL("image/png");
 
@@ -834,11 +833,9 @@ async function generarPDF() {
   const imgWidth = pageWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  // Si el contenido cabe en una sola página
   if (imgHeight <= pageHeight) {
     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
   } else {
-    // Si es más largo, lo corta automáticamente en varias páginas
     let position = 0;
     while (position < imgHeight) {
       pdf.addImage(imgData, "PNG", 0, -position, imgWidth, imgHeight);
@@ -847,14 +844,14 @@ async function generarPDF() {
     }
   }
 
-  // Nombre dinámico del archivo
-  const nombrePaciente = document.querySelector("#nombrePaciente")?.innerText || "resumen_paciente";
+  const nombrePaciente = document.getElementById("nombre")?.innerText || "resumen_paciente";
   const fechaActual = new Date().toLocaleDateString();
   pdf.setFontSize(10);
   pdf.text(`Generado el ${fechaActual}`, 10, pageHeight - 10);
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
+
 
 
 /* === BOTÓN MANUAL EXTRA === */
