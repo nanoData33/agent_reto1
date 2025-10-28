@@ -291,28 +291,18 @@ async function cargar() {
     const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
     const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
     const { data: signos } = await supabase.from('signos_vitales').select('*').eq('PacienteID', id).order('Fecha');
-    // === EQUIPO MÉDICO (Notas y médicos asociados) ===
-    const { data: notas, error: errorNotas } = await supabase
+    // === EQUIPO MÉDICO (Notas con nombre y rol del médico) ===
+    const { data: notasCompletas, error: errorNotas } = await supabase
       .from("notas")
-      .select("Fecha, Nota, MedicoID")
+      .select("Fecha, Nota, personal_medico (Nombre, Rol)")
       .eq("PacienteID", id)
       .order("Fecha");
     
-    if (errorNotas) console.error("Error cargando notas:", errorNotas);
-    
-    const { data: medicos, error: errorMedicos } = await supabase
-      .from("personal_medico")
-      .select("MedicoID, Nombre, Rol");
-    
-    if (errorMedicos) console.error("Error cargando médicos:", errorMedicos);
-    
-    const notasCompletas = notas.map(n => ({
-      ...n,
-      personal_medico: medicos.find(m => m.MedicoID === n.MedicoID)
-    }));
-    
-    renderNotas(notasCompletas);
-
+    if (errorNotas) {
+      console.error("Error cargando notas:", errorNotas);
+    } else {
+      renderNotas(notasCompletas);
+    }
 
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
