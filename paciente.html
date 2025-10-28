@@ -515,21 +515,17 @@ function renderTabla(id, datos, columnas) {
 }
 
 /* === RESUMEN IA === */
-async function generarResumenIA() {
+async function generarResumenIA(p, evol, signos) {
   const barra = document.getElementById("barraProgreso");
   const resumenDiv = document.getElementById("resumenIA");
   resumenDiv.textContent = "Enviando datos a IA...";
   barra.style.width = "0%";
 
-  // Obtener el id directamente de la URL
-  const pacienteId = new URLSearchParams(window.location.search).get("id");
-  if (!pacienteId) {
-    resumenDiv.textContent = "❌ No se encontró paciente en la URL.";
-    return;
-  }
-
+  // Preparar payload con toda la info del paciente
   const payload = {
-    paciente_id: pacienteId
+    paciente: p,
+    evolucion: evol,
+    signos_vitales: signos
   };
 
   try {
