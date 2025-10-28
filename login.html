@@ -124,40 +124,42 @@
 
   <script type="module">
     import { supabase } from './supabaseClient.js';
-
-
+  
     async function login() {
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
       const errorMsg = document.getElementById('error');
       errorMsg.textContent = '';
-
+  
       if (!email || !password) {
         errorMsg.textContent = 'Completa todos los campos.';
         return;
       }
-
+  
       const { data, error } = await supabase
         .from('personal_medico')
         .select('*')
         .eq('correo_login', email)
         .eq('contrasena', password)
         .maybeSingle();
-
+  
       if (error) {
         console.error(error);
         errorMsg.textContent = 'Error al conectar con la base de datos.';
         return;
       }
-
+  
       if (!data) {
         errorMsg.textContent = 'Correo o contraseña incorrectos.';
         return;
       }
-
+  
       localStorage.setItem('usuario', JSON.stringify(data));
       window.location.href = 'index.html';
     }
+  
+    // 🔧 Hacerla visible para el HTML (onclick)
+    window.login = login;
   </script>
 </body>
 </html>
