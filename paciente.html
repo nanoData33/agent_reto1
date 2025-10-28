@@ -9,18 +9,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 
-      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@3.0.0/dist/chartjs-chart-matrix.min.js"></script>
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@3.0.0/dist/chartjs-chart-matrix.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* Variables actualizadas para coincidir con el dashboard */
+/* ================================================= */
+/* === VARIABLES Y ESTILOS GLOBALES (DASHBOARD) === */
+/* ================================================= */
 :root {
   /* Colores principales del dashboard */
   --blue-main: #1f3b73; /* Azul oscuro primario */
@@ -45,7 +43,9 @@ body {
   overflow-x: hidden;
 }
 
-/* ==== CABECERA (Actualizada para el estilo del dashboard) ==== */
+/* ================================================= */
+/* =================== CABECERA ==================== */
+/* ================================================= */
 header {
   background: var(--panel); /* Fondo blanco */
   color: var(--blue-main);
@@ -67,12 +67,11 @@ header h1 {
   align-items: center;
   gap: 10px;
 }
-header h1 i { /* Añadido un icono para el título */
+header h1 i { 
   font-size: 1.5rem;
 }
 
-
-/* Estilo base para todos los botones, coincidiendo con el dashboard */
+/* Estilo para todos los botones, coincidiendo con el dashboard */
 .btn {
   background-color: var(--blue-main);
   color: #fff;
@@ -96,7 +95,7 @@ header h1 i { /* Añadido un icono para el título */
 }
 
 .btn:active {
-  background-color: #1a305e; /* Un tono más oscuro */
+  background-color: #1a305e; 
   transform: translateY(0);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -108,7 +107,7 @@ header h1 i { /* Añadido un icono para el título */
   justify-content: flex-end;
 }
 
-/* Estilo específico para el botón Volver */
+/* Estilo específico para el botón Volver (grisáceo para distinguirlo) */
 .btn-volver {
   background-color: var(--gray-mid);
 }
@@ -117,14 +116,28 @@ header h1 i { /* Añadido un icono para el título */
   background-color: #4a4a4a;
 }
 
-/* ==== CONTENEDOR ==== */
+/* ================================================= */
+/* ================== CONTENIDO ==================== */
+/* ================================================= */
+
 main {
-  max-width: 1300px; /* Aumentado para coincidir con el dashboard */
+  max-width: 1300px; 
   margin: 30px auto;
   background: var(--panel);
   border-radius: var(--radius);
   padding: 30px 40px;
   box-shadow: var(--shadow);
+}
+
+/* Títulos de sección dentro de los bloques */
+h3 {
+  margin: 0 0 12px;
+  color: var(--blue-main);
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex; /* Para alinear el icono con el texto */
+  align-items: center;
+  gap: 8px;
 }
 
 /* ==== DATOS PACIENTE ==== */
@@ -135,8 +148,8 @@ main {
   gap: 20px;
 }
 #paciente, #constantes {
-  width: 50%; /* Usamos 50% para que queden alineados con el gap */
-  background: var(--gray-bg); /* Un tono más claro que el fondo de la página */
+  width: 50%; 
+  background: var(--gray-bg); 
   border-radius: var(--radius);
   border: 1px solid var(--borde);
   padding: 15px 20px;
@@ -144,9 +157,9 @@ main {
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 #paciente p, #constantes p { margin: 5px 0; line-height: 1.4; }
-#paciente b, #constantes b { color: var(--blue-main); font-weight: 600; }
+#paciente b, #constantes b { color: var(--gray-dark); font-weight: 600; } /* Cambiado a gray-dark para menos contraste */
 
-/* ==== RESUMEN (Bloques de información) ==== */
+/* ==== RESUMEN (Bloques de IA) ==== */
 #bloqueIA, #bloqueRecomendacion {
   background: var(--gray-bg);
   border: 1px solid var(--borde);
@@ -158,7 +171,7 @@ main {
 #barraProgreso, #barraProgresoRec {
   height: 6px;
   width: 0;
-  background: var(--blue-accent); /* Usar el azul de acento */
+  background: var(--blue-accent); 
   border-radius: 4px;
   transition: width 0.4s;
 }
@@ -172,13 +185,13 @@ main {
 /* ==== GRID PRINCIPAL ==== */
 #panelCentral {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* Más espacio para los gráficos */
+  grid-template-columns: 2fr 1fr; 
   gap: 25px;
 }
 
 /* ==== GRAFICOS (Panel Izquierdo) ==== */
 #zonaGraficos {
-  background: var(--panel); /* Fondo blanco para destacar */
+  background: var(--panel); 
   border: 1px solid var(--borde);
   border-radius: var(--radius);
   padding: 20px;
@@ -191,18 +204,10 @@ main {
 
 #graficoRadar, #graficoConstantes, #graficoHeat {
   width: 100%;
-  max-width: 650px; /* Un poco más de espacio */
-  height: 300px !important; /* Altura uniforme para todos los canvas */
+  max-width: 650px; 
+  height: 300px !important; 
   max-height: 300px;
   margin: 15px auto;
-}
-
-/* ==== TITULOS DENTRO DE BLOQUES ==== */
-h3 {
-  margin: 0 0 12px;
-  color: var(--blue-main);
-  font-size: 1.1rem;
-  font-weight: 700;
 }
 
 /* ==== COLUMNA DERECHA (Paneles de información) ==== */
@@ -258,13 +263,21 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* Ajustes específicos de las notas médicas */
 #tablaMedicos td:nth-child(3) {
-  width: 60%; /* Dar más espacio al contenido de la nota */
+  width: 60%; 
 }
 #tablaMedicos tr {
   vertical-align: top;
 }
 #tablaMedicos tr:nth-child(even) {
   background: #f9fafb;
+}
+
+/* Estilo para el botón manual (gris claro) */
+#bloqueIA .btn {
+  background-color: #95a5a6; /* Gris */
+}
+#bloqueIA .btn:hover {
+  background-color: #7f8c8d;
 }
 
 /* Responsividad básica */
@@ -282,13 +295,13 @@ tbody tr:last-child td { border-bottom: none; }
 
 <body>
   <header>
-    <h1><i class="fa-solid fa-notes-medical"></i> MedAI Evolution Assistant</h1>
+        <h1><i class="fa-solid fa-stethoscope"></i> MedAI Evolution Assistant</h1>
 
     <div class="botones-header">
-      <button class="btn btn-volver" onclick="window.location.href='index.html'">
+            <button class="btn btn-volver" onclick="window.location.href='index.html'">
         <i class="fa-solid fa-arrow-left"></i> Volver al panel
       </button>
-      <button class="btn" id="botonPDF" onclick="generarPDF()">
+            <button class="btn" id="botonPDF" onclick="generarPDF()">
         <i class="fa-solid fa-file-export"></i> Exportar informe
       </button>
     </div>
@@ -330,7 +343,7 @@ tbody tr:last-child td { border-bottom: none; }
         <h3 id="tituloGraf"><i class="fa-solid fa-chart-line"></i> Evolución: Ingreso vs Alta</h3>
       </div>
       <canvas id="graficoRadar"></canvas>
-          </div>
+    </div>
 
         <div>
       <div class="columna">
@@ -369,7 +382,6 @@ tbody tr:last-child td { border-bottom: none; }
   </div>
 </main>
 <script type="module">
-  // Importación de Supabase (asume que 'supabaseClient.js' existe y exporta 'supabase')
   import { supabase } from './supabaseClient.js';
 
   const id = new URLSearchParams(window.location.search).get("id");
@@ -539,7 +551,7 @@ async function cargar() {
       // Convertimos **texto** a <strong style="color:var(--azul);>texto</strong>
       const textoHtml = texto.replace(
         /\*\*(.*?)\*\*/g, 
-        '<strong style="color:var(--blue-accent);">$1</strong>' /* Usar blue-accent */
+        '<strong style="color:var(--blue-accent);">$1</strong>' 
       );
       
       resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoHtml}</div>`;
@@ -580,7 +592,7 @@ function renderRadar(evol) {
             ingreso.SaturacionOxigeno,
             ingreso.Glucosa
           ],
-          backgroundColor: "rgba(31, 59, 115, 0.7)", /* blue-main */
+          backgroundColor: "rgba(31, 59, 115, 0.7)", 
           borderRadius: 6
         },
         {
@@ -591,14 +603,14 @@ function renderRadar(evol) {
             alta.SaturacionOxigeno,
             alta.Glucosa
           ],
-          backgroundColor: "rgba(39, 174, 96, 0.7)", /* verde éxito */
+          backgroundColor: "rgba(39, 174, 96, 0.7)", 
           borderRadius: 6
         }
       ]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false, /* Puesto a false para controlar mejor la altura */
+      maintainAspectRatio: false, 
       scales: {
         x: {
           ticks: { font: { size: 12 } },
@@ -665,7 +677,7 @@ async function generarResumenIA(p, evol, signos) {
       // Convertimos **texto** a <strong style="color:var(--blue-accent);>texto</strong>
       const textoHtml = texto.replace(
         /\*\*(.*?)\*\*/g, 
-        '<strong style="color:var(--blue-accent);">$1</strong>' /* Usar blue-accent */
+        '<strong style="color:var(--blue-accent);">$1</strong>' 
       );
 
       resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoHtml}</div>`;
@@ -692,7 +704,7 @@ function renderConstantes(signos) {
   // Crear contenedor del gráfico
   const cont = document.createElement("div");
   cont.style.marginTop = "20px";
-  cont.style.width = "100%"; /* Asegurar que ocupa todo el ancho */
+  cont.style.width = "100%"; 
 
   // Título con el nuevo estilo
   cont.innerHTML = `
@@ -790,9 +802,9 @@ function renderHeatmap(signos) {
           const { v, y } = ctx.raw;
           const param = parametros[y];
           const { min, max } = normal[param];
-          if (v < min || v > 200) return "rgba(231, 76, 60, 0.85)";    // rojo crítico (usando var)
-          if (v > max || v > 130) return "rgba(241, 196, 15, 0.85)";   // naranja límite (usando var)
-          return "rgba(39, 174, 96, 0.85)";                 // verde normal (usando var)
+          if (v < min || v > 200) return "rgba(231, 76, 60, 0.85)";    
+          if (v > max || v > 130) return "rgba(241, 196, 15, 0.85)";   
+          return "rgba(39, 174, 96, 0.85)";                 
         },
         borderWidth: 1,
         borderColor: "#fff",
@@ -870,9 +882,9 @@ async function generarPDF() {
   const { jsPDF } = window.jspdf;
   const contenedor = document.getElementById("panel");
 
-  // Ajustar el scale para una mejor calidad en el PDF
+  
   const canvas = await html2canvas(contenedor, { scale: 3, useCORS: true });
-  const imgData = canvas.toDataURL("image/jpeg", 0.9); // Usar JPEG para menor tamaño de archivo con buena calidad
+  const imgData = canvas.toDataURL("image/jpeg", 0.9); 
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -892,7 +904,7 @@ async function generarPDF() {
     }
   }
 
-  // 🧠 Recuperar el usuario del login
+  
   const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
   const medicoNombre = usuario.Nombre || usuario.nombre || "Médico desconocido";
   const medicoEmail = usuario.correo_login || usuario.email || "correo no disponible";
@@ -921,7 +933,7 @@ const botonManual = document.createElement("button");
 botonManual.textContent = "Generar resumen IA manualmente";
 botonManual.className = "btn";
 botonManual.style.marginTop = "10px";
-botonManual.style.backgroundColor = "#95a5a6"; // Un color diferente para distinguirlo
+botonManual.style.backgroundColor = "#95a5a6"; 
 botonManual.style.marginLeft = "auto";
 botonManual.style.display = "block";
 botonManual.onclick = async () => {
@@ -969,9 +981,9 @@ document.getElementById("bloqueIA").appendChild(botonManual);
 // === REGISTRO DEL PLUGIN MATRIX ===
 if (window['chartjs-chart-matrix']) {
   Chart.register(window['chartjs-chart-matrix']);
-  console.log("Plugin Matrix 3.0.0 registrado correctamente");
+  console.log("✅ Plugin Matrix 3.0.0 registrado correctamente");
 } else {
-  console.warn("chartjs-chart-matrix no encontrado. Revisa la ruta del script.");
+  console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta del script.");
 }
 
 
