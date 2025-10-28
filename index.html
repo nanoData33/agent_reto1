@@ -10,297 +10,101 @@
 
   <style>
     :root {
-      --blue-main: #1f3b73;
-      --blue-accent: #3a6ff8;
-      --gray-bg: #f4f7fc;
-      --gray-dark: #2d2d2d;
-      --gray-mid: #666;
-      --radius: 10px;
-      --shadow: 0 3px 10px rgba(0,0,0,0.08);
-      --transition: all 0.3s ease;
+      --blue-main:#1f3b73;
+      --blue-accent:#3a6ff8;
+      --gray-bg:#f4f7fc;
+      --gray-dark:#2d2d2d;
+      --gray-mid:#666;
+      --radius:10px;
+      --shadow:0 3px 10px rgba(0,0,0,0.08);
+      --transition:all 0.3s ease;
     }
-
-    body {
-      margin: 0;
-      font-family: "Inter", sans-serif;
-      background: var(--gray-bg);
-      color: var(--gray-dark);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    header {
-      background: #fff;
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 40px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header span {
-      font-weight: 700;
-      font-size: 1.3rem;
-      color: var(--blue-main);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 12px;
-    }
-
-    button {
-      background: var(--blue-main);
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: var(--radius);
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-    }
-
-    button:hover {
-      background: var(--blue-accent);
-      transform: translateY(-2px);
-    }
-
-    .hospital {
-      width: 94%;
-      max-width: 1300px;
-      margin: 30px auto;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      position: relative;
-    }
-
-    /* 🏥 Pasillo central */
-    .pasillo {
-      position: absolute;
-      top: 48%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 60px;
-      background: linear-gradient(180deg, #e9ecf3 0%, #d8dce6 100%);
-      border-radius: 20px;
-      box-shadow: inset 0 3px 6px rgba(0,0,0,0.1);
-      z-index: 0;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: nowrap;
-      gap: 14px;
-      z-index: 2;
-      position: relative;
-    }
-
-    .room {
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      width: calc(16.6% - 10px);
-      position: relative;
-      border-left: 5px solid transparent;
-      transition: var(--transition);
-    }
-
-    .room:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-    }
-
-    .indicator {
-      position: absolute;
-      top: 10px;
-      right: 12px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .room h3 {
-      margin: 4px 0 8px;
-      font-size: 1rem;
-      color: var(--blue-main);
-      font-weight: 600;
-    }
-
-    .room p {
-      margin: 3px 0;
-      font-size: 0.85rem;
-      color: var(--gray-mid);
-      line-height: 1.3;
-    }
-
-    #chat-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--blue-main);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 52px;
-      height: 52px;
-      font-size: 20px;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-      transition: var(--transition);
-    }
-
-    #chat-btn:hover {
-      background: var(--blue-accent);
-      transform: scale(1.08);
-    }
-
-    #logout-btn {
-      background-color: #c0392b;
-    }
-
-    #logout-btn:hover {
-      background-color: #a93226;
-    }
-
-    .room.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-      filter: grayscale(100%);
-    }
-
-    .user-chip {
-      background: #eef3ff;
-      color: #1f3b73;
-      border: 1px solid #d8e2ff;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 820px) {
-      .user-chip {
-        display: none;
-      }
-      .hospital {
-        width: 98%;
-      }
-      .room {
-        width: 48%;
-      }
-      .pasillo {
-        display: none;
-      }
-    }
+    body{margin:0;font-family:"Inter",sans-serif;background:var(--gray-bg);color:var(--gray-dark);display:flex;flex-direction:column;min-height:100vh}
+    header{background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;padding:14px 40px;position:sticky;top:0;z-index:10}
+    header span{font-weight:700;font-size:1.3rem;color:var(--blue-main);display:flex;align-items:center;gap:10px}
+    .buttons{display:flex;gap:12px}
+    button{background:var(--blue-main);color:white;border:none;padding:8px 14px;border-radius:var(--radius);font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:6px;font-size:.9rem}
+    button:hover{background:var(--blue-accent);transform:translateY(-2px)}
+    #logout-btn{background:#c0392b}#logout-btn:hover{background:#a93226}
+    .hospital{width:94%;max-width:1300px;margin:30px auto;display:flex;flex-direction:column;gap:30px;position:relative}
+    .row{display:flex;justify-content:space-between;flex-wrap:nowrap;gap:14px;z-index:2;position:relative}
+    .pasillo{width:100%;height:60px;background:linear-gradient(180deg,#e9ecf3 0%,#d8dce6 100%);border-radius:20px;box-shadow:inset 0 3px 6px rgba(0,0,0,0.1);z-index:1;margin:10px 0}
+    .room{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;width:calc(16.6% - 10px);position:relative;border-left:5px solid transparent;transition:var(--transition)}
+    .room:hover{transform:translateY(-4px);box-shadow:0 4px 14px rgba(0,0,0,0.15)}
+    .indicator{position:absolute;top:10px;right:12px;width:10px;height:10px;border-radius:50%}
+    .room h3{margin:4px 0 8px;font-size:1rem;color:var(--blue-main);font-weight:600}
+    .room p{margin:3px 0;font-size:.85rem;color:var(--gray-mid);line-height:1.3}
+    #chat-btn{position:fixed;bottom:20px;right:20px;background:var(--blue-main);color:white;border:none;border-radius:50%;width:52px;height:52px;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.25);transition:var(--transition)}
+    #chat-btn:hover{background:var(--blue-accent);transform:scale(1.08)}
+    .room.disabled{opacity:.5;pointer-events:none;filter:grayscale(100%)}
+    .user-chip{background:#eef3ff;color:#1f3b73;border:1px solid #d8e2ff;padding:6px 10px;border-radius:999px;font-weight:600;font-size:.9rem}
+    @media(max-width:820px){.user-chip{display:none}.hospital{width:98%}.room{width:48%}.pasillo{display:none}}
   </style>
 </head>
 
 <body>
-  <header>
-    <span><i class="fa-solid fa-stethoscope"></i> MedAI Smart Ward</span>
-    <span id="user-info" class="user-chip"></span>
-
-    <div class="buttons">
-      <button onclick="window.location='decisiones.html'"><i class="fa-solid fa-user-md"></i> Decisiones AI</button>
-      <button onclick="window.location='exportar.html'"><i class="fa-solid fa-file-export"></i> Exportar</button>
-      <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
-    </div>
-  </header>
-
-  <div class="hospital">
-    <div id="row1" class="row"></div>
-    <div class="pasillo"></div>
-    <div id="row2" class="row"></div>
+<header>
+  <span><i class="fa-solid fa-stethoscope"></i> MedAI Smart Ward</span>
+  <span id="user-info" class="user-chip"></span>
+  <div class="buttons">
+    <button onclick="window.location='decisiones.html'"><i class="fa-solid fa-user-md"></i> Decisiones AI</button>
+    <button onclick="window.location='exportar.html'"><i class="fa-solid fa-file-export"></i> Exportar</button>
+    <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
   </div>
+</header>
 
-  <button id="chat-btn" title="Abrir chat" onclick="window.open('chat.html','_blank')">
-    <i class="fa-solid fa-comment-medical"></i>
-  </button>
+<div class="hospital">
+  <div id="row1" class="row"></div>
+  <div class="pasillo"></div>
+  <div id="row2" class="row"></div>
+</div>
 
-  <script>
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
-    if (!usuario) {
-      window.location.href = 'login.html';
-    }
+<button id="chat-btn" title="Abrir chat" onclick="window.open('chat.html','_blank')">
+  <i class="fa-solid fa-comment-medical"></i>
+</button>
 
-    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    function puedeVerPaciente(servicioPaciente, especialidadMedico, rolMedico) {
-      const accesoTotal = ['Medicina Interna', 'Enfermería', 'Administración'];
-      if (rolMedico === 'Administrador') return true;
-      if (accesoTotal.includes(especialidadMedico)) return true;
-      return servicioPaciente === especialidadMedico;
-    }
-
-    async function loadPatients() {
-      const { data, error } = await supabase.from("vista_pacientes_dashboard").select("*").limit(12);
-      if (error) return console.error(error);
-
-      const medico = usuario;
-      const row1 = document.getElementById("row1");
-      const row2 = document.getElementById("row2");
-
-      data.forEach((p, i) => {
-        const room = document.createElement("div");
-        room.className = "room";
-        const color =
-          p.trend_score >= 0.8 ? "#27ae60" :
-          p.trend_score >= 0.6 ? "#f1c40f" : "#e74c3c";
-        room.style.borderLeftColor = color;
-
-        room.innerHTML = `
-          <div class="indicator" style="background:${color};"></div>
-          <h3>${p.nombre || p.Nombre}</h3>
-          <p><strong>${p.edad || p.Edad}</strong> años — ${p.sexo || p.Sexo}</p>
-          <p>${p.diagnostico_principal || p.DiagnosticoPrincipal || "Sin diagnóstico"}</p>
-          <p><strong>Ingreso:</strong> ${p.fecha_ingreso || p.FechaIngreso}</p>
-          <p><strong>Servicio:</strong> ${p.servicio || p.Servicio}</p>
-        `;
-
-        const autorizado = puedeVerPaciente(p.servicio || p.Servicio, usuario.Especialidad, usuario.Rol);
-        if (!autorizado) room.classList.add("disabled");
-        else room.addEventListener("click", () => {
-          window.open(`paciente.html?id=${p.paciente_id || p.PacienteID}`, "_blank");
-        });
-
-        (i < 6 ? row1 : row2).appendChild(room);
-      });
-    }
-
-    loadPatients();
-
-    document.getElementById("logout-btn")?.addEventListener("click", async () => {
-      const { error } = await supabase.auth.signOut();
-      if (!error) {
-        localStorage.clear();
-        window.location.href = "login.html";
-      } else console.error("Error al cerrar sesión:", error.message);
-    });
-
-    const chip = document.getElementById("user-info");
-    if (chip && usuario) {
-      const rol = usuario.Rol || usuario.rol || "—";
-      const nombre = usuario.Nombre || usuario.nombre || "Usuario";
-      const esp = usuario.Especialidad || usuario.especialidad || "";
-      chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
-    }
-  </script>
+<script>
+const usuario=JSON.parse(localStorage.getItem('usuario'));
+if(!usuario)window.location.href='login.html';
+const supabase=window.supabase.createClient(
+  "https://aczjgeleupwlvghjhkav.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM"
+);
+function puedeVerPaciente(serv,esp,rol){
+  const full=['Medicina Interna','Enfermería','Administración'];
+  if(rol==='Administrador')return true;
+  if(full.includes(esp))return true;
+  return serv===esp;
+}
+async function loadPatients(){
+  const {data,error}=await supabase.from("vista_pacientes_dashboard").select("*").limit(12);
+  if(error)return console.error(error);
+  const row1=document.getElementById("row1"),row2=document.getElementById("row2");
+  data.forEach((p,i)=>{
+    const r=document.createElement("div");r.className="room";
+    const color=p.trend_score>=0.8?"#27ae60":p.trend_score>=0.6?"#f1c40f":"#e74c3c";
+    r.style.borderLeftColor=color;
+    r.innerHTML=`
+    <div class='indicator' style='background:${color}'></div>
+    <h3>${p.Nombre||p.nombre}</h3>
+    <p><strong>${p.Edad||p.edad}</strong> años — ${p.Sexo||p.sexo}</p>
+    <p>${p.DiagnosticoPrincipal||p.diagnostico_principal||"Sin diagnóstico"}</p>
+    <p><strong>Ingreso:</strong> ${p.FechaIngreso||p.fecha_ingreso}</p>
+    <p><strong>Servicio:</strong> ${p.Servicio||p.servicio}</p>`;
+    const ok=puedeVerPaciente(p.Servicio||p.servicio,usuario.Especialidad,usuario.Rol);
+    if(!ok)r.classList.add("disabled");else r.onclick=()=>window.open(`paciente.html?id=${p.PacienteID||p.paciente_id}`,"_blank");
+    (i<6?row1:row2).appendChild(r);
+  });
+}
+loadPatients();
+document.getElementById("logout-btn").onclick=async()=>{
+  await supabase.auth.signOut();localStorage.clear();window.location.href='login.html';
+};
+const chip=document.getElementById("user-info");
+if(chip&&usuario){
+  const rol=usuario.Rol||"—",nom=usuario.Nombre||"Usuario",esp=usuario.Especialidad||"";
+  chip.textContent=`${nom} (${rol}${esp?" · "+esp:""})`;
+}
+</script>
 </body>
 </html>
