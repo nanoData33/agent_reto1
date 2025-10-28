@@ -340,29 +340,41 @@ async function cargar() {
 /* === RADAR === */
 function renderRadar(evol) {
   if (!evol?.length) return;
-  const ingreso = evol[0], alta = evol[evol.length - 1];
+  const ingreso = evol[0];
+  const alta = evol[evol.length - 1];
 
   const ctx = document.getElementById("graficoRadar");
+
   new Chart(ctx, {
     type: "bar",
     data: {
-      labels: ["PA Sistólica (mmHg)", "FC (bpm)", "Temp (°C)", "SpO₂ (%)", "Glucosa (mg/dl)", "Creatinina (mg/dl)"],
+      labels: [
+        "PA Sistólica (mmHg)",
+        "FC (bpm)",
+        "Temp (°C)",
+        "SpO₂ (%)",
+        "Glucosa (mg/dl)"
+      ],
       datasets: [
         {
           label: "Ingreso",
           data: [
-            ingreso.PresionSistolica, ingreso.FrecuenciaCardiaca,
-            ingreso.Temperatura, ingreso.SaturacionOxigeno,
-            ingreso.Glucosa, ingreso.Creatinina
+            ingreso.PresionSistolica,
+            ingreso.FrecuenciaCardiaca,
+            ingreso.Temperatura,
+            ingreso.SaturacionOxigeno,
+            ingreso.Glucosa
           ],
           backgroundColor: "rgba(0, 74, 173, 0.6)"
         },
         {
           label: "Alta",
           data: [
-            alta.PresionSistolica, alta.FrecuenciaCardiaca,
-            alta.Temperatura, alta.SaturacionOxigeno,
-            alta.Glucosa, alta.Creatinina
+            alta.PresionSistolica,
+            alta.FrecuenciaCardiaca,
+            alta.Temperatura,
+            alta.SaturacionOxigeno,
+            alta.Glucosa
           ],
           backgroundColor: "rgba(22, 163, 74, 0.6)"
         }
@@ -373,10 +385,17 @@ function renderRadar(evol) {
       scales: {
         y: { beginAtZero: false, title: { display: true, text: "Valor" } }
       },
-      plugins: { legend: { position: "bottom" } }
+      plugins: {
+        legend: { position: "bottom" },
+        title: {
+          display: true,
+          text: "Comparativa de signos vitales (Ingreso vs Alta)"
+        }
+      }
     }
   });
 }
+
 
 
 /* === TABLAS === */
