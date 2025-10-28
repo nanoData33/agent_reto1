@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso | MedAI Evolution Ward</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --blue-main: #1f3b73;
+      --blue-accent: #3a6ff8;
+      --gray-bg: #f6f8fb;
+      --gray-dark: #2d2d2d;
+      --radius: 10px;
+      --shadow: 0 3px 10px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: var(--gray-bg);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-dark);
+    }
+
+    .login-container {
+      background: #fff;
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 40px 50px;
+      width: 360px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    h1 {
+      color: var(--blue-main);
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: var(--radius);
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--blue-accent);
+      box-shadow: 0 0 0 2px rgba(58, 111, 248, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: var(--blue-main);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    button:hover {
+      background: var(--blue-accent);
+      transform: translateY(-2px);
+    }
+
+    #error {
+      color: #e74c3c;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      height: 18px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      position: fixed;
+      bottom: 12px;
+      text-align: center;
+      width: 100%;
+      font-size: 0.8rem;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <h1><i class="fa-solid fa-hospital-user"></i> MedAI Ward</h1>
+    <p class="subtitle">Acceso restringido al personal sanitario</p>
+    <input type="email" id="email" placeholder="Correo institucional" autocomplete="username" />
+    <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password" />
+    <button onclick="login()"><i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión</button>
+    <p id="error"></p>
+  </div>
+
+  <footer>© 2025 Hospital Ficticio — Sistema MedAI Evolution</footer>
+
+  <script>
+    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorMsg = document.getElementById('error');
+      errorMsg.textContent = '';
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Completa todos los campos.';
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('personal_medico')
+        .select('*')
+        .eq('correo_login', email)
+        .eq('contrasena', password)
+        .maybeSingle();
+
+      if (error) {
+        console.error(error);
+        errorMsg.textContent = 'Error al conectar con la base de datos.';
+        return;
+      }
+
+      if (!data) {
+        errorMsg.textContent = 'Correo o contraseña incorrectos.';
+        return;
+      }
+
+      localStorage.setItem('usuario', JSON.stringify(data));
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
