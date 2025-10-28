@@ -1,511 +1,452 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MedAI Evolution Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedAI Evolution Assistant</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Librerías necesarias -->
+  <!-- Chart.js principal -->
+  <!-- Chart.js principal -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Plugin Matrix (versión 3.0.0, con MIME correcto) -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@3.0.0/dist/chartjs-chart-matrix.min.js"></script>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@3.0.0/dist/chartjs-chart-matrix.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Generación de PDF (jsPDF + autoTable) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Conexión a Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* ================================================= */
-/* === VARIABLES Y ESTILOS GLOBALES (DASHBOARD) === */
-/* ================================================= */
 :root {
-  /* Colores principales del dashboard */
-  --blue-main: #1f3b73; /* Azul oscuro primario */
-  --blue-accent: #3a6ff8; /* Azul claro de acento */
-  --gray-bg: #f4f7fc; /* Fondo de la página */
-  --gray-dark: #2d2d2d; /* Texto principal */
-  --gray-mid: #666; /* Texto secundario */
-  --panel: #ffffff; /* Fondo de los paneles */
-  --borde: #e9ecf3; /* Borde de los elementos */
-  --verde: #27ae60; /* Verde normal/éxito */
-  --rojo: #e74c3c; /* Rojo crítico/error */
-  --naranja: #f1c40f; /* Naranja límite/advertencia */
-  --radius: 10px; /* Radio de borde uniforme */
-  --shadow: 0 3px 10px rgba(0,0,0,0.08); /* Sombra uniforme */
-  --transition: all 0.3s ease;
+  --azul: #004aad;
+  --gris: #f6f8fb;
+  --panel: #ffffff;
+  --borde: #e5e7eb;
+  --verde: #16a34a;
 }
 body {
-  font-family: 'Inter', sans-serif;
-  background: var(--gray-bg);
-  margin: 0;
-  color: var(--gray-dark);
-  overflow-x: hidden;
+  font-family: 'Poppins', sans-serif;
+  background: var(--gris);
+  margin: 0;
+  color: #1f2d3d;
+  overflow-x: hidden;
 }
 
-/* ================================================= */
-/* =================== CABECERA ==================== */
-/* ================================================= */
+/* ==== CABECERA ==== */
 header {
-  background: var(--panel); /* Fondo blanco */
-  color: var(--blue-main);
-  padding: 14px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  background: var(--azul);
+  color: white;
+  padding: 12px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-header h1 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--blue-main);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-header h1 i { 
-  font-size: 1.5rem;
-}
+header h1 { font-size: 1rem; font-weight: 600; }
 
-/* Estilo para todos los botones, coincidiendo con el dashboard */
-.btn {
-  background-color: var(--blue-main);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  padding: 8px 14px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn:hover {
-  background-color: var(--blue-accent);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-}
-
-.btn:active {
-  background-color: #1a305e; 
-  transform: translateY(0);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.botones-header {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-/* Estilo específico para el botón Volver (grisáceo para distinguirlo) */
-.btn-volver {
-  background-color: var(--gray-mid);
-}
-
-.btn-volver:hover {
-  background-color: #4a4a4a;
-}
-
-/* ================================================= */
-/* ================== CONTENIDO ==================== */
-/* ================================================= */
-
+/* ==== CONTENEDOR ==== */
 main {
-  max-width: 1300px; 
-  margin: 30px auto;
-  background: var(--panel);
-  border-radius: var(--radius);
-  padding: 30px 40px;
-  box-shadow: var(--shadow);
-}
-
-/* Títulos de sección dentro de los bloques */
-h3 {
-  margin: 0 0 12px;
-  color: var(--blue-main);
-  font-size: 1.1rem;
-  font-weight: 700;
-  display: flex; /* Para alinear el icono con el texto */
-  align-items: center;
-  gap: 8px;
+  max-width: 1150px;
+  margin: 20px auto;
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 25px 35px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
 /* ==== DATOS PACIENTE ==== */
 #cabecera {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  gap: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 #paciente, #constantes {
-  width: 50%; 
-  background: var(--gray-bg); 
-  border-radius: var(--radius);
-  border: 1px solid var(--borde);
-  padding: 15px 20px;
-  font-size: 0.9rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  width: 48%;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  padding: 10px 15px;
+  font-size: 0.85rem;
 }
-#paciente p, #constantes p { margin: 5px 0; line-height: 1.4; }
-#paciente b, #constantes b { color: var(--gray-dark); font-weight: 600; } /* Cambiado a gray-dark para menos contraste */
+#paciente p, #constantes p { margin: 3px 0; }
 
-/* ==== RESUMEN (Bloques de IA) ==== */
-#bloqueIA, #bloqueRecomendacion {
-  background: var(--gray-bg);
-  border: 1px solid var(--borde);
-  padding: 15px 20px;
-  border-radius: var(--radius);
-  margin-bottom: 20px;
+/* ==== RESUMEN ==== */
+#bloqueIA {
+  background: #f9fafb;
+  border: 1px solid var(--borde);
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 18px;
 }
 
-#barraProgreso, #barraProgresoRec {
-  height: 6px;
-  width: 0;
-  background: var(--blue-accent); 
-  border-radius: 4px;
-  transition: width 0.4s;
+#barraProgreso {
+  height: 6px;
+  width: 0;
+  background: var(--azul);
+  border-radius: 4px;
+  transition: width 0.4s;
 }
-#resumenIA, #resumenRec {
-  margin-top: 10px;
-  font-size: 0.95rem;
-  min-height: 50px;
-  line-height: 1.6;
+#bloqueRecomendacion {
+  background: #f9fafb;
+  border: 1px solid var(--borde);
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+#barraProgresoRec {
+  height: 6px;
+  width: 0;
+  background: var(--azul);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+#resumenRec {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  min-height: 45px;
+}
+#resumenIA {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  min-height: 45px;
 }
 
 /* ==== GRID PRINCIPAL ==== */
 #panelCentral {
-  display: grid;
-  grid-template-columns: 2fr 1fr; 
-  gap: 25px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-/* ==== GRAFICOS (Panel Izquierdo) ==== */
+/* ==== GRAFICOS ==== */
 #zonaGraficos {
-  background: var(--panel); 
-  border: 1px solid var(--borde);
-  border-radius: var(--radius);
-  padding: 20px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  background: #f9fafb;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 10px 15px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#graficoRadar, #graficoConstantes, #graficoHeat {
-  width: 100%;
-  max-width: 650px; 
-  height: 300px !important; 
-  max-height: 300px;
-  margin: 15px auto;
+#graficoRadar {
+  width: 100%;
+  max-width: 600px;
+  height: 260px !important;
+  max-height: 260px;
+  margin: 10px auto;
 }
 
-/* ==== COLUMNA DERECHA (Paneles de información) ==== */
+/* ==== COLUMNA DERECHA ==== */
 .columna {
-  background: var(--panel);
-  border: 1px solid var(--borde);
-  border-radius: var(--radius);
-  padding: 15px;
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  background: #f9fafb;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
 }
-
-/* ==== TABLAS (General) ==== */
+h3 {
+  margin: 5px 0 8px;
+  color: var(--azul);
+  font-size: 0.9rem;
+}
 table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
 }
 th, td {
-  border-bottom: 1px solid var(--borde);
-  padding: 8px;
-  text-align: left;
+  border-bottom: 1px solid var(--borde);
+  padding: 4px;
 }
 th {
-  background: var(--blue-main);
-  color: white;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-bottom: 2px solid var(--blue-accent);
-}
-thead tr:first-child th:first-child { border-top-left-radius: 8px; }
-thead tr:first-child th:last-child { border-top-right-radius: 8px; }
-tbody tr:last-child td { border-bottom: none; }
-#pruebasResultados tr:hover { background: #f9fafb; }
-
-
-/* Estilos para el mapa de calor */
-.heatmap-legend {
-  font-size: 0.85rem;
-  margin-top: 10px;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-.heatmap-legend span {
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: white;
-  font-weight: 500;
+  background: var(--azul);
+  color: white;
+  font-weight: 500;
 }
 
-/* Ajustes específicos de las notas médicas */
-#tablaMedicos td:nth-child(3) {
-  width: 60%; 
-}
-#tablaMedicos tr {
-  vertical-align: top;
-}
-#tablaMedicos tr:nth-child(even) {
-  background: #f9fafb;
-}
-
-/* Estilo para el botón manual (gris claro) */
-#bloqueIA .btn {
-  background-color: #95a5a6; /* Gris */
-}
-#bloqueIA .btn:hover {
-  background-color: #7f8c8d;
+.btn {
+  background-color: var(--azul);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
 }
 
-/* Responsividad básica */
-@media (max-width: 1000px) {
-  main { padding: 20px; }
-  #panelCentral { grid-template-columns: 1fr; }
-  #cabecera { flex-direction: column; gap: 15px; }
-  #paciente, #constantes { width: 100%; }
-  header { padding: 10px 20px; }
-  .botones-header { gap: 8px; }
+.btn:hover {
+  background-color: #0a64d1;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  background-color: #003a87;
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.botones-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#pruebasResultados table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+#pruebasResultados th, #pruebasResultados td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+#pruebasResultados th {
+  background: var(--azul);
+  color: #fff;
+  font-weight: 500;
+}
+
+#pruebasResultados tr:hover {
+  background: #f9fafb;
 }
 
 </style>
 </head>
 
 <body>
-  <header>
-        <h1><i class="fa-solid fa-stethoscope"></i> MedAI Evolution Assistant</h1>
+  <header>
+    <h1>MedAI Evolution Assistant</h1>
 
-    <div class="botones-header">
-            <button class="btn btn-volver" onclick="window.location.href='index.html'">
-        <i class="fa-solid fa-arrow-left"></i> Volver al panel
-      </button>
-            <button class="btn" id="botonPDF" onclick="generarPDF()">
-        <i class="fa-solid fa-file-export"></i> Exportar informe
-      </button>
-    </div>
-  </header>
+    <div class="botones-header">
+      <button class="btn" onclick="window.location.href='index.html'">
+        ← Volver al panel
+      </button>
+      <button class="btn" id="botonPDF" onclick="generarPDF()">
+        <i class="fa-solid fa-file-export"></i> Exportar informe completo en PDF
+      </button>
+    </div>
+  </header>
 
 <main id="panel">
-    <div id="cabecera">
-    <div id="paciente">
-      <h3><i class="fa-solid fa-user-injured"></i> Datos del Paciente</h3>
-      <p><b>Nombre:</b> <span id="nombre"></span></p>
-      <p><b>Edad:</b> <span id="edad"></span> — <b>Sexo:</b> <span id="sexo"></span></p>
-      <p><b>Diagnóstico:</b> <span id="diagnostico"></span></p>
-      <p><b>Servicio:</b> <span id="servicio"></span></p>
-    </div>
-    <div id="constantes">
-      <h3><i class="fa-solid fa-heart-pulse"></i> Últimas Constantes Vitales</h3>
-      <p><b>Presión Arterial (PA):</b> <span id="pa"></span> mmHg</p>
-      <p><b>Frecuencia Cardiaca (FC):</b> <span id="fc"></span> bpm</p>
-      <p><b>Saturación O₂ (SpO₂):</b> <span id="spo2"></span>%</p>
-      <p><b>Temperatura (Tª):</b> <span id="temp"></span> °C</p>
-    </div>
-  </div>
+  <!-- CABECERA -->
+  <div id="cabecera">
+    <div id="paciente">
+      <p><b>Nombre:</b> <span id="nombre"></span></p>
+      <p><b>Edad:</b> <span id="edad"></span> — <b>Sexo:</b> <span id="sexo"></span></p>
+      <p><b>Diagnóstico:</b> <span id="diagnostico"></span></p>
+      <p><b>Servicio:</b> <span id="servicio"></span></p>
+    </div>
+    <div id="constantes">
+      <p><b>Últimas constantes:</b></p>
+      <p>PA: <span id="pa"></span> mmHg</p>
+      <p>FC: <span id="fc"></span> bpm</p>
+      <p>SpO₂: <span id="spo2"></span>%</p>
+      <p>Tª: <span id="temp"></span> °C</p>
+    </div>
+  </div>
 
-    <div id="bloqueIA">
-    <h3><i class="fa-solid fa-brain"></i> Resumen Clínico (IA)</h3>
-    <div id="barraProgreso"></div>
-    <div id="resumenIA">Cargando análisis...</div>
-  </div>
+  <!-- RESUMEN IA -->
+  <div id="bloqueIA">
+    <h3>Resumen clínico (IA)</h3>
+    <div id="barraProgreso"></div>
+    <div id="resumenIA">Cargando análisis...</div>
+  </div>
 
-  <div id="bloqueRecomendacion">
-    <h3><i class="fa-solid fa-lightbulb"></i> Recomendaciones Clínicas (IA)</h3>
-    <div id="barraProgresoRec"></div>
-    <div id="resumenRec">Cargando recomendaciones...</div>
-  </div>
+  <div id="bloqueRecomendacion">
+    <h3>Recomendaciones clínicas (IA)</h3>
+    <div id="barraProgresoRec"></div>
+    <div id="resumenRec">Cargando recomendaciones...</div>
+  </div>
 
-    <div id="panelCentral">
-        <div id="zonaGraficos">
-      <div class="navContainer">
-        <h3 id="tituloGraf"><i class="fa-solid fa-chart-line"></i> Evolución: Ingreso vs Alta</h3>
-      </div>
-      <canvas id="graficoRadar"></canvas>
-    </div>
+  <!-- DOS COLUMNAS -->
+  <div id="panelCentral">
+    <!-- IZQUIERDA -->
+    <div id="zonaGraficos">
+      <div class="navContainer">
+        <h3 id="tituloGraf">Evolución: Ingreso vs Alta</h3>
+      </div>
+      <canvas id="graficoRadar"></canvas>
+    </div>
 
-        <div>
-      <div class="columna">
-        <h3><i class="fa-solid fa-pills"></i> Tratamiento Actual</h3>
-        <table>
-          <thead><tr><th>Medicamento</th><th>Dosis</th><th>Vía</th></tr></thead>
-          <tbody id="tablaMeds"></tbody>
-        </table>
-      </div>
+    <!-- DERECHA -->
+    <div>
+      <div class="columna">
+        <h3>Tratamiento actual</h3>
+        <table>
+          <thead><tr><th>Medicamento</th><th>Dosis</th><th>Vía</th></tr></thead>
+          <tbody id="tablaMeds"></tbody>
+        </table>
+      </div>
 
-      <div class="columna" id="pruebasResultados">
-        <h3><i class="fa-solid fa-vial"></i> Pruebas y Resultados Iniciales</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Parámetro</th>
-              <th>Resultado</th>
-              <th>Valores de referencia</th>
-            </tr>
-          </thead>
-          <tbody id="tablaLab">
-            <tr><td colspan="3" style="text-align:center;">Cargando resultados...</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="columna" id="pruebasResultados">
+        <h3>Pruebas y resultados iniciales</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parámetro</th>
+              <th>Resultado</th>
+              <th>Valores de referencia</th>
+            </tr>
+          </thead>
+          <tbody id="tablaLab">
+            <tr><td colspan="3" style="text-align:center;">Cargando resultados...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
 
-      <div class="columna">
-        <h3><i class="fa-solid fa-user-tag"></i> Evolución y Equipo Médico</h3>
-        <table>
-          <thead><tr><th>Nombre</th><th>Rol</th><th>Nota y Fecha</th></tr></thead>
-          <tbody id="tablaMedicos"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+      <div class="columna">
+        <h3>Equipo médico</h3>
+        <table>
+          <thead><tr><th>Nombre</th><th>Rol</th><th></th></tr></thead>
+          <tbody id="tablaMedicos"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </main>
 <script type="module">
-  import { supabase } from './supabaseClient.js';
+  import { supabase } from './supabaseClient.js';
 
-  const id = new URLSearchParams(window.location.search).get("id");
+  const id = new URLSearchParams(window.location.search).get("id");
 
 async function cargar() {
-  try {
-    if (!id) {
-      alert("❌ No se ha indicado el paciente en la URL (?id=P001)");
-      return;
-    }
+  try {
+    if (!id) {
+      alert("❌ No se ha indicado el paciente en la URL (?id=P001)");
+      return;
+    }
 
-    console.log("🩺 Cargando paciente", id);
+    console.log("🩺 Cargando paciente", id);
 
-    // === PACIENTE ===
-    const { data: p, error: errorPaciente } = await supabase
-      .from('pacientes')
-      .select('*')
-      .eq('PacienteID', id)
-      .single();
+    // === PACIENTE ===
+    const { data: p, error: errorPaciente } = await supabase
+      .from('pacientes')
+      .select('*')
+      .eq('PacienteID', id)
+      .single();
 
-    if (errorPaciente || !p) {
-      console.error("Error cargando paciente:", errorPaciente);
-      alert("Paciente no encontrado o error en la carga.");
-      return;
-    }
+    if (errorPaciente || !p) {
+      console.error("Error cargando paciente:", errorPaciente);
+      alert("Paciente no encontrado o error en la carga.");
+      return;
+    }
 
-    // === DATOS PRINCIPALES ===
-    document.getElementById('nombre').textContent = p.Nombre || '—';
-    document.getElementById('edad').textContent = p.Edad || '—';
-    document.getElementById('sexo').textContent = p.Sexo || '—';
-    document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal || '—';
-    document.getElementById('servicio').textContent = p.Servicio || '—';
+    // === DATOS PRINCIPALES ===
+    document.getElementById('nombre').textContent = p.Nombre || '—';
+    document.getElementById('edad').textContent = p.Edad || '—';
+    document.getElementById('sexo').textContent = p.Sexo || '—';
+    document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal || '—';
+    document.getElementById('servicio').textContent = p.Servicio || '—';
 
-    // === CONSULTAS A SUPABASE ===
-    const { data: evol } = await supabase
-      .from('evolucion')
-      .select('*')
-      .eq('PacienteID', id)
-      .order('Fecha');
+    // === CONSULTAS A SUPABASE ===
+    const { data: evol } = await supabase
+      .from('evolucion')
+      .select('*')
+      .eq('PacienteID', id)
+      .order('Fecha');
 
-    const { data: meds } = await supabase
-      .from('medicacion')
-      .select('*')
-      .eq('PacienteID', id);
+    const { data: meds } = await supabase
+      .from('medicacion')
+      .select('*')
+      .eq('PacienteID', id);
 
-    const { data: signosRaw, error: errorSignos } = await supabase
-      .from('signos_vitales')
-      .select('*')
-      .eq('PacienteID', id);
+    const { data: signosRaw, error: errorSignos } = await supabase
+      .from('signos_vitales')
+      .select('*')
+      .eq('PacienteID', id);
 
-    if (errorSignos) console.error("Error cargando signos vitales:", errorSignos);
+    if (errorSignos) console.error("Error cargando signos vitales:", errorSignos);
 
-    // === ORDENAR LOCALMENTE ===
-    const signos = (signosRaw || [])
-      .filter(s => s.Fecha && s.Hora)
-      .sort((a, b) => {
-        const f1 = new Date(`${a.Fecha}T${a.Hora}`);
-        const f2 = new Date(`${b.Fecha}T${b.Hora}`);
-        return f1 - f2;
-      });
+    // === ORDENAR LOCALMENTE ===
+    const signos = (signosRaw || [])
+      .filter(s => s.Fecha && s.Hora)
+      .sort((a, b) => {
+        const f1 = new Date(`${a.Fecha}T${a.Hora}`);
+        const f2 = new Date(`${b.Fecha}T${b.Hora}`);
+        return f1 - f2;
+      });
 
-    // === SIGNOS VITALES ===
-    if (!signos.length) {
-      console.warn("⚠️ No hay registros de signos vitales para este paciente");
-      document.getElementById('pa').textContent = '—';
-      document.getElementById('fc').textContent = '—';
-      document.getElementById('spo2').textContent = '—';
-      document.getElementById('temp').textContent = '—';
-    } else {
-      const ult = signos
-        .filter(s => s.PresionSistolica && s.FrecuenciaCardiaca && s.SaturacionOxigeno && s.Temperatura)
-        .pop();
+    // === SIGNOS VITALES ===
+    if (!signos.length) {
+      console.warn("⚠️ No hay registros de signos vitales para este paciente");
+      document.getElementById('pa').textContent = '—';
+      document.getElementById('fc').textContent = '—';
+      document.getElementById('spo2').textContent = '—';
+      document.getElementById('temp').textContent = '—';
+    } else {
+      const ult = signos
+        .filter(s => s.PresionSistolica && s.FrecuenciaCardiaca && s.SaturacionOxigeno && s.Temperatura)
+        .pop();
 
-      if (ult) {
-        document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
-        document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
-        document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
-        document.getElementById('temp').textContent = ult.Temperatura;
-      } else {
-        document.getElementById('pa').textContent = '—';
-        document.getElementById('fc').textContent = '—';
-        document.getElementById('spo2').textContent = '—';
-        document.getElementById('temp').textContent = '—';
-      }
+      if (ult) {
+        document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
+        document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
+        document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
+        document.getElementById('temp').textContent = ult.Temperatura;
+      } else {
+        document.getElementById('pa').textContent = '—';
+        document.getElementById('fc').textContent = '—';
+        document.getElementById('spo2').textContent = '—';
+        document.getElementById('temp').textContent = '—';
+      }
 
-      renderConstantes(signos);
-      renderHeatmap(signos);
-    }
+      renderConstantes(signos);
+      renderHeatmap(signos);
+    }
 
-    // === EQUIPO MÉDICO ===
-    const { data: notasCompletas, error: errorNotas } = await supabase
-      .from("notas")
-      .select("Fecha, Nota, personal_medico (Nombre, Rol)")
-      .eq("PacienteID", id)
-      .order("Fecha");
+    // === EQUIPO MÉDICO ===
+    const { data: notasCompletas, error: errorNotas } = await supabase
+      .from("notas")
+      .select("Fecha, Nota, personal_medico (Nombre, Rol)")
+      .eq("PacienteID", id)
+      .order("Fecha");
 
-    if (errorNotas) console.error("Error cargando notas:", errorNotas);
-    else renderNotas(notasCompletas);
+    if (errorNotas) console.error("Error cargando notas:", errorNotas);
+    else renderNotas(notasCompletas);
 
-    // === PRUEBAS Y RESULTADOS ===
-    const { data: lab, error: errorLab } = await supabase
-      .from("lab_iniciales")
-      .select("Glucosa, pH, Cetonas, Creatinina, Hemoglobina, Leucocitos, Sodio, Potasio, Urea, Amilasa")
-      .eq("PacienteID", id)
-      .limit(1);
+    // === PRUEBAS Y RESULTADOS ===
+    const { data: lab, error: errorLab } = await supabase
+      .from("lab_iniciales")
+      .select("Glucosa, pH, Cetonas, Creatinina, Hemoglobina, Leucocitos, Sodio, Potasio, Urea, Amilasa")
+      .eq("PacienteID", id)
+      .limit(1);
 
-    if (!errorLab && lab?.length) {
-      const r = lab[0];
-      document.getElementById("tablaLab").innerHTML = `
-        <tr><td>Glucosa</td><td>${r.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
-        <tr><td>pH</td><td>${r.pH ?? "—"}</td><td>7.35–7.45</td></tr>
-        <tr><td>Cetonas</td><td>${r.Cetonas ?? "—"}</td><td>Negativas</td></tr>
-        <tr><td>Creatinina</td><td>${r.Creatinina ?? "—"}</td><td>0.6–1.3 mg/dL</td></tr>
-        <tr><td>Hemoglobina</td><td>${r.Hemoglobina ?? "—"}</td><td>12–17 g/dL</td></tr>
-        <tr><td>Leucocitos</td><td>${r.Leucocitos ?? "—"}</td><td>4–11 ×10⁹/L</td></tr>
-        <tr><td>Sodio</td><td>${r.Sodio ?? "—"}</td><td>135–145 mmol/L</td></tr>
-        <tr><td>Potasio</td><td>${r.Potasio ?? "—"}</td><td>3.5–5.1 mmol/L</td></tr>
-        <tr><td>Urea</td><td>${r.Urea ?? "—"}</td><td>10–50 mg/dL</td></tr>
-        <tr><td>Amilasa</td><td>${r.Amilasa ?? "—"}</td><td>30–110 U/L</td></tr>
-      `;
-    }
+    if (!errorLab && lab?.length) {
+      const r = lab[0];
+      document.getElementById("tablaLab").innerHTML = `
+        <tr><td>Glucosa</td><td>${r.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
+        <tr><td>pH</td><td>${r.pH ?? "—"}</td><td>7.35–7.45</td></tr>
+        <tr><td>Cetonas</td><td>${r.Cetonas ?? "—"}</td><td>Negativas</td></tr>
+        <tr><td>Creatinina</td><td>${r.Creatinina ?? "—"}</td><td>0.6–1.3 mg/dL</td></tr>
+        <tr><td>Hemoglobina</td><td>${r.Hemoglobina ?? "—"}</td><td>12–17 g/dL</td></tr>
+        <tr><td>Leucocitos</td><td>${r.Leucocitos ?? "—"}</td><td>4–11 ×10⁹/L</td></tr>
+        <tr><td>Sodio</td><td>${r.Sodio ?? "—"}</td><td>135–145 mmol/L</td></tr>
+        <tr><td>Potasio</td><td>${r.Potasio ?? "—"}</td><td>3.5–5.1 mmol/L</td></tr>
+        <tr><td>Urea</td><td>${r.Urea ?? "—"}</td><td>10–50 mg/dL</td></tr>
+        <tr><td>Amilasa</td><td>${r.Amilasa ?? "—"}</td><td>30–110 U/L</td></tr>
+      `;
+    }
 
-    // === RENDER RESTANTE ===
-    renderRadar(evol);
+    // === RENDER RESTANTE ===
+    renderRadar(evol);
     renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
 
     // Ejecuta ambas peticiones a la IA en paralelo
@@ -514,476 +455,462 @@ async function cargar() {
       generarRecomendacionIA(p, evol, signos)
     ]);
 
-  } catch (err) {
-    console.error("⚠️ Error en cargar():", err);
-    document.getElementById("resumenIA").textContent = "Error al cargar los datos del paciente.";
-  }
+  } catch (err) {
+    console.error("⚠️ Error en cargar():", err);
+    document.getElementById("resumenIA").textContent = "Error al cargar los datos del paciente.";
+  }
 }
 
 
-  async function generarRecomendacionIA(p, evol, signos) {
-  const barra = document.getElementById("barraProgresoRec");
-  const resumenDiv = document.getElementById("resumenRec");
-  resumenDiv.textContent = "Enviando datos a IA para recomendaciones...";
-  barra.style.width = "0%";
+  async function generarRecomendacionIA(p, evol, signos) {
+  const barra = document.getElementById("barraProgresoRec");
+  const resumenDiv = document.getElementById("resumenRec");
+  resumenDiv.textContent = "Enviando datos a IA para recomendaciones...";
+  barra.style.width = "0%";
 
-  // Mismo payload que se envía a /evolucion
-  const payload = {
-    paciente: p,
-    evolucion: evol,
-    signos_vitales: signos
-  };
+  // Mismo payload que se envía a /evolucion
+  const payload = {
+    paciente: p,
+    evolucion: evol,
+    signos_vitales: signos
+  };
 
-  try {
-    // Endpoint de recomendaciones sigue siendo /recomendacion
-    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/recomendacion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+  try {
+    // Endpoint de recomendaciones sigue siendo /recomendacion
+    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/recomendacion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-    const texto = await res.text();
-    console.log("✅ Respuesta Recomendación IA:", texto);
+    const texto = await res.text();
+    console.log("✅ Respuesta Recomendación IA:", texto);
 
-    if (texto.trim().length > 0) {
+    if (texto.trim().length > 0) {
       barra.style.width = "100%";
-      
-      // Convertimos **texto** a <strong style="color:var(--azul);>texto</strong>
+      
+      // Convertimos **texto** a <strong style="color:var(--azul);>texto</strong>
       const textoHtml = texto.replace(
-        /\*\*(.*?)\*\*/g, 
-        '<strong style="color:var(--blue-accent);">$1</strong>' 
-      );
-      
+        /\*\*(.*?)\*\*/g, 
+        '<strong style="color:var(--azul);">$1</strong>'
+      );
+      
       resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoHtml}</div>`;
     } else {
-      resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
-    }
+      resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
+    }
 
-  } catch (err) {
-    console.error("❌ Error Recomendación IA:", err);
-    resumenDiv.textContent = "Error al conectar con el asistente IA.";
-  }
+  } catch (err) {
+    console.error("❌ Error Recomendación IA:", err);
+    resumenDiv.textContent = "Error al conectar con el asistente IA.";
+  }
 }
 
 
 /* === RADAR === */
 function renderRadar(evol) {
-  if (!evol?.length) return;
-  const ingreso = evol[0];
-  const alta = evol[evol.length - 1];
+  if (!evol?.length) return;
+  const ingreso = evol[0];
+  const alta = evol[evol.length - 1];
 
-  const ctx = document.getElementById("graficoRadar");
+  const ctx = document.getElementById("graficoRadar");
 
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: [
-        "Presión Sistólica (mmHg)",
-        "Frecuencia Cardiaca (bpm)",
-        "Saturación O₂ (%)",
-        "Glucosa (mg/dl)"
-      ],
-      datasets: [
-        {
-          label: "Ingreso",
-          data: [
-            ingreso.PresionSistolica,
-            ingreso.FrecuenciaCardiaca,
-            ingreso.SaturacionOxigeno,
-            ingreso.Glucosa
-          ],
-          backgroundColor: "rgba(31, 59, 115, 0.7)", 
-          borderRadius: 6
-        },
-        {
-          label: "Alta",
-          data: [
-            alta.PresionSistolica,
-            alta.FrecuenciaCardiaca,
-            alta.SaturacionOxigeno,
-            alta.Glucosa
-          ],
-          backgroundColor: "rgba(39, 174, 96, 0.7)", 
-          borderRadius: 6
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false, 
-      scales: {
-        x: {
-          ticks: { font: { size: 12 } },
-          grid: { display: false }
-        },
-        y: {
-          beginAtZero: false,
-          ticks: { font: { size: 12 } },
-          title: {
-            display: true,
-            text: "Valor",
-            font: { weight: "bold" }
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: { font: { size: 13, weight: "600" } }
-        },
-        title: {
-          display: false
-        }
-      }
-    }
-  });
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: [
+        "Presión Sistólica (mmHg)",
+        "Frecuencia Cardiaca (bpm)",
+        "Saturación O₂ (%)",
+        "Glucosa (mg/dl)"
+      ],
+      datasets: [
+        {
+          label: "Ingreso",
+          data: [
+            ingreso.PresionSistolica,
+            ingreso.FrecuenciaCardiaca,
+            ingreso.SaturacionOxigeno,
+            ingreso.Glucosa
+          ],
+          backgroundColor: "rgba(0, 74, 173, 0.7)",
+          borderRadius: 6
+        },
+        {
+          label: "Alta",
+          data: [
+            alta.PresionSistolica,
+            alta.FrecuenciaCardiaca,
+            alta.SaturacionOxigeno,
+            alta.Glucosa
+          ],
+          backgroundColor: "rgba(22, 163, 74, 0.7)",
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        x: {
+          ticks: { font: { size: 12 } },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: false,
+          ticks: { font: { size: 12 } },
+          title: {
+            display: true,
+            text: "Valor",
+            font: { weight: "bold" }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { font: { size: 13, weight: "600" } }
+        },
+        title: {
+          display: false,
+          text: "Comparativa de signos vitales (Ingreso vs Alta)",
+          font: { size: 16, weight: "bold" }
+        }
+      }
+    }
+  });
 }
 
 
 /* === TABLAS === */
 function renderTabla(id, datos, columnas) {
-  document.getElementById(id).innerHTML = datos?.length
-    ? datos.map(d => `<tr>${columnas.map(c => `<td>${d[c] ?? '-'}</td>`).join('')}</tr>`).join('')
-    : `<tr><td colspan="${columnas.length}">Sin registros</td></tr>`;
+  document.getElementById(id).innerHTML = datos?.length
+    ? datos.map(d => `<tr>${columnas.map(c => `<td>${d[c] ?? '-'}</td>`).join('')}</tr>`).join('')
+    : `<tr><td colspan="${columnas.length}">Sin registros</td></tr>`;
 }
 
 /* === RESUMEN IA === */
 async function generarResumenIA(p, evol, signos) {
-  const barra = document.getElementById("barraProgreso");
-  const resumenDiv = document.getElementById("resumenIA");
-  resumenDiv.textContent = "Enviando datos a IA...";
-  barra.style.width = "0%";
+  const barra = document.getElementById("barraProgreso");
+  const resumenDiv = document.getElementById("resumenIA");
+  resumenDiv.textContent = "Enviando datos a IA...";
+  barra.style.width = "0%";
 
-  // Preparar payload con toda la info del paciente
-  const payload = {
-    paciente: p,
-    evolucion: evol,
-    signos_vitales: signos
-  };
+  // Preparar payload con toda la info del paciente
+  const payload = {
+    paciente: p,
+    evolucion: evol,
+    signos_vitales: signos
+  };
 
-  try {
-    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/evolucion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+  try {
+    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/evolucion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-    const texto = await res.text();
-    console.log("✅ Respuesta IA:", texto);
+    const texto = await res.text();
+    console.log("✅ Respuesta IA:", texto);
 
-    if (texto.trim().length > 0) {
+    if (texto.trim().length > 0) {
       barra.style.width = "100%";
-      
-      // Convertimos **texto** a <strong style="color:var(--blue-accent);>texto</strong>
+      
+      // Convertimos **texto** a <strong style="color:var(--azul);>texto</strong>
       const textoHtml = texto.replace(
-        /\*\*(.*?)\*\*/g, 
-        '<strong style="color:var(--blue-accent);">$1</strong>' 
-      );
+        /\*\*(.*?)\*\*/g, 
+        '<strong style="color:var(--azul);">$1</strong>'
+      );
 
       resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${textoHtml}</div>`;
     } else {
-      resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
-    }
+      resumenDiv.textContent = "⚠️ La IA no devolvió texto.";
+    }
 
-  } catch (err) {
-    console.error("❌ Error IA:", err);
-    resumenDiv.textContent = "Error al conectar con el asistente IA.";
-  }
+  } catch (err) {
+    console.error("❌ Error IA:", err);
+    resumenDiv.textContent = "Error al conectar con el asistente IA.";
+  }
 }
 
 function activarValoracion() {
-  // Eliminada o reubicada si no es necesaria en esta página
+  const stars = document.getElementById("stars");
+  stars.addEventListener("click", e => {
+    let n = Math.ceil(e.offsetX / (stars.offsetWidth / 5));
+    stars.innerHTML = "★★★★★".slice(0,n) + "<span style='color:#ccc;'>" + "★★★★★".slice(n) + "</span>";
+    console.log(`⭐ Valoración: ${n}/5`);
+  });
 }
 
 
 /* === GRAFICO DE CONSTANTES VITALES === */
 function renderConstantes(signos) {
-  if (!signos?.length) return;
-  const zona = document.getElementById("zonaGraficos");
+  if (!signos?.length) return;
+  const zona = document.getElementById("zonaGraficos");
 
-  // Crear contenedor del gráfico
-  const cont = document.createElement("div");
-  cont.style.marginTop = "20px";
-  cont.style.width = "100%"; 
+  // Crear contenedor del gráfico
+  const cont = document.createElement("div");
+  cont.style.marginTop = "20px";
 
-  // Título con el nuevo estilo
-  cont.innerHTML = `
-    <h3>
-      <i class="fa-solid fa-chart-area"></i> Tendencia de Constantes Vitales
-    </h3>
-    <canvas id="graficoConstantes" style="width:100%;max-width:650px;height:300px;max-height:300px;"></canvas>
-  `;
+  // Título con el mismo formato que el del mapa de calor
+  // Título con el mismo formato que el del mapa de calor
+  cont.innerHTML = `
+    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2 text-center border-b-2 border-blue-300 pb-2">
+      Constantes vitales durante la estancia
+    </h3>
+    <canvas id="graficoConstantes" style="width:100%;max-width:600px;height:260px;max-height:260px;"></canvas>
+  `;
 
-  zona.appendChild(cont);
+  zona.appendChild(cont);
 
-  const ctx = document.getElementById("graficoConstantes");
+  const ctx = document.getElementById("graficoConstantes");
 
-  // Asegurarse de que las fechas sean únicas o agrupadas, pero para una línea simple, mapeamos
-  const fechas = signos.map(s => {
-    const date = new Date(s.Fecha);
-    return `${date.getDate()}/${date.getMonth() + 1} - ${s.Hora.substring(0, 5)}`;
-  });
-  const fc = signos.map(s => s.FrecuenciaCardiaca);
-  const temp = signos.map(s => s.Temperatura);
+  const fechas = signos.map(s => new Date(s.Fecha).toLocaleDateString());
+  const fc = signos.map(s => s.FrecuenciaCardiaca);
+  const temp = signos.map(s => s.Temperatura);
 
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: fechas,
-      datasets: [
-        { label: "FC (bpm)", data: fc, borderColor: "var(--blue-accent)", borderWidth: 2, fill: false, tension: 0.1 },
-        { label: "Temperatura (°C)", data: temp, borderColor: "#f39c12", borderWidth: 2, fill: false, tension: 0.1 }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: { y: { beginAtZero: false } },
-      plugins: { legend: { position: "bottom" } }
-    }
-  });
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: fechas,
+      datasets: [
+        { label: "FC (bpm)", data: fc, borderColor: "#3a6ff8", borderWidth: 2, fill: false },
+        { label: "Temperatura (°C)", data: temp, borderColor: "#f39c12", borderWidth: 2, fill: false }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: false } },
+      plugins: { legend: { position: "bottom" } }
+    }
+  });
 }
 
 function renderHeatmap(signos) {
-  if (!signos?.length) return;
+  if (!signos?.length) return;
 
-  const zona = document.getElementById("zonaGraficos");
+  const zona = document.getElementById("zonaGraficos");
 
-  // Contenedor del gráfico
-  const cont = document.createElement("div");
-  cont.style.marginTop = "20px";
-  cont.style.width = "100%";
+  // Contenedor del gráfico
+  const cont = document.createElement("div");
+  cont.style.marginTop = "20px";
 
-  // Título y canvas con la leyenda mejorada
-  cont.innerHTML = `
-    <h3><i class="fa-solid fa-table-cells"></i> Mapa de Calor de Signos Vitales</h3>
-    <canvas id="graficoHeat"></canvas>
-    <div class="heatmap-legend">
-      <span style="background:var(--verde);">Normal</span>
-      <span style="background:var(--naranja);">Límite</span>
-      <span style="background:var(--rojo);">Crítico</span>
-    </div>
-  `;
-  zona.appendChild(cont);
+  // Título y canvas
+  cont.innerHTML = `
+    <h3>Mapa de calor de signos vitales</h3>
+    <canvas id="graficoHeat"></canvas>
+    <div style="font-size:12px; margin-top:5px; text-align:center;">
+      <span style="background:#16a34a; color:white; padding:2px 6px; border-radius:4px;">Normal</span>
+      <span style="background:#f59e0b; color:white; padding:2px 6px; border-radius:4px;">Límite</span>
+      <span style="background:#dc2626; color:white; padding:2px 6px; border-radius:4px;">Crítico</span>
+    </div>
+  `;
+  zona.appendChild(cont);
 
-  const ctx = document.getElementById("graficoHeat");
+  const ctx = document.getElementById("graficoHeat");
 
-  // Parámetros y fechas
-  const parametros = ["Presión Sistólica", "FC", "Temperatura", "SpO₂"];
-  const fechas = signos.map(s => {
-    const date = new Date(s.Fecha);
-    return `${date.getDate()}/${date.getMonth() + 1}`;
-  });
+  // Parámetros y fechas
+  const parametros = ["Presión Sistólica", "FC", "Temperatura", "SpO₂"];
+  const fechas = signos.map(s => new Date(s.Fecha).toLocaleDateString());
 
-  // Rangos normales
-  const normal = {
-  "Presión Sistólica": { min: 110, max: 130 },
-  "FC": { min: 65, max: 90 },
-  "Temperatura": { min: 36.2, max: 37.2 },
-  "SpO₂": { min: 96, max: 99 }
-  };
+  // Rangos normales
+  const normal = {
+  "Presión Sistólica": { min: 110, max: 130 },
+  "FC": { min: 65, max: 90 },
+  "Temperatura": { min: 36.2, max: 37.2 },
+  "SpO₂": { min: 96, max: 99 }
+  };
 
-  // Datos para el heatmap
-  const valores = signos.flatMap((s, i) => [
-    { x: i, y: 0, v: s.PresionSistolica },
-    { x: i, y: 1, v: s.FrecuenciaCardiaca },
-    { x: i, y: 2, v: s.Temperatura },
-    { x: i, y: 3, v: s.SaturacionOxigeno }
-  ]).filter(d => d.v !== null && d.v !== undefined); // Filtrar nulos/undefined
+  // Datos para el heatmap
+  const valores = signos.flatMap((s, i) => [
+    { x: i, y: 0, v: s.PresionSistolica },
+    { x: i, y: 1, v: s.FrecuenciaCardiaca },
+    { x: i, y: 2, v: s.Temperatura },
+    { x: i, y: 3, v: s.SaturacionOxigeno }
+  ]);
 
-  // Render del gráfico
-  new Chart(ctx, {
-    type: 'matrix',
-    data: {
-      datasets: [{
-        label: 'Signos vitales',
-        data: valores,
-        backgroundColor: ctx => {
-          const { v, y } = ctx.raw;
-          const param = parametros[y];
-          const { min, max } = normal[param];
-          if (v < min || v > 200) return "rgba(231, 76, 60, 0.85)";    
-          if (v > max || v > 130) return "rgba(241, 196, 15, 0.85)";   
-          return "rgba(39, 174, 96, 0.85)";                 
-        },
-        borderWidth: 1,
-        borderColor: "#fff",
-        width: ctx => {
-          const chart = ctx.chart;
-          const area = chart.chartArea || {};
-          const xCount = fechas.length;
-          return area.width ? area.width / xCount - 3 : chart.width / xCount - 3;
-        },
-        height: ctx => {
-          const chart = ctx.chart;
-          const area = chart.chartArea || {};
-          const yCount = parametros.length;
-          return area.height ? area.height / yCount - 3 : chart.height / yCount - 3;
-        }
-      }]
-    },
-    options: {
-      layout: { padding: { top: 10, bottom: 10 } },
-      plugins: {
-        tooltip: {
-          callbacks: {
-            title: ctx => `${parametros[ctx[0].raw.y]} — ${signos[ctx[0].raw.x].Hora.substring(0, 5)} ${fechas[ctx[0].raw.x]}`,
-            label: ctx => `Valor: ${ctx.raw.v}`
-          }
-        },
-        legend: { display: false },
-        title: { display: false }
-      },
-      scales: {
-        x: {
-          offset: true,
-          ticks: {
-            callback: v => fechas[v] || "",
-            maxRotation: 60,
-            minRotation: 60,
-            font: { size: 9 }
-          },
-          grid: { display: false }
-        },
-        y: {
-          ticks: {
-            callback: v => parametros[v] || "",
-            font: { size: 10 }
-          },
-          grid: { display: false }
-        }
-      }
+  // Render del gráfico
+  new Chart(ctx, {
+    type: 'matrix',
+    data: {
+      datasets: [{
+        label: 'Signos vitales',
+        data: valores,
+        backgroundColor: ctx => {
+          const { v, y } = ctx.raw;
+          const param = parametros[y];
+          const { min, max } = normal[param];
+          if (v < min) return "rgba(220,38,38,0.85)";    // rojo crítico
+          if (v > max) return "rgba(245,158,11,0.85)";   // naranja límite
+          return "rgba(22,163,74,0.85)";                 // verde normal
+        },
+        borderWidth: 1,
+        borderColor: "#fff",
+        width: ctx => {
+          const chart = ctx.chart;
+          const area = chart.chartArea || {};
+          const xCount = fechas.length;
+          return area.width ? area.width / xCount - 3 : chart.width / xCount - 3;
+        },
+        height: ctx => {
+          const chart = ctx.chart;
+          const area = chart.chartArea || {};
+          const yCount = parametros.length;
+          return area.height ? area.height / yCount - 3 : chart.height / yCount - 3;
+        }
+      }]
+    },
+    options: {
+      layout: { padding: { top: 10, bottom: 10 } },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: ctx => `${parametros[ctx[0].raw.y]} — ${fechas[ctx[0].raw.x]}`,
+            label: ctx => `Valor: ${ctx.raw.v}`
+          }
+        },
+        legend: { display: false },
+        title: { display: false }
+      },
+      scales: {
+        x: {
+          offset: true,
+          ticks: {
+            callback: v => fechas[v] || "",
+            maxRotation: 60,
+            minRotation: 60,
+            font: { size: 9 }
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            callback: v => parametros[v] || "",
+            font: { size: 10 }
+          },
+          grid: { display: false }
+        }
+      }
 
 
-    }
-  });
+    }
+  });
 }
 
 function renderNotas(notas) {
-  const tabla = document.getElementById("tablaMedicos");
-  if (!notas?.length) {
-    tabla.innerHTML = `<tr><td colspan="3">Sin notas registradas</td></tr>`;
-    return;
-  }
+  const tabla = document.getElementById("tablaMedicos");
+  if (!notas?.length) {
+    tabla.innerHTML = `<tr><td colspan="3">Sin notas registradas</td></tr>`;
+    return;
+  }
 
-  tabla.innerHTML = notas.map(n => `
-    <tr>
-      <td>${n.personal_medico?.Nombre || "—"}</td>
-      <td>${n.personal_medico?.Rol || "—"}</td>
-      <td>
-        <div style="font-size:0.75rem; color:var(--gray-mid); margin-bottom: 2px;">${new Date(n.Fecha).toLocaleDateString()}</div>
-        <div style="font-size:0.85rem; color:var(--gray-dark);">${n.Nota}</div>
-      </td>
-    </tr>
-  `).join('');
+  tabla.innerHTML = notas.map(n => `
+    <tr>
+      <td>${n.personal_medico?.Nombre || "—"}</td>
+      <td>${n.personal_medico?.Rol || "—"}</td>
+      <td>
+        <div style="font-size:0.75rem; color:#555;">${new Date(n.Fecha).toLocaleDateString()}</div>
+        <div style="font-size:0.8rem;">${n.Nota}</div>
+      </td>
+    </tr>
+  `).join('');
 }
 
 async function generarPDF() {
-  const { jsPDF } = window.jspdf;
-  const contenedor = document.getElementById("panel");
+  const { jsPDF } = window.jspdf;
+  const contenedor = document.getElementById("panel");
 
-  
-  const canvas = await html2canvas(contenedor, { scale: 3, useCORS: true });
-  const imgData = canvas.toDataURL("image/jpeg", 0.9); 
+  const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
+  const imgData = canvas.toDataURL("image/png");
 
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  if (imgHeight <= pageHeight) {
-    pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-  } else {
-    let position = 0;
-    while (position < imgHeight) {
-      pdf.addImage(imgData, "JPEG", 0, -position, imgWidth, imgHeight);
-      position += pageHeight;
-      if (position < imgHeight) pdf.addPage();
-    }
-  }
+  if (imgHeight <= pageHeight) {
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  } else {
+    let position = 0;
+    while (position < imgHeight) {
+      pdf.addImage(imgData, "PNG", 0, -position, imgWidth, imgHeight);
+      position += pageHeight;
+      if (position < imgHeight) pdf.addPage();
+    }
+  }
 
-  
-  const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
-  const medicoNombre = usuario.Nombre || usuario.nombre || "Médico desconocido";
-  const medicoEmail = usuario.correo_login || usuario.email || "correo no disponible";
+  // 🧠 Recuperar el usuario del login
+  const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
+  const medicoNombre = usuario.Nombre || usuario.nombre || "Médico desconocido";
+  const medicoEmail = usuario.correo_login || usuario.email || "correo no disponible";
 
-  const nombrePaciente = document.getElementById("nombre")?.innerText || "resumen_paciente";
-  const fechaActual = new Date().toLocaleString();
+  const nombrePaciente = document.getElementById("nombre")?.innerText || "resumen_paciente";
+  const fechaActual = new Date().toLocaleString();
 
-  // Pie de página con usuario y correo
-  pdf.setFontSize(9);
-  pdf.text(
-    `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`,
-    pageWidth / 2,
-    pageHeight - 10,
-    { align: "center" }
-  );
+  // Pie de página con usuario y correo
+  pdf.setFontSize(9);
+  pdf.text(
+    `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`,
+    pageWidth / 2,
+    pageHeight - 10,
+    { align: "center" }
+  );
 
-  pdf.save(`${nombrePaciente}_informe.pdf`);
+  pdf.save(`${nombrePaciente}_informe.pdf`);
 }
 
 // Necesario porque el script es módulo
 window.generarPDF = generarPDF;
 
 
-/* === BOTÓN MANUAL EXTRA (Estilizado como btn) === */
+/* === BOTÓN MANUAL EXTRA === */
 const botonManual = document.createElement("button");
 botonManual.textContent = "Generar resumen IA manualmente";
 botonManual.className = "btn";
 botonManual.style.marginTop = "10px";
-botonManual.style.backgroundColor = "#95a5a6"; 
-botonManual.style.marginLeft = "auto";
-botonManual.style.display = "block";
 botonManual.onclick = async () => {
-  const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
-  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
-  // === PRUEBAS Y RESULTADOS (lab_iniciales) ===
-  const { data: lab, error: errorLab } = await supabase
-    .from("lab_iniciales")
-    .select("Glucosa, pH, Cetonas, Creatinina, Hemoglobina, Leucocitos, Sodio, Potasio, Urea, Amilasa")
-    .eq("PacienteID", id)
-    .limit(1);
-  
-  const signosRaw = await supabase.from('signos_vitales').select('*').eq('PacienteID', id);
-  const signos = (signosRaw.data || [])
-    .filter(s => s.Fecha && s.Hora)
-    .sort((a, b) => {
-      const f1 = new Date(`${a.Fecha}T${a.Hora}`);
-      const f2 = new Date(`${b.Fecha}T${b.Hora}`);
-      return f1 - f2;
-    });
-  
-  if (!errorLab && lab?.length) {
-    const resultados = lab[0];
-    const tbody = document.getElementById("tablaLab");
+  const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
+  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
+  // === PRUEBAS Y RESULTADOS (lab_iniciales) ===
+  const { data: lab, error: errorLab } = await supabase
+    .from("lab_iniciales")
+    .select("Glucosa, pH, Cetonas, Creatinina, Hemoglobina, Leucocitos, Sodio, Potasio, Urea, Amilasa")
+    .eq("PacienteID", id)
+    .limit(1);
+  
+  if (!errorLab && lab?.length) {
+    const resultados = lab[0];
+    const tbody = document.getElementById("tablaLab");
 
-    tbody.innerHTML = `
-      <tr><td>Glucosa</td><td>${resultados.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
-      <tr><td>pH</td><td>${resultados.pH ?? "—"}</td><td>7.35–7.45</td></tr>
-      <tr><td>Cetonas</td><td>${resultados.Cetonas ?? "—"}</td><td>Negativas</td></tr>
-      <tr><td>Creatinina</td><td>${resultados.Creatinina ?? "—"}</td><td>0.6–1.3 mg/dL</td></tr>
-      <tr><td>Hemoglobina</td><td>${resultados.Hemoglobina ?? "—"}</td><td>12–17 g/dL</td></tr>
-      <tr><td>Leucocitos</td><td>${resultados.Leucocitos ?? "—"}</td><td>4–11 ×10⁹/L</td></tr>
-      <tr><td>Sodio</td><td>${resultados.Sodio ?? "—"}</td><td>135–145 mmol/L</td></tr>
-      <tr><td>Potasio</td><td>${resultados.Potasio ?? "—"}</td><td>3.5–5.1 mmol/L</td></tr>
-      <tr><td>Urea</td><td>${resultados.Urea ?? "—"}</td><td>10–50 mg/dL</td></tr>
-      <tr><td>Amilasa</td><td>${resultados.Amilasa ?? "—"}</td><td>30–110 U/L</td></tr>
-    `;
-  }
+    tbody.innerHTML = `
+      <tr><td>Glucosa</td><td>${resultados.Glucosa ?? "—"}</td><td>70–110 mg/dL</td></tr>
+      <tr><td>pH</td><td>${resultados.pH ?? "—"}</td><td>7.35–7.45</td></tr>
+      <tr><td>Cetonas</td><td>${resultados.Cetonas ?? "—"}</td><td>Negativas</td></tr>
+      <tr><td>Creatinina</td><td>${resultados.Creatinina ?? "—"}</td><td>0.6–1.3 mg/dL</td></tr>
+      <tr><td>Hemoglobina</td><td>${resultados.Hemoglobina ?? "—"}</td><td>12–17 g/dL</td></tr>
+      <tr><td>Leucocitos</td><td>${resultados.Leucocitos ?? "—"}</td><td>4–11 ×10⁹/L</td></tr>
+      <tr><td>Sodio</td><td>${resultados.Sodio ?? "—"}</td><td>135–145 mmol/L</td></tr>
+      <tr><td>Potasio</td><td>${resultados.Potasio ?? "—"}</td><td>3.5–5.1 mmol/L</td></tr>
+      <tr><td>Urea</td><td>${resultados.Urea ?? "—"}</td><td>10–50 mg/dL</td></tr>
+      <tr><td>Amilasa</td><td>${resultados.Amilasa ?? "—"}</td><td>30–110 U/L</td></tr>
+    `;
+  }
 
-  await generarResumenIA(p, evol, signos);
-  await generarRecomendacionIA(p, evol, signos);
+  await generarResumenIA(p, evol, signos);
+  await generarRecomendacionIA(p, evol, signos);
 };
 document.getElementById("bloqueIA").appendChild(botonManual);
 
 // === REGISTRO DEL PLUGIN MATRIX ===
 if (window['chartjs-chart-matrix']) {
-  Chart.register(window['chartjs-chart-matrix']);
-  console.log("✅ Plugin Matrix 3.0.0 registrado correctamente");
+  Chart.register(window['chartjs-chart-matrix']);
+  console.log("✅ Plugin Matrix 3.0.0 registrado correctamente");
 } else {
-  console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta del script.");
+  console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta del script.");
 }
 
 
