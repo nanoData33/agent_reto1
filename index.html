@@ -198,11 +198,16 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function puedeVerPaciente(servicioPaciente, especialidadMedico) {
-      const accesoTotal = ['Medicina Interna', 'Enfermería'];
+    function puedeVerPaciente(servicioPaciente, especialidadMedico, rolMedico) {
+      const accesoTotal = ['Medicina Interna', 'Enfermería', 'Administración'];
+      // Administrador siempre tiene acceso completo
+      if (rolMedico === 'Administrador') return true;
+      // Especialidades con acceso total (Interna, Enfermería, Administración)
       if (accesoTotal.includes(especialidadMedico)) return true;
+      // El resto solo puede ver su propia especialidad
       return servicioPaciente === especialidadMedico;
     }
+
 
     async function loadPatients() {
       const { data, error } = await supabase.from("vista_pacientes_dashboard").select("*").limit(12);
@@ -232,7 +237,11 @@
           <p><strong>Ingreso:</strong> ${p.fecha_ingreso || p.FechaIngreso}</p>
           <p><strong>Servicio:</strong> ${p.servicio || p.Servicio}</p>
         `;
-        const autorizado = puedeVerPaciente(p.servicio || p.Servicio, medico.Especialidad);
+        const autorizado = puedeVerPaciente(
+          p.servicio || p.Servicio,
+          usuario.Especialidad,
+          usuario.Rol
+        );
 
         if (!autorizado) {
           room.classList.add('disabled');
@@ -259,6 +268,10 @@
         console.error('Error al cerrar sesión:', error.message);
       }
     });
+
+    document.getElementById("user-info").innerText =
+      `${usuario.Nombre} (${usuario.Rol})`;
+
 
   </script>
 </body>
