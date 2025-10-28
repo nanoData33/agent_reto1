@@ -1,203 +1,259 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MedAI Smart Ward — Exportar Informes</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root {
-  --blue-main:#1f3b73;
-  --blue-accent:#3a6ff8;
-  --gray-bg:#f4f7fc;
-  --gray-dark:#2d2d2d;
-  --radius:10px;
-  --shadow:0 3px 10px rgba(0,0,0,0.08);
-  --transition:all 0.3s ease;
-}
-body{margin:0;font-family:"Inter",sans-serif;background:var(--gray-bg);color:var(--gray-dark);min-height:100vh;display:flex;flex-direction:column;}
-header{background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;padding:14px 40px;}
-header span{font-weight:700;font-size:1.3rem;color:var(--blue-main);display:flex;align-items:center;gap:10px}
-section{width:94%;max-width:1100px;margin:30px auto;}
-.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:20px;}
-h2{color:var(--blue-main);margin-bottom:14px;font-size:1.3rem}
-button{background:var(--blue-main);color:white;border:none;padding:8px 14px;border-radius:var(--radius);font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:6px;font-size:.9rem}
-button:hover{background:var(--blue-accent);transform:translateY(-2px)}
-#logout-btn{background:#c0392b}#logout-btn:hover{background:#a93226}
-.user-chip{background:#eef3ff;color:#1f3b73;border:1px solid #d8e2ff;padding:6px 10px;border-radius:999px;font-weight:600;font-size:.9rem}
-.list{display:grid;gap:10px;}
-.option{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f9fafc;border-radius:var(--radius);border-left:4px solid var(--blue-main);}
-.option:hover{background:#eef2ff;}
-#msg{color:#555;margin-top:20px;font-size:.9rem}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exportar Informes — MedAI Smart Ward</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --blue-main: #1f3b73;
+      --blue-accent: #3a6ff8;
+      --gray-bg: #f4f7fc;
+      --gray-dark: #2d2d2d;
+      --radius: 10px;
+      --shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--gray-bg);
+      color: var(--gray-dark);
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #fff;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 40px;
+    }
+
+    header span {
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--blue-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      color: var(--blue-main);
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: var(--blue-main);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: var(--blue-accent);
+      transform: translateY(-2px);
+    }
+
+    .acciones-pdf {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 40px auto 10px;
+    }
+
+    .btn-volver {
+      background: var(--blue-main);
+      color: white;
+    }
+    .btn-volver:hover {
+      background: var(--blue-accent);
+    }
+
+    .btn-cerrar {
+      background: #c0392b;
+      color: white;
+    }
+    .btn-cerrar:hover {
+      background: #a93226;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: 90%;
+      }
+      .acciones-pdf {
+        flex-direction: column;
+        align-items: center;
+      }
+      .btn-volver, .btn-cerrar {
+        width: 90%;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<header>
-  <span><i class="fa-solid fa-file-export"></i> Exportar Informes</span>
-  <span id="user-info" class="user-chip"></span>
-  <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
-</header>
+  <header>
+    <span><i class="fa-solid fa-file-medical"></i> MedAI Smart Ward — Exportar Informes</span>
+    <span id="user-info"></span>
+  </header>
 
-<section>
-  <div class="card">
-    <h2>Exportaciones disponibles</h2>
-    <p class="text-gray-600 mb-4">Selecciona el tipo de informe que deseas generar en formato PDF.</p>
-    <div class="list" id="export-list"></div>
-    <div id="msg"></div>
+  <main>
+    <h2><i class="fa-solid fa-notes-medical"></i> Exportación de Informes Clínicos</h2>
+    <p>Selecciona el tipo de informe que deseas generar según tu rol y especialidad:</p>
+
+    <div style="margin-top: 20px;">
+      <button onclick="generarPDF('signos_vitales')"><i class="fa-solid fa-heart-pulse"></i> Evolución Clínica</button>
+      <button onclick="generarPDF('medicacion')"><i class="fa-solid fa-pills"></i> Medicación</button>
+      <button onclick="generarPDF('lab_iniciales')"><i class="fa-solid fa-flask"></i> Laboratorios</button>
+    </div>
+  </main>
+
+  <div class="acciones-pdf">
+    <button class="btn-volver" onclick="window.location.href='index.html'">
+      <i class="fa-solid fa-arrow-left"></i> Volver al inicio
+    </button>
+    <button class="btn-cerrar" id="cerrar-sesion-btn">
+      <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+    </button>
   </div>
-</section>
 
-<script>
-const usuario = JSON.parse(localStorage.getItem("usuario"));
-if (!usuario) window.location.href = "login.html";
+  <script>
+    const { jsPDF } = window.jspdf;
 
-const { jsPDF } = window.jspdf;
-const supabase = window.supabase.createClient(
-  "https://aczjgeleupwlvghjhkav.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM"
-);
+    const SUPABASE_URL = "https://aczjgeleupwlvghjhkav.supabase.co";
+    const SUPABASE_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const chip = document.getElementById("user-info");
-if (chip && usuario) {
-  const rol = usuario.Rol || "—";
-  const nombre = usuario.Nombre || "Usuario";
-  const esp = usuario.Especialidad || "";
-  chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
-}
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario) window.location.href = "login.html";
+    document.getElementById("user-info").textContent = `${usuario.Nombre} (${usuario.Rol} · ${usuario.Especialidad})`;
 
-const exportList = document.getElementById("export-list");
-const opciones = [
-  { id: "pacientes", texto: "Informe de pacientes del servicio", icon: "fa-user-injured" },
-  { id: "evolucion", texto: "Evolución clínica detallada", icon: "fa-chart-line" },
-  { id: "medicacion", texto: "Listado de medicaciones activas", icon: "fa-pills" },
-  { id: "personal", texto: "Personal médico activo", icon: "fa-user-doctor" },
-  { id: "actividad", texto: "Resumen de actividad del servicio", icon: "fa-hospital-user" }
-];
-exportList.innerHTML = opciones.map(o =>
-  `<div class='option'><div><i class='fa-solid ${o.icon}'></i> ${o.texto}</div>
-   <button onclick="generarPDF('${o.id}')"><i class='fa-solid fa-file-pdf'></i> Exportar</button></div>`).join("");
+    async function generarPDF(tipo) {
+      let titulo = "";
+      let query = "";
+      switch (tipo) {
+        case "signos_vitales":
+          titulo = "Evolución Clínica";
+          query = "signos_vitales";
+          break;
+        case "medicacion":
+          titulo = "Registro de Medicación";
+          query = "medicacion";
+          break;
+        case "lab_iniciales":
+          titulo = "Resultados de Laboratorio Iniciales";
+          query = "lab_iniciales";
+          break;
+      }
 
-async function generarPDF(tipo){
-  const rol = usuario.Rol;
-  const esp = usuario.Especialidad || "";
-  const filtro = (rol==="Administrador") ? {} : { Servicio: esp };
-  let data=[], titulo="", resumen="";
+      const { data, error } = await supabase.from(query).select("*");
+      if (error) {
+        alert("Error al obtener datos");
+        return;
+      }
 
-  if(tipo==="pacientes"){
-    const { data:d } = await supabase.from("pacientes").select("*");
-    data=(rol==="Administrador")?d:d.filter(p=>p.Servicio===esp);
-    titulo="Informe de Pacientes";
-    resumen=`Este informe incluye a los pacientes registrados en el servicio de ${esp||"todas las áreas"}, mostrando sus datos básicos y diagnóstico principal.`;
-  }else if(tipo==="evolucion"){
-    const { data:d } = await supabase.from("evolucion").select("PacienteID,Fecha,PresionSistolica,PresionDiastolica,FrecuenciaCardiaca,Temperatura");
-    const { data:pac } = await supabase.from("pacientes").select("PacienteID,Servicio");
-    const mapServ=Object.fromEntries(pac.map(x=>[x.PacienteID,x.Servicio]));
-    data=(rol==="Administrador")?d:d.filter(x=>mapServ[x.PacienteID]===esp);
-    titulo="Evolución Clínica";
-    resumen=`Registro resumido de signos vitales y evolución reciente de pacientes bajo seguimiento en ${esp||"todas las áreas"}.`;
-  }else if(tipo==="medicacion"){
-    const { data:d } = await supabase.from("medicacion").select("PacienteID,Medicamento,Dosis,Via");
-    const { data:pac } = await supabase.from("pacientes").select("PacienteID,Servicio");
-    const mapServ=Object.fromEntries(pac.map(x=>[x.PacienteID,x.Servicio]));
-    data=(rol==="Administrador")?d:d.filter(x=>mapServ[x.PacienteID]===esp);
-    titulo="Medicación Activa";
-    resumen=`Listado de medicaciones actuales de los pacientes del servicio de ${esp||"todas las áreas"}.`;
-  }else if(tipo==="personal"){
-    const { data:d } = await supabase.from("personal_medico").select("Nombre,Especialidad,Rol,Email,Telefono");
-    data=(rol==="Administrador")?d:d.filter(p=>p.Especialidad===esp);
-    titulo="Personal Médico Activo";
-    resumen=`Profesionales activos en ${esp||"todas las áreas"} durante el presente periodo.`;
-  }else if(tipo==="actividad"){
-    const { data:pac } = await supabase.from("pacientes").select("Servicio,FechaIngreso");
-    const servicios=rol==="Administrador"?pac:pac.filter(p=>p.Servicio===esp);
-    const resumenDatos=servicios.reduce((a,b)=>{a[b.Servicio]=(a[b.Servicio]||0)+1;return a;},{});
-    data=Object.entries(resumenDatos).map(([s,v])=>({Servicio:s,Pacientes:v}));
-    titulo="Resumen de Actividad";
-    resumen=`Resumen general de la carga asistencial por servicio.`;
-  }
+      const filtro = usuario.Rol === "Administrador" ? data :
+        data.filter(d => d.Servicio === usuario.Especialidad || d.especialidad === usuario.Especialidad);
 
-  crearPDF(titulo,resumen,data);
-}
-function crearPDF(titulo, resumen, data) {
-  const doc = new jsPDF();
-  doc.setFillColor(31, 59, 115);
-  doc.rect(0, 0, 210, 20, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
-  doc.text("MedAI Smart Ward", 14, 13);
-  doc.setTextColor(31, 59, 115);
-  doc.setFontSize(18);
-  doc.text(titulo, 14, 35);
-  doc.setFontSize(11);
-  doc.text(`Generado por: ${usuario.Nombre || "—"} (${usuario.Especialidad || usuario.Rol})`, 14, 43);
-  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 43);
-  doc.setDrawColor(31, 59, 115);
-  doc.line(14, 46, 196, 46);
-  doc.setFontSize(11);
-  doc.text(resumen, 14, 55, { maxWidth: 180 });
-
-  if (data.length) {
-    // Si el tipo es evolución clínica, agrupar por paciente
-    if (titulo.includes("Evolución")) {
-      const grupos = {};
-      data.forEach(d => {
-        if (!grupos[d.PacienteID]) grupos[d.PacienteID] = [];
-        grupos[d.PacienteID].push(d);
+      const agrupado = {};
+      filtro.forEach(r => {
+        const pid = r.PacienteID || "Desconocido";
+        if (!agrupado[pid]) agrupado[pid] = [];
+        agrupado[pid].push(r);
       });
 
-      let y = 70;
-      for (const [paciente, registros] of Object.entries(grupos)) {
-        doc.setFontSize(13);
-        doc.setTextColor(31, 59, 115);
-        doc.text(`Paciente: ${paciente}`, 14, y);
-        y += 4;
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+      const fecha = new Date().toLocaleDateString();
 
-        const cols = Object.keys(registros[0]).filter(k => k !== "PacienteID");
-        const rows = registros.map(r => cols.map(c => r[c] || "-"));
+      // CABECERA
+      doc.setFillColor(31, 59, 115);
+      doc.rect(0, 0, 595, 70, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor(255, 255, 255);
+      doc.text("MedAI Smart Ward", 40, 40);
+
+      // Icono hospital
+      doc.setDrawColor(255, 255, 255);
+      doc.circle(550, 35, 10, "S");
+
+      doc.setTextColor(31, 59, 115);
+      doc.setFontSize(14);
+      doc.text(titulo, 40, 110);
+      doc.setFontSize(10);
+      doc.text(`Generado por: Dr./Dra. ${usuario.Nombre} (${usuario.Especialidad})`, 40, 130);
+      doc.text(`Fecha: ${fecha}`, 450, 130);
+      doc.line(40, 135, 550, 135);
+
+      let y = 160;
+
+      for (const [paciente, registros] of Object.entries(agrupado)) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(`Paciente ${paciente}`, 40, y);
+        y += 10;
+
+        const columnas = Object.keys(registros[0]).filter(k => !["id", "MedicoID"].includes(k));
+        const filas = registros.map(r => columnas.map(c => r[c] ?? "-"));
 
         doc.autoTable({
-          startY: y,
-          head: [cols],
-          body: rows,
-          styles: { fontSize: 9 },
-          headStyles: { fillColor: [58, 111, 248] },
-          alternateRowStyles: { fillColor: [245, 247, 250] },
-          margin: { left: 14, right: 14 },
+          startY: y + 5,
+          head: [columnas],
+          body: filas,
+          theme: "striped",
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [31, 59, 115], textColor: 255 },
+          margin: { left: 40, right: 40 },
         });
 
-        y = doc.lastAutoTable.finalY + 10;
-        if (y > 260) {
+        y = doc.lastAutoTable.finalY + 30;
+        if (y > 700) {
           doc.addPage();
-          y = 30;
+          y = 100;
         }
       }
-    } else {
-      // Para los demás informes, una única tabla
-      const cols = Object.keys(data[0]);
-      const rows = data.map(d => cols.map(c => d[c] || "-"));
-      doc.autoTable({
-        startY: 70,
-        head: [cols],
-        body: rows,
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [58, 111, 248] },
-        alternateRowStyles: { fillColor: [245, 247, 250] },
-      });
-    }
-  } else {
-    doc.text("No hay datos disponibles según su rol o servicio.", 14, 70);
-  }
 
-  doc.setFontSize(9);
-  doc.setTextColor(120, 120, 120);
-  doc.text("Documento generado automáticamente por MedAI Smart Ward", 14, 285);
-  doc.save(titulo.replaceAll(" ", "_") + ".pdf");
-}
-</script>
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text("Documento generado automáticamente por MedAI Smart Ward", 180, 820);
+
+      doc.save(`${titulo.replace(/\s+/g, "_")}.pdf`);
+    }
+
+    document.getElementById("cerrar-sesion-btn")?.addEventListener("click", async () => {
+      try {
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.warn("Error al cerrar sesión:", e.message);
+      } finally {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+    });
+  </script>
 </body>
 </html>
