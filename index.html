@@ -198,12 +198,20 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    function puedeVerPaciente(servicioPaciente, especialidadMedico) {
+      const accesoTotal = ['Medicina Interna', 'Enfermería'];
+      if (accesoTotal.includes(especialidadMedico)) return true;
+      return servicioPaciente === especialidadMedico;
+    }
+
     async function loadPatients() {
       const { data, error } = await supabase.from("vista_pacientes_dashboard").select("*").limit(12);
       if (error) {
         console.error(error);
         return;
       }
+
+      const medico = usuario; // el médico logueado del localStorage
 
       const row1 = document.getElementById("row1");
       const row2 = document.getElementById("row2");
@@ -224,8 +232,18 @@
           <p><strong>Ingreso:</strong> ${p.fecha_ingreso || p.FechaIngreso}</p>
           <p><strong>Servicio:</strong> ${p.servicio || p.Servicio}</p>
         `;
-        room.onclick = () => window.open(`paciente.html?id=${p.paciente_id || p.PacienteID}`, "_blank");
+        const autorizado = puedeVerPaciente(p.servicio || p.Servicio, medico.Especialidad);
+
+        if (!autorizado) {
+          room.classList.add('disabled');
+        } else {
+          room.addEventListener('click', () => {
+            window.open(`paciente.html?id=${p.paciente_id || p.PacienteID}`, "_blank");
+          });
+        }
+        
         (i < 6 ? row1 : row2).appendChild(room);
+
       });
     }
 
