@@ -123,42 +123,81 @@ async function generarPDF(tipo){
 
   crearPDF(titulo,resumen,data);
 }
-
-function crearPDF(titulo,resumen,data){
-  const doc=new jsPDF();
-  const svgIcon=`<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231f3b73' viewBox='0 0 16 16'><path d='M8 0a8 8 0 100 16A8 8 0 008 0zM4.5 7.5a.5.5 0 010-1H7V4.5a.5.5 0 011 0V6.5h2.5a.5.5 0 010 1H8V9.5a.5.5 0 01-1 0V7.5H4.5z'/></svg>`;
-  doc.setFillColor(31,59,115);
-  doc.rect(0,0,210,20,"F");
-  doc.setTextColor(255,255,255);
+function crearPDF(titulo, resumen, data) {
+  const doc = new jsPDF();
+  doc.setFillColor(31, 59, 115);
+  doc.rect(0, 0, 210, 20, "F");
+  doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
-  doc.text("MedAI Smart Ward",14,13);
-  doc.setTextColor(31,59,115);
+  doc.text("MedAI Smart Ward", 14, 13);
+  doc.setTextColor(31, 59, 115);
   doc.setFontSize(18);
-  doc.text(titulo,14,35);
+  doc.text(titulo, 14, 35);
   doc.setFontSize(11);
-  doc.text(`Generado por: ${usuario.Nombre||"—"} (${usuario.Especialidad||usuario.Rol})`,14,43);
-  doc.text(`Fecha: ${new Date().toLocaleDateString()}`,150,43);
-  doc.setDrawColor(31,59,115);
-  doc.line(14,46,196,46);
+  doc.text(`Generado por: ${usuario.Nombre || "—"} (${usuario.Especialidad || usuario.Rol})`, 14, 43);
+  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 43);
+  doc.setDrawColor(31, 59, 115);
+  doc.line(14, 46, 196, 46);
   doc.setFontSize(11);
-  doc.text(resumen,14,55,{maxWidth:180});
-  if(data.length){
-    const cols=Object.keys(data[0]);
-    const rows=data.map(d=>cols.map(c=>d[c]||"-"));
-    doc.autoTable({startY:70,head:[cols],body:rows,styles:{fontSize:9},headStyles:{fillColor:[58,111,248]},alternateRowStyles:{fillColor:[245,247,250]}});
-  }else{
-    doc.text("No hay datos disponibles según su rol o servicio.",14,70);
-  }
-  doc.setFontSize(9);
-  doc.setTextColor(120,120,120);
-  doc.text("Documento generado automáticamente por MedAI Smart Ward",14,285);
-  doc.save(titulo.replaceAll(" ","_")+".pdf");
-}
+  doc.text(resumen, 14, 55, { maxWidth: 180 });
 
-document.getElementById("logout-btn")?.addEventListener("click",async()=>{
-  const { error }=await supabase.auth.signOut();
-  if(!error){localStorage.clear();window.location.href="login.html";}
-});
+  if (data.length) {
+    // Si el tipo es evolución clínica, agrupar por paciente
+    if (titulo.includes("Evolución")) {
+      const grupos = {};
+      data.forEach(d => {
+        if (!grupos[d.PacienteID]) grupos[d.PacienteID] = [];
+        grupos[d.PacienteID].push(d);
+      });
+
+      let y = 70;
+      for (const [paciente, registros] of Object.entries(grupos)) {
+        doc.setFontSize(13);
+        doc.setTextColor(31, 59, 115);
+        doc.text(`Paciente: ${paciente}`, 14, y);
+        y += 4;
+
+        const cols = Object.keys(registros[0]).filter(k => k !== "PacienteID");
+        const rows = registros.map(r => cols.map(c => r[c] || "-"));
+
+        doc.autoTable({
+          startY: y,
+          head: [cols],
+          body: rows,
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [58, 111, 248] },
+          alternateRowStyles: { fillColor: [245, 247, 250] },
+          margin: { left: 14, right: 14 },
+        });
+
+        y = doc.lastAutoTable.finalY + 10;
+        if (y > 260) {
+          doc.addPage();
+          y = 30;
+        }
+      }
+    } else {
+      // Para los demás informes, una única tabla
+      const cols = Object.keys(data[0]);
+      const rows = data.map(d => cols.map(c => d[c] || "-"));
+      doc.autoTable({
+        startY: 70,
+        head: [cols],
+        body: rows,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [58, 111, 248] },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
+      });
+    }
+  } else {
+    doc.text("No hay datos disponibles según su rol o servicio.", 14, 70);
+  }
+
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+  doc.text("Documento generado automáticamente por MedAI Smart Ward", 14, 285);
+  doc.save(titulo.replaceAll(" ", "_") + ".pdf");
+}
 </script>
 </body>
 </html>
