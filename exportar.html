@@ -1,262 +1,162 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MedAI Smart Ward — Exportar Informes</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 :root {
-  --azul: #1f3b73;
-  --azul-sec: #3a6ff8;
-  --gris-fondo: #f6f8fb;
-  --gris-borde: #e0e3eb;
-  --radius: 10px;
-  --sombra: 0 2px 10px rgba(0,0,0,0.05);
+  --blue-main:#1f3b73;
+  --blue-accent:#3a6ff8;
+  --gray-bg:#f4f7fc;
+  --gray-dark:#2d2d2d;
+  --gray-mid:#666;
+  --radius:10px;
+  --shadow:0 3px 10px rgba(0,0,0,0.08);
+  --transition:all 0.3s ease;
 }
-body {
-  font-family: "Inter", sans-serif;
-  background: var(--gris-fondo);
-  margin: 0;
-  padding: 0;
-  color: #2d2d2d;
-}
-header {
-  background: #fff;
-  padding: 14px 36px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: var(--sombra);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-header h1 {
-  font-size: 1.3rem;
-  color: var(--azul);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-header button {
-  background: var(--azul);
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: var(--radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-header button:hover { background: var(--azul-sec); }
-
-main {
-  width: 92%;
-  max-width: 1100px;
-  margin: 30px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.card {
-  background: white;
-  border-radius: var(--radius);
-  box-shadow: var(--sombra);
-  padding: 20px;
-}
-.card h2 {
-  color: var(--azul);
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-.card p {
-  font-size: 0.9rem;
-  color: #555;
-}
-.btn {
-  background: var(--azul);
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: var(--radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.btn:hover { background: var(--azul-sec); }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
-}
+body{margin:0;font-family:"Inter",sans-serif;background:var(--gray-bg);color:var(--gray-dark);min-height:100vh;display:flex;flex-direction:column;}
+header{background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;padding:14px 40px;}
+header span{font-weight:700;font-size:1.3rem;color:var(--blue-main);display:flex;align-items:center;gap:10px}
+section{width:94%;max-width:1100px;margin:30px auto;}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:20px;}
+h2{color:var(--blue-main);margin-bottom:14px;font-size:1.3rem}
+button{background:var(--blue-main);color:white;border:none;padding:8px 14px;border-radius:var(--radius);font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:6px;font-size:.9rem}
+button:hover{background:var(--blue-accent);transform:translateY(-2px)}
+#logout-btn{background:#c0392b}#logout-btn:hover{background:#a93226}
+.user-chip{background:#eef3ff;color:#1f3b73;border:1px solid #d8e2ff;padding:6px 10px;border-radius:999px;font-weight:600;font-size:.9rem}
+.list{display:grid;gap:10px;}
+.option{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f9fafc;border-radius:var(--radius);border-left:4px solid var(--blue-main);}
+.option:hover{background:#eef2ff;}
+#msg{color:#555;margin-top:20px;font-size:.9rem}
 </style>
 </head>
 
 <body>
 <header>
-  <h1><i class="fa-solid fa-file-medical"></i> Exportar Informes</h1>
-  <button onclick="window.location='index.html'"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+  <span><i class="fa-solid fa-file-export"></i> Exportar Informes</span>
+  <span id="user-info" class="user-chip"></span>
+  <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
 </header>
 
-<main>
-  <section class="card">
-    <h2>Panel de exportación</h2>
-    <p id="rolInfo">Cargando permisos...</p>
-  </section>
-
-  <div id="exportGrid" class="grid"></div>
-</main>
+<section>
+  <div class="card">
+    <h2>Exportaciones disponibles</h2>
+    <p class="text-gray-600 mb-4">Selecciona el tipo de informe que deseas generar en formato PDF.</p>
+    <div class="list" id="export-list"></div>
+    <div id="msg"></div>
+  </div>
+</section>
 
 <script>
-/* === CONEXIÓN A SUPABASE === */
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+if (!usuario) window.location.href = "login.html";
+
+const { jsPDF } = window.jspdf;
 const supabase = window.supabase.createClient(
-  "https://tmolxeszsgkffurhrcxy.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtb2x4ZXN6c2drZmZ1cmhyY3h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5ODA4NDgsImV4cCI6MjA3NjU1Njg0OH0.UAEsNX7CpFXbns9ONynstAAKdcvmZUfsX5J6cOTE6Pw"
+  "https://aczjgeleupwlvghjhkav.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjempnZWxldXB3bHZnaGpoa2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzgwODMsImV4cCI6MjA3NjU1NDA4M30.-hQdLNDMw-i4vCpt_OXnzYss5MtVrCu76FhMCPcZPhM"
 );
 
-/* === SESIÓN ACTUAL === */
-let usuario = JSON.parse(localStorage.getItem("usuario"));
-if (!usuario) {
-  usuario = { Nombre: "Administrador General", Rol: "Administrador", Especialidad: "Administración" };
-  localStorage.setItem("usuario", JSON.stringify(usuario));
+const chip = document.getElementById("user-info");
+if (chip && usuario) {
+  const rol = usuario.Rol || "—";
+  const nombre = usuario.Nombre || "Usuario";
+  const esp = usuario.Especialidad || "";
+  chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
 }
 
-document.getElementById("rolInfo").textContent =
-  `${usuario.Nombre} — ${usuario.Rol}${usuario.Especialidad ? " · " + usuario.Especialidad : ""}`;
+const exportList = document.getElementById("export-list");
+const opciones = [
+  { id: "pacientes", texto: "Informe de pacientes del servicio", icon: "fa-user-injured" },
+  { id: "evolucion", texto: "Evolución clínica detallada", icon: "fa-chart-line" },
+  { id: "medicacion", texto: "Listado de medicaciones activas", icon: "fa-pills" },
+  { id: "personal", texto: "Personal médico activo", icon: "fa-user-doctor" },
+  { id: "actividad", texto: "Resumen de actividad del servicio", icon: "fa-hospital-user" }
+];
+exportList.innerHTML = opciones.map(o =>
+  `<div class='option'><div><i class='fa-solid ${o.icon} text-[var(--blue-main)]'></i> ${o.texto}</div>
+   <button onclick="generarPDF('${o.id}')"><i class='fa-solid fa-file-pdf'></i> Exportar</button></div>`).join("");
 
-/* === OPCIONES SEGÚN ROL === */
-const grid = document.getElementById("exportGrid");
-const rol = usuario.Rol.toLowerCase();
+async function generarPDF(tipo) {
+  const rol = usuario.Rol;
+  const especialidad = usuario.Especialidad;
+  const nombre = usuario.Nombre;
+  const doc = new jsPDF();
+  let title = "Informe Médico";
+  let content = [];
 
-const opciones = [];
+  document.getElementById("msg").innerText = "Generando informe, espera unos segundos...";
 
-if (rol.includes("admin")) {
-  opciones.push(
-    { titulo: "Informe global del hospital", desc: "Pacientes, ocupación y resumen IA", action: exportarInformeGlobal },
-    { titulo: "Listado completo de personal", desc: "Exporta todos los profesionales activos", action: exportarPersonal },
-    { titulo: "Base de datos completa", desc: "Descarga todos los registros clínicos", action: exportarTodoCSV }
-  );
-} else if (rol.includes("medic")) {
-  opciones.push(
-    { titulo: "Informe evolutivo del paciente", desc: "Evolución clínica con resumen IA", action: exportarEvolutivo },
-    { titulo: "Informe de laboratorio", desc: "Resultados y tendencias recientes", action: exportarLaboratorio }
-  );
-} else if (rol.includes("enferm")) {
-  opciones.push(
-    { titulo: "Control de signos vitales", desc: "Tendencia y alertas", action: exportarSignos }
-  );
+  try {
+    if (tipo === "pacientes") {
+      const { data } = await supabase.from("pacientes").select("*").limit(50);
+      title = `Pacientes del servicio: ${especialidad}`;
+      content = data.filter(p => rol==="Administrador" || p.Servicio === especialidad)
+                    .map(p => `${p.Nombre} — ${p.DiagnosticoPrincipal || "Sin diagnóstico"} (${p.Servicio})`);
+    }
+
+    if (tipo === "evolucion") {
+      const { data } = await supabase.from("evolucion").select("*").limit(30);
+      title = "Evolución clínica general (últimos registros)";
+      content = data.slice(0, 30).map(e => `${e.PacienteID} — T: ${e.Temperatura}°C, FC: ${e.FrecuenciaCardiaca}, SpO2: ${e.SaturacionOxigeno}%`);
+    }
+
+    if (tipo === "medicacion") {
+      const { data } = await supabase.from("medicacion").select("*").limit(50);
+      title = "Listado de medicaciones activas";
+      content = data.map(m => `${m.Medicamento} — ${m.Dosis} (${m.Via})`);
+    }
+
+    if (tipo === "personal") {
+      const { data } = await supabase.from("personal_medico").select("*").eq("Activo", true);
+      title = "Personal médico activo";
+      content = data.map(p => `${p.Nombre} — ${p.Especialidad} (${p.Rol})`);
+    }
+
+    if (tipo === "actividad") {
+      const { data: notas } = await supabase.from("notas").select("*").limit(30);
+      title = `Resumen de actividad — ${especialidad}`;
+      content = notas.map(n => `${n.Fecha} — ${n.Nota.substring(0, 60)}...`);
+    }
+
+    // === Generar PDF ===
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text(title, 15, 20);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(`Generado por: ${nombre} (${rol}${especialidad ? " · " + especialidad : ""})`, 15, 30);
+    doc.line(15, 33, 195, 33);
+
+    let y = 45;
+    content.forEach((linea, i) => {
+      if (y > 280) { doc.addPage(); y = 20; }
+      doc.text(`${i+1}. ${linea}`, 15, y);
+      y += 8;
+    });
+
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text("MedAI Smart Ward — Informe automático", 15, 290);
+    doc.save(`${tipo}_${Date.now()}.pdf`);
+    document.getElementById("msg").innerText = "Informe descargado correctamente.";
+  } catch (err) {
+    console.error(err);
+    document.getElementById("msg").innerText = "Error al generar el informe.";
+  }
 }
 
-opciones.forEach(op => {
-  const div = document.createElement("div");
-  div.className = "card";
-  div.innerHTML = `
-    <h2>${op.titulo}</h2>
-    <p>${op.desc}</p>
-    <button class="btn"><i class="fa-solid fa-file-arrow-down"></i> Exportar</button>
-  `;
-  div.querySelector("button").addEventListener("click", op.action);
-  grid.appendChild(div);
+document.getElementById("logout-btn").addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  localStorage.clear();
+  window.location.href = "login.html";
 });
-
-/* === FUNCIONES DE EXPORTACIÓN === */
-
-async function exportarInformeGlobal() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const { data: pacientes } = await supabase.from("pacientes").select("PacienteID");
-  const { data: personal } = await supabase.from("personal_medico").select("MedicoID");
-
-  doc.setFontSize(16);
-  doc.text("🏥 Informe Global del Hospital", 14, 20);
-  doc.setFontSize(11);
-  doc.text(`Pacientes activos: ${pacientes?.length || 0}`, 14, 32);
-  doc.text(`Personal sanitario: ${personal?.length || 0}`, 14, 38);
-  doc.text("Ocupación estimada: 82%", 14, 44);
-  doc.text("Tasa de reingreso: 6%", 14, 50);
-  doc.text("Resumen IA: El sistema muestra estabilidad general con ligera sobrecarga en medicina interna.", 14, 62, { maxWidth: 180 });
-  doc.save("Informe_Global_Hospital.pdf");
-}
-
-async function exportarPersonal() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const { data } = await supabase.from("personal_medico").select("Nombre,Especialidad,Rol,Activo");
-
-  doc.text("👥 Personal Médico y Sanitario", 14, 20);
-  const tabla = data?.map(p => [p.Nombre, p.Rol, p.Especialidad || "-", p.Activo ? "Sí" : "No"]) || [];
-  doc.autoTable({ startY: 30, head:[["Nombre","Rol","Especialidad","Activo"]], body: tabla });
-  doc.save("Personal_Hospital.pdf");
-}
-
-async function exportarTodoCSV() {
-  const { data } = await supabase.from("pacientes").select("*");
-  if (!data?.length) return alert("No hay registros.");
-
-  const cols = Object.keys(data[0]);
-  const csv = [cols.join(",")].concat(data.map(d => cols.map(k => d[k] || "").join(","))).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "Base_Datos_Clinica.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-async function exportarEvolutivo() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const { data } = await supabase.from("evolucion").select("Fecha,Glucosa,FrecuenciaCardiaca").limit(5);
-
-  doc.text("📋 Informe Evolutivo del Paciente", 14, 20);
-  doc.autoTable({
-    startY: 30,
-    head: [["Fecha","Glucosa (mg/dL)","Frecuencia Cardiaca"]],
-    body: data?.map(d => [d.Fecha || "-", d.Glucosa || "-", d.FrecuenciaCardiaca || "-"]) || []
-  });
-  doc.save("Informe_Evolutivo.pdf");
-}
-
-async function exportarLaboratorio() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const { data } = await supabase.from("lab_iniciales").select("Glucosa,Creatinina,Hemoglobina,Sodio,Potasio").limit(5);
-
-  doc.text("🧪 Informe de Laboratorio", 14, 20);
-  doc.autoTable({
-    startY: 30,
-    head:[["Glucosa","Creatinina","Hemoglobina","Sodio","Potasio"]],
-    body:data?.map(d => [d.Glucosa,d.Creatinina,d.Hemoglobina,d.Sodio,d.Potasio]) || []
-  });
-  doc.save("Informe_Laboratorio.pdf");
-}
-
-async function exportarSignos() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const { data } = await supabase.from("signos_vitales").select("Fecha,PresionSistolica,FrecuenciaCardiaca,Temperatura,SaturacionOxigeno").limit(5);
-
-  doc.text("📊 Signos Vitales", 14, 20);
-  doc.autoTable({
-    startY: 30,
-    head:[["Fecha","TA Sist.","FC","Temp","SatO₂"]],
-    body:data?.map(d => [d.Fecha,d.PresionSistolica,d.FrecuenciaCardiaca,d.Temperatura,d.SaturacionOxigeno]) || []
-  });
-  doc.save("SignosVitales.pdf");
-}
 </script>
 </body>
 </html>
