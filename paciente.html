@@ -820,8 +820,8 @@ function renderNotas(notas) {
 
 async function generarPDF() {
   const { jsPDF } = window.jspdf;
-
   const contenedor = document.getElementById("panel");
+
   const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
   const imgData = canvas.toDataURL("image/png");
 
@@ -844,18 +844,24 @@ async function generarPDF() {
   }
 
   const nombrePaciente = document.getElementById("nombre")?.innerText || "resumen_paciente";
-  const fechaActual = new Date().toLocaleDateString();
-  pdf.setFontSize(10);
-  pdf.text(`Generado el ${fechaActual}`, 10, pageHeight - 10);
+  const fechaActual = new Date().toLocaleString();
 
-  pdf.save(`${nombrePaciente} Informe.pdf`);
+  // ✅ Obtener usuario actual de Supabase
+  const { data: { user } } = await supabase.auth.getUser();
+  const medicoEmail = user?.email || "usuario no autenticado";
+  const medicoNombre = user?.user_metadata?.full_name || "Médico desconocido";
+
+  pdf.setFontSize(9);
+  pdf.text(
+    `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`,
+    pageWidth / 2,
+    pageHeight - 10,
+    { align: "center" }
+  );
+
+  pdf.save(`${nombrePaciente}_informe.pdf`);
 }
-
-// 👇 AÑADE ESTA LÍNEA JUSTO DESPUÉS:
 window.generarPDF = generarPDF;
-
-
-
 
 /* === BOTÓN MANUAL EXTRA === */
 const botonManual = document.createElement("button");
