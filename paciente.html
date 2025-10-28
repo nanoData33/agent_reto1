@@ -528,7 +528,7 @@ function renderTabla(id, datos, columnas) {
 }
 
 /* === RESUMEN IA === */
-/* === SOLO EVOLUCIÓN CLÍNICA (IA) === */
+/* === EVOLUCIÓN CLÍNICA (IA) - ENVÍO CORREGIDO === */
 async function generarResumenIA(paciente, evolucion, signos) {
   const barra = document.getElementById("barraProgreso");
   const resumenDiv = document.getElementById("resumenIA");
@@ -536,7 +536,20 @@ async function generarResumenIA(paciente, evolucion, signos) {
   resumenDiv.textContent = "Enviando datos a IA para análisis de evolución...";
   barra.style.width = "0%";
 
-  const payload = {
+  // Limpieza del payload (eliminar campos undefined o null)
+  const limpiar = obj => {
+    if (Array.isArray(obj)) return obj.map(limpiar);
+    if (obj && typeof obj === "object") {
+      const limpio = {};
+      for (const k in obj) {
+        if (obj[k] !== undefined && obj[k] !== null) limpio[k] = limpiar(obj[k]);
+      }
+      return limpio;
+    }
+    return obj;
+  };
+
+  const payload = limpiar({
     paciente_id: paciente.PacienteID,
     nombre: paciente.Nombre,
     edad: paciente.Edad,
@@ -545,28 +558,47 @@ async function generarResumenIA(paciente, evolucion, signos) {
     servicio: paciente.Servicio,
     evolucion,
     signos
-  };
+  });
 
   try {
+    console.log("📤 Enviando a n8n:", payload);
+
     const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/evolucion", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
       body: JSON.stringify(payload)
     });
 
-    const texto = await res.text();
-    console.log("✅ Evolución IA:", texto);
+    if (!res.ok) {
+      throw new Error(`Error HTTP ${res.status}: ${res.statusText}`);
+    }
 
-    if (texto.trim().length > 0) {
-      barra.style.width = "100%";
-      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
+    const tipo = res.headers.get("content-type");
+    let texto = "";
+
+    // Si responde JSON, lo formateamos bonito
+    if (tipo && tipo.includes("application/json")) {
+      const json = await res.json();
+      texto = JSON.stringify(json, null, 2);
     } else {
-      resumenDiv.textContent = "⚠️ La IA no devolvió ningún resultado.";
+      texto = await res.text();
+    }
+
+    console.log("✅ Respuesta de evolución:", texto);
+
+    if (texto && texto.trim().length > 0) {
+      barra.style.width = "100%";
+      resumenDiv.innerHTML = `<div style="white-space:pre-wrap;">${texto}</div>`;
+    } else {
+      resumenDiv.textContent = "⚠️ La IA no devolvió ningún texto.";
     }
 
   } catch (err) {
-    console.error("❌ Error IA:", err);
-    resumenDiv.textContent = "Error al conectar con el asistente IA para evolución.";
+    console.error("❌ Error al conectar con el webhook:", err);
+    resumenDiv.textContent = "Error al conectar con el asistente IA de evolución.";
   }
 }
 
