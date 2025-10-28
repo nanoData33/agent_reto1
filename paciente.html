@@ -309,43 +309,69 @@ async function cargar() {
 
     console.log("🩺 Cargando paciente", id);
 
+    // === PACIENTE ===
     const { data: p } = await supabase
       .from('pacientes')
       .select('*')
       .eq('PacienteID', id)
       .single();
-    if (!p) { alert("Paciente no encontrado."); return; }
 
-    // === Datos principales ===
+    if (!p) {
+      alert("Paciente no encontrado.");
+      return;
+    }
+
+    // === DATOS PRINCIPALES ===
     document.getElementById('nombre').textContent = p.Nombre;
     document.getElementById('edad').textContent = p.Edad;
     document.getElementById('sexo').textContent = p.Sexo;
     document.getElementById('diagnostico').textContent = p.DiagnosticoPrincipal;
     document.getElementById('servicio').textContent = p.Servicio;
 
-    // === Datos clínicos ===
-    const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
-    const { data: meds } = await supabase.from('medicacion').select('*').eq('PacienteID', id);
-    const { data: signos, error: errorSignos } = await supabase
-      .from('signos_vitales')
+    // === CONSULTAS A SUPABASE ===
+    const { data: evol } = await supabase
+      .from('evolucion')
       .select('*')
       .eq('PacienteID', id)
       .order('Fecha');
 
+    const { data: meds } = await supabase
+      .from('medicacion')
+      .select('*')
+      .eq('PacienteID', id);
+
+    const { data: signos, error: errorSignos } = await supabase
+      .from('signos_vitales')
+      .select('*')
+      .eq('PacienteID', id)
+      .order('Fecha', { ascending: true })
+      .order('Hora', { ascending: true });
+
     if (errorSignos) console.error("Error cargando signos vitales:", errorSignos);
 
+    // === SIGNOS VITALES ===
     if (!signos || signos.length === 0) {
-      console.warn("⚠️ No hay registros de signos vitales para este paciente.");
+      console.warn("⚠️ No hay registros de signos vitales para este paciente");
       document.getElementById('pa').textContent = '—';
       document.getElementById('fc').textContent = '—';
       document.getElementById('spo2').textContent = '—';
       document.getElementById('temp').textContent = '—';
     } else {
-      const ult = signos[signos.length - 1];
-      document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
-      document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
-      document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
-      document.getElementById('temp').textContent = ult.Temperatura;
+      const ult = signos
+        .filter(s => s.PresionSistolica && s.FrecuenciaCardiaca && s.SaturacionOxigeno && s.Temperatura)
+        .pop();
+
+      if (ult) {
+        document.getElementById('pa').textContent = `${ult.PresionSistolica}/${ult.PresionDiastolica}`;
+        document.getElementById('fc').textContent = ult.FrecuenciaCardiaca;
+        document.getElementById('spo2').textContent = ult.SaturacionOxigeno;
+        document.getElementById('temp').textContent = ult.Temperatura;
+      } else {
+        document.getElementById('pa').textContent = '—';
+        document.getElementById('fc').textContent = '—';
+        document.getElementById('spo2').textContent = '—';
+        document.getElementById('temp').textContent = '—';
+      }
 
       renderConstantes(signos);
       renderHeatmap(signos);
@@ -384,7 +410,7 @@ async function cargar() {
       `;
     }
 
-    // === Render de gráficos y resumen IA ===
+    // === RENDER RESTANTE ===
     renderRadar(evol);
     renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
     await generarResumenIA(p, evol, signos);
@@ -394,6 +420,7 @@ async function cargar() {
     document.getElementById("resumenIA").textContent = "Error al cargar los datos del paciente.";
   }
 }
+
 
 
 /* === RADAR === */
