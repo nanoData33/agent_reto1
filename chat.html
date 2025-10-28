@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Asistencial · MedAI Evolution Ward</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --blue-main: #1f3b73;
+      --blue-accent: #3a6ff8;
+      --gray-bg: #f6f8fb;
+      --gray-dark: #2d2d2d;
+      --gray-mid: #666;
+      --radius: 10px;
+      --shadow: 0 3px 10px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: var(--gray-bg);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background: #fff;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 40px;
+    }
+
+    header span {
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--blue-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-chip {
+      background: #eef3ff;
+      color: var(--blue-main);
+      border: 1px solid #d8e2ff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 800px;
+      width: 100%;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      line-height: 1.4;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--blue-main);
+      color: white;
+      border-bottom-right-radius: 2px;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      background: #eef3ff;
+      color: var(--gray-dark);
+      border-bottom-left-radius: 2px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #eee;
+      background: #fafafa;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      padding: 10px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .chat-input button {
+      background: var(--blue-main);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0 16px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .chat-input button:hover {
+      background: var(--blue-accent);
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 20px;
+      }
+      .chat-container {
+        margin: 10px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <span><i class="fa-solid fa-comments"></i> Asistente Clínico MedAI</span>
+    <span id="user-info" class="user-chip"></span>
+  </header>
+
+  <div class="chat-container">
+    <div class="chat-messages" id="chat-messages">
+      <div class="message bot">
+        👋 Hola, soy MedAI. Estoy aquí para ayudarte con decisiones clínicas o dudas.  
+        ¿En qué puedo asistirte hoy?
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input id="message-input" type="text" placeholder="Escribe tu mensaje..." />
+      <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario) {
+      window.location.href = 'login.html';
+    }
+
+    // Mostrar chip de usuario
+    const chip = document.getElementById("user-info");
+    if (chip && usuario) {
+      const rol = usuario.Rol || usuario.rol || "—";
+      const nombre = usuario.Nombre || usuario.nombre || "Usuario";
+      const esp = usuario.Especialidad || usuario.especialidad || "";
+      chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
+    }
+
+    const chatMessages = document.getElementById("chat-messages");
+    const input = document.getElementById("message-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    function addMessage(text, sender = "bot") {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+      msg.textContent = text;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage(text, "user");
+      input.value = "";
+
+      const payload = {
+        mensaje: text,
+        usuario: usuario.Nombre || usuario.nombre,
+        rol: usuario.Rol || usuario.rol,
+        especialidad: usuario.Especialidad || usuario.especialidad
+      };
+
+      try {
+        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          addMessage(data.respuesta || "✅ Mensaje enviado correctamente. Esperando respuesta del asistente...", "bot");
+        } else {
+          addMessage("⚠️ Error al conectar con el asistente. Intenta de nuevo más tarde.", "bot");
+        }
+      } catch (err) {
+        addMessage("❌ No se pudo enviar el mensaje. Revisa tu conexión.", "bot");
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
+  </script>
+</body>
+</html>
