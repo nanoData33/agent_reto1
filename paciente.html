@@ -528,19 +528,13 @@ function renderTabla(id, datos, columnas) {
 }
 
 /* === RESUMEN IA === */
-/* === EVOLUCIÓN + RECOMENDACIONES === */
+/* === SOLO EVOLUCIÓN CLÍNICA (IA) === */
 async function generarResumenIA(paciente, evolucion, signos) {
-  const barraEvol = document.getElementById("barraEvolucion");
-  const barraRecom = document.getElementById("barraRecom");
+  const barra = document.getElementById("barraProgreso");
   const resumenDiv = document.getElementById("resumenIA");
-  const recomDiv = document.getElementById("recomendacionesIA");
-  const valoracionDiv = document.getElementById("valoracionIA");
 
   resumenDiv.textContent = "Enviando datos a IA para análisis de evolución...";
-  recomDiv.textContent = "Generando recomendaciones personalizadas...";
-  barraEvol.style.width = "0%";
-  barraRecom.style.width = "0%";
-  valoracionDiv.style.display = "none";
+  barra.style.width = "0%";
 
   const payload = {
     paciente_id: paciente.PacienteID,
@@ -554,46 +548,25 @@ async function generarResumenIA(paciente, evolucion, signos) {
   };
 
   try {
-    // === 1️⃣ EVOLUCIÓN CLÍNICA ===
-    const resEvol = await fetch("https://rubaseval.app.n8n.cloud/webhook/evolucion", {
+    const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/evolucion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    const textoEvol = await resEvol.text();
-    console.log("✅ Evolución IA:", textoEvol);
+    const texto = await res.text();
+    console.log("✅ Evolución IA:", texto);
 
-    if (textoEvol.trim().length > 0) {
-      barraEvol.style.width = "100%";
-      resumenDiv.innerHTML = `<div style="white-space:pre-wrap;">${textoEvol}</div>`;
+    if (texto.trim().length > 0) {
+      barra.style.width = "100%";
+      resumenDiv.innerHTML = `<div style="white-space: pre-wrap;">${texto}</div>`;
     } else {
-      resumenDiv.textContent = "⚠️ La IA no devolvió evolución.";
-    }
-
-    // === 2️⃣ RECOMENDACIONES ===
-    const resRecom = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/recomendacion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const textoRecom = await resRecom.text();
-    console.log("✅ Recomendaciones IA:", textoRecom);
-
-    if (textoRecom.trim().length > 0) {
-      barraRecom.style.width = "100%";
-      recomDiv.innerHTML = `<div style="white-space:pre-wrap;">${textoRecom}</div>`;
-      valoracionDiv.style.display = "block";
-      activarValoracion();
-    } else {
-      recomDiv.textContent = "⚠️ La IA no devolvió recomendaciones.";
+      resumenDiv.textContent = "⚠️ La IA no devolvió ningún resultado.";
     }
 
   } catch (err) {
     console.error("❌ Error IA:", err);
-    resumenDiv.textContent = "Error al conectar con el análisis de evolución.";
-    recomDiv.textContent = "Error al conectar con las recomendaciones.";
+    resumenDiv.textContent = "Error al conectar con el asistente IA para evolución.";
   }
 }
 
