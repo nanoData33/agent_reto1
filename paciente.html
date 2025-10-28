@@ -18,8 +18,8 @@
 
 
   <!-- Generación de PDF (jsPDF + autoTable) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Conexión a Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -239,7 +239,7 @@ th {
         ← Volver al panel
       </button>
       <button class="btn" id="botonPDF" onclick="generarPDF()">
-        <i class="fa-solid fa-file-export"></i> Exportar informe completo
+        <i class="fa-solid fa-file-export"></i> Exportar informe completo en PDF
       </button>
     </div>
   </header>
@@ -817,78 +817,45 @@ function renderNotas(notas) {
   `).join('');
 }
 
-
- 
-
 async function generarPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
-  let y = 20;
 
-  // Datos básicos del paciente
-  const nombre = document.getElementById("nombre").innerText || "-";
-  const edad = document.getElementById("edad").innerText || "-";
-  const sexo = document.getElementById("sexo").innerText || "-";
-  const diagnostico = document.getElementById("diagnostico").innerText || "-";
-  const servicio = document.getElementById("servicio").innerText || "-";
-  const resumen = document.getElementById("resumenIA").innerText || "Sin resumen IA disponible.";
+  // Puedes limitar el área a capturar, por ejemplo un div con el contenido clínico:
+  const contenedor = document.querySelector(".main") || document.body;
 
-  // Cabecera
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("Informe Clínico de Alta", 105, y, { align: "center" });
-  y += 10;
+  // Convierte el área visible a imagen
+  const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
+  const imgData = canvas.toDataURL("image/png");
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.text(`Nombre: ${nombre}`, 20, y);
-  y += 6;
-  doc.text(`Edad: ${edad}   Sexo: ${sexo}`, 20, y);
-  y += 6;
-  doc.text(`Diagnóstico: ${diagnostico}`, 20, y);
-  y += 6;
-  doc.text(`Servicio: ${servicio}`, 20, y);
-  y += 10;
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
-  // Resumen IA
-  doc.setFont("helvetica", "bold");
-  doc.text("Resumen IA:", 20, y);
-  y += 6;
-  doc.setFont("helvetica", "normal");
-  const resumenSplit = doc.splitTextToSize(resumen, 170);
-  doc.text(resumenSplit, 20, y);
-  y += resumenSplit.length * 6 + 10;
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  // Tabla de medicación
-  const meds = Array.from(document.querySelectorAll("#tablaMeds tr")).map(tr =>
-    Array.from(tr.querySelectorAll("td,th")).map(td => td.innerText)
-  );
-  if (meds.length > 1) {
-    doc.setFont("helvetica", "bold");
-    doc.text("Tratamiento Actual", 20, y);
-    y += 4;
-    doc.autoTable({
-      startY: y,
-      head: [meds[0]],
-      body: meds.slice(1),
-      styles: { fontSize: 9 }
-    });
-    y = doc.lastAutoTable.finalY + 10;
+  // Si el contenido cabe en una sola página
+  if (imgHeight <= pageHeight) {
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  } else {
+    // Si es más largo, lo corta automáticamente en varias páginas
+    let position = 0;
+    while (position < imgHeight) {
+      pdf.addImage(imgData, "PNG", 0, -position, imgWidth, imgHeight);
+      position += pageHeight;
+      if (position < imgHeight) pdf.addPage();
+    }
   }
 
-  // Añadir gráfico radar como imagen
-  const radar = document.getElementById("graficoRadar");
-  if (radar) {
-    const imgData = radar.toDataURL("image/png");
-    doc.addImage(imgData, "PNG", 20, y, 90, 90);
-  }
+  // Nombre dinámico del archivo
+  const nombrePaciente = document.querySelector("#nombrePaciente")?.innerText || "resumen_paciente";
+  const fechaActual = new Date().toLocaleDateString();
+  pdf.setFontSize(10);
+  pdf.text(`Generado el ${fechaActual}`, 10, pageHeight - 10);
 
-  // Pie de página
-  doc.setFontSize(9);
-  doc.text("Generado automáticamente por MedAI Evolution Assistant", 105, 285, { align: "center" });
-
-  doc.save(`informe_${nombre.replace(/\s+/g, "_")}.pdf`);
+  pdf.save(`${nombrePaciente}_informe.pdf`);
 }
+
 
 /* === BOTÓN MANUAL EXTRA === */
 const botonManual = document.createElement("button");
