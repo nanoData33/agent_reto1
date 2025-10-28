@@ -24,6 +24,7 @@
       font-family: "Inter", sans-serif;
       background: var(--gray-bg);
       display: flex;
+      flex-direction: column;
       height: 100vh;
     }
 
@@ -34,11 +35,6 @@
       align-items: center;
       justify-content: space-between;
       padding: 14px 30px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 10;
     }
 
     header span {
@@ -60,52 +56,18 @@
       font-size: 0.9rem;
     }
 
-    .main {
-      margin-top: 70px;
-      display: flex;
-      flex: 1;
-      width: 100%;
-    }
-
-    .sidebar {
-      width: 280px;
-      background: #fff;
-      border-right: 1px solid #e5e8f0;
-      box-shadow: var(--shadow);
-      overflow-y: auto;
-      padding: 20px;
-    }
-
-    .sidebar h3 {
-      margin-top: 0;
-      color: var(--blue-main);
-      font-size: 1rem;
-      border-bottom: 2px solid #e5e8f0;
-      padding-bottom: 8px;
-    }
-
-    .chat-history {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .chat-history li {
-      font-size: 0.85rem;
-      color: var(--gray-mid);
-      margin-bottom: 10px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: #f8faff;
-    }
-
     .chat-container {
       flex: 1;
       display: flex;
       flex-direction: column;
+      max-width: 800px;
+      width: 100%;
+      margin: 20px auto;
       background: #fff;
-      margin: 0;
-      border-left: 1px solid #e5e8f0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
     }
 
     .chat-messages {
@@ -125,6 +87,7 @@
       font-size: 0.95rem;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       animation: fadeIn 0.3s ease;
+      word-wrap: break-word;
     }
 
     .message.user {
@@ -141,6 +104,28 @@
       border-bottom-left-radius: 2px;
     }
 
+    .typing {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--blue-accent);
+      border-radius: 50%;
+      animation: blink 1.2s infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0; }
+      40% { opacity: 1; }
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(5px); }
       to { opacity: 1; transform: translateY(0); }
@@ -152,6 +137,7 @@
       background: #fafafa;
       padding: 10px;
       gap: 10px;
+      align-items: center;
     }
 
     .chat-input input {
@@ -177,6 +163,38 @@
     .chat-input button:hover {
       background: var(--blue-accent);
     }
+
+    #mic-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--blue-main);
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.2rem;
+      position: relative;
+    }
+
+    #mic-btn.recording {
+      background: #e74c3c;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+    }
+
+    #timer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.7rem;
+      display: none;
+    }
   </style>
 </head>
 
@@ -186,24 +204,18 @@
     <span id="user-info" class="user-chip"></span>
   </header>
 
-  <div class="main">
-    <aside class="sidebar">
-      <h3>Historial</h3>
-      <ul class="chat-history" id="chat-history"></ul>
-    </aside>
-
-    <div class="chat-container">
-      <div class="chat-messages" id="chat-messages">
-        <div class="message bot">
-          👋 Hola, soy MedAI. Estoy aquí para ayudarte con decisiones clínicas o dudas.  
-          ¿En qué puedo asistirte hoy?
-        </div>
+  <div class="chat-container">
+    <div class="chat-messages" id="chat-messages">
+      <div class="message bot">
+        👋 Hola, soy MedAI. Estoy aquí para ayudarte con decisiones clínicas o dudas.  
+        ¿En qué puedo asistirte hoy?
       </div>
+    </div>
 
-      <div class="chat-input">
-        <input id="message-input" type="text" placeholder="Escribe tu mensaje..." />
-        <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-      </div>
+    <div class="chat-input">
+      <button id="mic-btn"><i class="fa-solid fa-microphone"></i><span id="timer"></span></button>
+      <input id="message-input" type="text" placeholder="Escribe tu mensaje..." />
+      <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
 
@@ -222,15 +234,11 @@
     const chatMessages = document.getElementById("chat-messages");
     const input = document.getElementById("message-input");
     const sendBtn = document.getElementById("send-btn");
-    const chatHistory = document.getElementById("chat-history");
+    const micBtn = document.getElementById("mic-btn");
+    const timer = document.getElementById("timer");
 
     const chatKey = `chat_${usuario.Nombre || usuario.nombre}`;
     let historial = JSON.parse(localStorage.getItem(chatKey)) || [];
-
-    function renderChat() {
-      chatMessages.innerHTML = "";
-      historial.forEach(m => addMessage(m.texto, m.emisor, false));
-    }
 
     function addMessage(text, sender = "bot", save = true) {
       const msg = document.createElement("div");
@@ -238,21 +246,24 @@
       msg.textContent = text;
       chatMessages.appendChild(msg);
       chatMessages.scrollTop = chatMessages.scrollHeight;
-
       if (save) {
         historial.push({ texto: text, emisor: sender });
         localStorage.setItem(chatKey, JSON.stringify(historial));
-        updateSidebar();
       }
     }
 
-    function updateSidebar() {
-      chatHistory.innerHTML = "";
-      historial.slice(-10).forEach((m, i) => {
-        const li = document.createElement("li");
-        li.textContent = `${m.emisor === "user" ? "🩺" : "🤖"} ${m.texto.slice(0, 40)}...`;
-        chatHistory.appendChild(li);
-      });
+    function showTyping() {
+      const typing = document.createElement("div");
+      typing.className = "message bot typing";
+      typing.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+      typing.id = "typing";
+      chatMessages.appendChild(typing);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+      const t = document.getElementById("typing");
+      if (t) t.remove();
     }
 
     async function sendMessage() {
@@ -260,6 +271,8 @@
       if (!text) return;
       addMessage(text, "user");
       input.value = "";
+
+      showTyping();
 
       const payload = {
         mensaje: text,
@@ -276,17 +289,80 @@
         });
 
         const data = await res.json().catch(() => ({}));
-        addMessage(data.respuesta || "Mensaje enviado, el asistente está procesando tu consulta...", "bot");
+        removeTyping();
+        addMessage(data.respuesta || "💬 Mensaje recibido, procesando tu solicitud...", "bot");
       } catch {
-        addMessage("No se pudo conectar con el asistente. Intenta más tarde.", "bot");
+        removeTyping();
+        addMessage("⚠️ No se pudo conectar con el asistente. Intenta más tarde.", "bot");
       }
     }
 
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
 
-    renderChat();
-    updateSidebar();
+    // === 🎙️ Grabación de audio ===
+    let mediaRecorder;
+    let chunks = [];
+    let recording = false;
+    let seconds = 0;
+    let timerInterval;
+
+    micBtn.addEventListener("click", async () => {
+      if (!recording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.start();
+          recording = true;
+          micBtn.classList.add("recording");
+          timer.style.display = "block";
+          seconds = 0;
+          timer.textContent = "0s";
+          timerInterval = setInterval(() => {
+            seconds++;
+            timer.textContent = seconds + "s";
+          }, 1000);
+
+          mediaRecorder.ondataavailable = e => chunks.push(e.data);
+          mediaRecorder.onstop = async () => {
+            const blob = new Blob(chunks, { type: "audio/webm" });
+            chunks = [];
+            const formData = new FormData();
+            formData.append("audio", blob);
+            formData.append("usuario", usuario.Nombre || usuario.nombre);
+            formData.append("rol", usuario.Rol || usuario.rol);
+            formData.append("especialidad", usuario.Especialidad || usuario.especialidad);
+            
+            addMessage("🎤 [Audio enviado: " + seconds + "s]", "user");
+            showTyping();
+            
+            try {
+              const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
+                method: "POST",
+                body: formData
+              });
+              const data = await res.json().catch(() => ({}));
+              removeTyping();
+              addMessage(data.respuesta || "🧠 Procesando audio, espera unos segundos...", "bot");
+            } catch {
+              removeTyping();
+              addMessage("⚠️ Error al enviar el audio.", "bot");
+            }
+          };
+        } catch (err) {
+          alert("No se pudo acceder al micrófono.");
+        }
+      } else {
+        mediaRecorder.stop();
+        recording = false;
+        micBtn.classList.remove("recording");
+        timer.style.display = "none";
+        clearInterval(timerInterval);
+      }
+    });
+
+    // Render historial
+    historial.forEach(m => addMessage(m.texto, m.emisor, false));
   </script>
 </body>
 </html>
