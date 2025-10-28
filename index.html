@@ -164,18 +164,36 @@
       filter: grayscale(100%);
     }
 
+    .user-chip{
+      background:#eef3ff;
+      color:#1f3b73;
+      border:1px solid #d8e2ff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:600;
+      font-size:0.9rem;
+    }
+    @media (max-width: 820px){
+      .user-chip{ display:none; } /* en móvil, quita ruido */
+    }
+
   </style>
 </head>
 
 <body>
   <header>
     <span><i class="fa-solid fa-hospital-user"></i> MedAI Evolution Ward</span>
+    
+    <!-- 👇 añade esto -->
+    <span id="user-info" class="user-chip"></span>
+  
     <div class="buttons">
       <button onclick="window.location='decisiones.html'"><i class="fa-solid fa-user-md"></i> Decisiones AI</button>
       <button onclick="window.location='exportar.html'"><i class="fa-solid fa-file-export"></i> Exportar</button>
       <button id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
-    </div>
+      </div>
   </header>
+
 
   <div class="hospital">
     <div class="row" id="row1"></div>
@@ -269,9 +287,13 @@
       }
     });
 
-    document.getElementById("user-info").innerText =
-      `${usuario.Nombre} (${usuario.Rol})`;
-
+    const chip = document.getElementById("user-info");
+    if (chip && usuario) {
+      const rol = usuario.Rol || usuario.rol || "—";
+      const nombre = usuario.Nombre || usuario.nombre || "Usuario";
+      const esp = usuario.Especialidad || usuario.especialidad || "";
+      chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
+    }
 
   </script>
 </body>
