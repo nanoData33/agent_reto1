@@ -446,8 +446,13 @@ async function cargar() {
 
     // === RENDER RESTANTE ===
     renderRadar(evol);
-    renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
-    await generarResumenIA(p, evol, signos);
+    renderTabla('tablaMeds', meds, ['Medicamento', 'Dosis', 'Via']);
+
+    // Ejecuta ambas peticiones a la IA en paralelo
+    await Promise.all([
+      generarResumenIA(p, evol, signos),
+      generarRecomendacionIA(p, evol, signos)
+    ]);
 
   } catch (err) {
     console.error("⚠️ Error en cargar():", err);
