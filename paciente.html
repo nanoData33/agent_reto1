@@ -340,95 +340,42 @@ async function cargar() {
 /* === RADAR === */
 function renderRadar(evol) {
   if (!evol?.length) return;
-  const ingreso = evol[0];
-  const alta = evol[evol.length - 1];
+  const ingreso = evol[0], alta = evol[evol.length - 1];
 
   const ctx = document.getElementById("graficoRadar");
-
-  // Destruye gráfico previo si ya existía
-  if (ctx.chartInstance) {
-    ctx.chartInstance.destroy();
-  }
-
-  const labels = [
-    "Presión Sistólica (mmHg)",
-    "Frecuencia Cardiaca (bpm)",
-    "Temperatura (°C)",
-    "Saturación O₂ (%)",
-    "Glucosa (mg/dl)",
-    "Creatinina (mg/dl)"
-  ];
-
-  const ingresoData = [
-    ingreso.PresionSistolica,
-    ingreso.FrecuenciaCardiaca,
-    ingreso.Temperatura,
-    ingreso.SaturacionOxigeno,
-    ingreso.Glucosa,
-    ingreso.Creatinina
-  ];
-
-  const altaData = [
-    alta.PresionSistolica,
-    alta.FrecuenciaCardiaca,
-    alta.Temperatura,
-    alta.SaturacionOxigeno,
-    alta.Glucosa,
-    alta.Creatinina
-  ];
-
-  const chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "bar",
     data: {
-      labels: labels,
+      labels: ["PA Sistólica (mmHg)", "FC (bpm)", "Temp (°C)", "SpO₂ (%)", "Glucosa (mg/dl)", "Creatinina (mg/dl)"],
       datasets: [
         {
           label: "Ingreso",
-          data: ingresoData,
-          backgroundColor: "rgba(0, 74, 173, 0.7)",
-          borderRadius: 6
+          data: [
+            ingreso.PresionSistolica, ingreso.FrecuenciaCardiaca,
+            ingreso.Temperatura, ingreso.SaturacionOxigeno,
+            ingreso.Glucosa, ingreso.Creatinina
+          ],
+          backgroundColor: "rgba(0, 74, 173, 0.6)"
         },
         {
           label: "Alta",
-          data: altaData,
-          backgroundColor: "rgba(22, 163, 74, 0.7)",
-          borderRadius: 6
+          data: [
+            alta.PresionSistolica, alta.FrecuenciaCardiaca,
+            alta.Temperatura, alta.SaturacionOxigeno,
+            alta.Glucosa, alta.Creatinina
+          ],
+          backgroundColor: "rgba(22, 163, 74, 0.6)"
         }
       ]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
       scales: {
-        x: {
-          ticks: { font: { size: 12 } },
-          grid: { display: false }
-        },
-        y: {
-          beginAtZero: false,
-          ticks: { font: { size: 12 } },
-          title: {
-            display: true,
-            text: "Valor",
-            font: { weight: "bold" }
-          }
-        }
+        y: { beginAtZero: false, title: { display: true, text: "Valor" } }
       },
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: { font: { size: 13, weight: "600" } }
-        },
-        title: {
-          display: true,
-          text: "Comparativa de valores al ingreso y al alta",
-          font: { size: 16, weight: "bold" }
-        }
-      }
+      plugins: { legend: { position: "bottom" } }
     }
   });
-
-  ctx.chartInstance = chart;
 }
 
 
