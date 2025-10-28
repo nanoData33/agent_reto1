@@ -542,9 +542,22 @@ function activarValoracion() {
 /* === GRAFICO DE CONSTANTES VITALES === */
 function renderConstantes(signos) {
   if (!signos?.length) return;
-  const ctx = document.createElement("canvas");
-  ctx.id = "graficoConstantes";
-  document.getElementById("zonaGraficos").appendChild(ctx);
+  const zona = document.getElementById("zonaGraficos");
+
+  // Crear contenedor del gráfico
+  const cont = document.createElement("div");
+  cont.style.marginTop = "20px";
+
+  // Título con el mismo formato que el del mapa de calor
+  cont.innerHTML = `
+    <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-2 text-center border-b-2 border-blue-300 pb-2">
+      Constantes vitales durante la estancia
+    </h3>
+    <canvas id="graficoConstantes"></canvas>
+  `;
+  zona.appendChild(cont);
+
+  const ctx = document.getElementById("graficoConstantes");
 
   const fechas = signos.map(s => new Date(s.Fecha).toLocaleDateString());
   const fc = signos.map(s => s.FrecuenciaCardiaca);
@@ -559,15 +572,12 @@ function renderConstantes(signos) {
         { label: "Temperatura (°C)", data: temp, borderColor: "#f39c12", borderWidth: 2, fill: false }
       ]
     },
-    plugins: { 
-      title: { 
-        display: true, 
-        text: "Constantes vitales durante la estancia",
-        color: "#004aad",
-        font: { size: 16, weight: "bold" },
-        padding: { top: 10, bottom: 15 }
-      } 
-    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: false } },
+      plugins: { legend: { position: "bottom" } }
+    }
   });
 }
 
