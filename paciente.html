@@ -945,15 +945,8 @@ async function generarPDF() {
   const { jsPDF } = window.jspdf;
   const contenedor = document.getElementById("panel");
 
-  // Añadimos un margen inferior temporal para el pie
-  const originalPadding = contenedor.style.paddingBottom;
-  contenedor.style.paddingBottom = "80px";
-
   const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
   const imgData = canvas.toDataURL("image/png");
-
-  // Restauramos el padding
-  contenedor.style.paddingBottom = originalPadding;
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -973,7 +966,7 @@ async function generarPDF() {
     }
   }
 
-  // Pie de página con margen correcto
+  // === Pie de página ===
   const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
   const medicoNombre = usuario.Nombre || usuario.nombre || "Médico desconocido";
   const medicoEmail = usuario.correo_login || usuario.email || "correo no disponible";
@@ -981,10 +974,16 @@ async function generarPDF() {
   const fechaActual = new Date().toLocaleString();
 
   pdf.setFontSize(9);
+
+  // Capa blanca de fondo para evitar solapamiento
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, pageHeight - 12, pageWidth, 12, "F");
+
+  // Texto del pie
   pdf.text(
     `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`,
     pageWidth / 2,
-    pageHeight - 5,  // <-- subimos el texto más abajo del contenido
+    pageHeight - 5,
     { align: "center" }
   );
 
