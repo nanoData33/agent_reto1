@@ -245,61 +245,6 @@ th {
 #pruebasResultados tr:hover {
   background: #f9fafb;
 }
-/* ==== AJUSTES VISUALES ==== */
-body {
-  background: linear-gradient(180deg, #e9edf7 0%, #f5f7fb 100%);
-}
-
-main {
-  background: #ffffff;
-  border: 1px solid var(--gris-borde);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-}
-
-#bloqueIA, #bloqueRecomendacion, .columna, #constantes, #paciente {
-  background: #f7f9fc;
-  border: 1px solid #dce3f1;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);
-}
-
-h3 {
-  color: var(--azul);
-  font-weight: 600;
-  border-bottom: 2px solid var(--azul-acento);
-  padding-bottom: 4px;
-}
-
-.btn {
-  background-color: var(--azul);
-  border-radius: 8px;
-}
-
-.btn:hover {
-  background-color: var(--azul-acento);
-  transform: translateY(-2px);
-}
-
-/* Cabecera más visible */
-header {
-  background: linear-gradient(90deg, var(--azul) 0%, var(--azul-acento) 100%);
-  color: white;
-}
-
-header h1 {
-  color: white;
-}
-
-.btn-secundario {
-  background: #fff;
-  color: var(--azul);
-  border: 1px solid #fff;
-}
-
-.btn-secundario:hover {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-}
-
 
 </style>
 </head>
@@ -941,6 +886,14 @@ async function generarPDF() {
 window.generarPDF = generarPDF;
 
 
+/* === BOTÓN MANUAL EXTRA === */
+const botonManual = document.createElement("button");
+botonManual.textContent = "Generar resumen IA manualmente";
+botonManual.className = "btn";
+botonManual.style.marginTop = "10px";
+botonManual.onclick = async () => {
+  const { data: p } = await supabase.from('pacientes').select('*').eq('PacienteID', id).single();
+  const { data: evol } = await supabase.from('evolucion').select('*').eq('PacienteID', id).order('Fecha');
   // === PRUEBAS Y RESULTADOS (lab_iniciales) ===
   const { data: lab, error: errorLab } = await supabase
     .from("lab_iniciales")
@@ -971,12 +924,6 @@ window.generarPDF = generarPDF;
 };
 document.getElementById("bloqueIA").appendChild(botonManual);
 
-  pdf.save(`${nombrePaciente}_informe.pdf`);
-}
-
-// Necesario porque el script es módulo
-window.generarPDF = generarPDF;
-
 // === REGISTRO DEL PLUGIN MATRIX ===
 if (window['chartjs-chart-matrix']) {
   Chart.register(window['chartjs-chart-matrix']);
@@ -985,7 +932,7 @@ if (window['chartjs-chart-matrix']) {
   console.warn("⚠️ chartjs-chart-matrix no encontrado. Revisa la ruta del script.");
 }
 
+
 cargar();
 </script>
 </body>
-</html>
