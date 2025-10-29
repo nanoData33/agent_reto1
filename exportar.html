@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exportar Informes — MedAI Smart Ward</title>
+  <title>Exportar Informes | IRIS — Inteligencia para Resúmenes e Informes Sanitarios</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -37,13 +37,19 @@
       padding: 14px 40px;
     }
 
-    header span {
+    .title-block { display: flex; flex-direction: column; align-items: flex-start; }
+    .title-block span {
       font-weight: 700;
       font-size: 1.3rem;
       color: var(--blue-main);
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+    .title-block small {
+      font-size: 0.85rem;
+      color: #555;
+      margin-left: 28px;
     }
 
     main {
@@ -116,7 +122,10 @@
 
 <body>
   <header>
-    <span><i class="fa-solid fa-file-medical"></i> MedAI Smart Ward — Exportar Informes</span>
+    <div class="title-block">
+      <span><i class="fa-solid fa-eye"></i> IRIS</span>
+      <small>Inteligencia para Resúmenes e Informes Sanitarios</small>
+    </div>
     <span id="user-info"></span>
   </header>
 
@@ -189,15 +198,15 @@
       const doc = new jsPDF({ unit: "pt", format: "a4" });
       const fecha = new Date().toLocaleDateString();
 
-      // CABECERA
+      // CABECERA IRIS
       doc.setFillColor(31, 59, 115);
       doc.rect(0, 0, 595, 70, "F");
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
       doc.setTextColor(255, 255, 255);
-      doc.text("MedAI Smart Ward", 40, 40);
+      doc.text("IRIS — Inteligencia para Resúmenes e Informes Sanitarios", 40, 40);
 
-      // Icono hospital
+      // Icono (círculo decorativo)
       doc.setDrawColor(255, 255, 255);
       doc.circle(550, 35, 10, "S");
 
@@ -239,7 +248,7 @@
 
       doc.setFontSize(9);
       doc.setTextColor(100);
-      doc.text("Documento generado automáticamente por MedAI Smart Ward", 180, 820);
+      doc.text("Documento generado automáticamente por IRIS — Inteligencia para Resúmenes e Informes Sanitarios", 120, 820);
 
       doc.save(`${titulo.replace(/\s+/g, "_")}.pdf`);
     }
@@ -257,3 +266,4 @@
   </script>
 </body>
 </html>
+
