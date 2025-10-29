@@ -114,6 +114,8 @@ main {
   box-shadow: var(--sombra);
   padding: 20px;
   margin-bottom: 20px;
+  padding-top: 12px;   /* antes 15-20px: reduce aire arriba */
+  padding-bottom: 15px;
 }
 
 /* Uniformar encabezados de esos bloques */
@@ -123,8 +125,10 @@ main {
   font-size: 0.95rem;
   font-weight: 600;
   border-bottom: 2px solid var(--azul);
-  padding-bottom: 2px;
-  margin-bottom: 4px;
+  margin-top: 0;       /* elimina el margen superior del h3 */
+  padding-top: 0;      /* sin espacio adicional arriba */
+  padding-bottom: 2px; /* deja un pequeño margen bajo la línea */
+  margin-bottom: 4px;  /* separa ligeramente del texto siguiente */
 }
 
 #barraProgreso {
