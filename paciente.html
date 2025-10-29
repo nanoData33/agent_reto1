@@ -79,6 +79,7 @@ main {
   border-radius: 12px;
   padding: 25px 35px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  position: relative;
 }
 
 /* ==== DATOS PACIENTE ==== */
@@ -86,12 +87,25 @@ main {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  background: var(--panel); /* Igual que otros paneles */
-  border: 1px solid var(--borde);
+  background: var(--gris-panel);           /* mismo gris que los otros paneles */
+  border: 1px solid var(--gris-borde);     /* mismo borde gris */
   border-radius: 12px;
+  box-shadow: var(--sombra);               /* misma sombra */
   padding: 20px 25px;
   margin-bottom: 25px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Línea azul superior para remarcar el bloque */
+#cabecera::before {
+  content: "";
+  display: block;
+  position: absolute;
+  width: calc(100% - 70px);
+  height: 3px;
+  background: var(--azul);
+  border-radius: 2px 2px 0 0;
+  top: 0;
+  left: 35px;
 }
 
 #paciente, #constantes {
