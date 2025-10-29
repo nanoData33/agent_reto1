@@ -1062,22 +1062,33 @@ if (window['chartjs-chart-matrix']) {
 
 cargar();
 
-// === VALORACIÓN DE IA ===
+// === VALORACIÓN DE IA (versión precisa y táctil) ===
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".estrellas").forEach(div => {
+    // Crear estrellas clicables individuales
+    div.innerHTML = "";
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement("span");
+      star.textContent = "★";
+      star.dataset.valor = i;
+      star.style.fontSize = "1.5rem";
+      star.style.cursor = "pointer";
+      star.style.color = "#ccc";
+      star.style.margin = "0 2px";
+      div.appendChild(star);
+    }
+
     div.addEventListener("click", e => {
-      const rect = div.getBoundingClientRect();
-      const ancho = rect.width / 5;
-      const x = e.clientX - rect.left;
-      const n = Math.ceil(x / ancho);
-      div.dataset.valor = n;
+      if (e.target.tagName !== "SPAN") return;
+      const valor = parseInt(e.target.dataset.valor);
+      div.dataset.valor = valor;
 
       // Actualiza visualmente las estrellas
-      div.innerHTML = "★★★★★"
-        .split("")
-        .map((s, i) => `<span style="color:${i < n ? 'gold' : '#ccc'}">${s}</span>`)
-        .join("");
+      div.querySelectorAll("span").forEach((s, i) => {
+        s.style.color = i < valor ? "gold" : "#ccc";
+      });
 
+      // Mostrar botón de enviar
       const btn = div.nextElementSibling;
       btn.style.display = "inline-block";
       const msg = btn.nextElementSibling;
@@ -1085,8 +1096,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Enviar valoración
   document.querySelectorAll(".btn-enviar").forEach(btn => {
-    btn.addEventListener("click", e => {
+    btn.addEventListener("click", () => {
       const div = btn.previousElementSibling;
       const valor = div.dataset.valor || 0;
       console.log(`⭐ Valoración enviada (${div.dataset.bloque}): ${valor}/5`);
@@ -1097,5 +1109,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 </script>
 </body>
