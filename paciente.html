@@ -155,13 +155,25 @@ main {
 /* ==== GRAFICOS ==== */
 #zonaGraficos {
   background: var(--gris-panel);
-  border: 1px solid var(--borde);
-  border-radius: 8px;
-  padding: 10px 15px;
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+  padding: 20px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+#zonaGraficos h3 {
+  border-bottom: 2px solid var(--azul);
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+  width: 100%;
+  text-align: left;
+  color: var(--azul);
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 #graficoRadar {
