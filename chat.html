@@ -12,7 +12,7 @@
       --blue-main: #1f3b73;
       --blue-accent: #3a6ff8;
       --gray-bg: #f6f8fb;
-      --gray-dark: #2d2d2d;
+      --gray-dark: #2d2d2d;webh
       --gray-mid: #666;
       --radius: 10px;
       --shadow: 0 3px 10px rgba(0,0,0,0.08);
@@ -427,7 +427,7 @@
     // Función unificada para enviar CUALQUIER payload al webhook
     async function enviarPayload(payload) {
        try {
-        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/chat-reto1", {
+        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
