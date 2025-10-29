@@ -246,6 +246,60 @@ th {
   background: #f9fafb;
 }
 
+#cabecera {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 20px 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+#infoPaciente, #infoConstantes {
+  flex: 1;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e3e8ef;
+  padding: 15px 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+#infoPaciente h3,
+#infoConstantes h3 {
+  font-size: 0.95rem;
+  color: var(--azul);
+  font-weight: 600;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--azul);
+  padding-bottom: 4px;
+}
+
+.grid-datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 15px;
+  font-size: 0.85rem;
+}
+
+.constantes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 15px;
+  font-size: 0.9rem;
+}
+
+.constantes-grid .label {
+  font-weight: 600;
+  color: var(--azul);
+}
+
+#infoConstantes span {
+  font-weight: 500;
+}
+
 </style>
 </head>
 
@@ -264,29 +318,30 @@ th {
   </header>
 
 <main id="panel">
-  <!-- CABECERA -->
+  <!-- CABECERA DEL PACIENTE -->
   <div id="cabecera">
-    <div id="paciente" class="tarjeta-info">
+    <div id="infoPaciente">
       <h3>Datos del paciente</h3>
-      <div class="linea-info">
-        <span class="etiqueta">Nombre:</span>
-        <span class="valor" id="nombre"></span>
-      </div>
-      <div class="linea-info">
-        <span class="etiqueta">Edad:</span>
-        <span class="valor" id="edad"></span>
-        <span class="etiqueta">Sexo:</span>
-        <span class="valor" id="sexo"></span>
-      </div>
-      <div class="linea-info">
-        <span class="etiqueta">Diagnóstico:</span>
-        <span class="valor" id="diagnostico"></span>
-      </div>
-      <div class="linea-info">
-        <span class="etiqueta">Servicio:</span>
-        <span class="valor" id="servicio"></span>
+      <div class="grid-datos">
+        <div><b>Nombre:</b> <span id="nombre"></span></div>
+        <div><b>Edad:</b> <span id="edad"></span></div>
+        <div><b>Sexo:</b> <span id="sexo"></span></div>
+        <div><b>Diagnóstico:</b> <span id="diagnostico"></span></div>
+        <div><b>Servicio:</b> <span id="servicio"></span></div>
       </div>
     </div>
+  
+    <div id="infoConstantes">
+      <h3>Últimas constantes</h3>
+      <div class="constantes-grid">
+        <div><span class="label">PA:</span> <span id="pa"></span> <small>mmHg</small></div>
+        <div><span class="label">FC:</span> <span id="fc"></span> <small>bpm</small></div>
+        <div><span class="label">SpO₂:</span> <span id="spo2"></span> <small>%</small></div>
+        <div><span class="label">Tª:</span> <span id="temp"></span> <small>°C</small></div>
+      </div>
+    </div>
+  </div>
+
 
     <div id="constantes" class="tarjeta-info">
       <h3>Últimas constantes</h3>
