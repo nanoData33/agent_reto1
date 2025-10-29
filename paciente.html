@@ -297,6 +297,8 @@ th {
   border: 1px solid #e3e8ef;
   padding: 15px 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  padding-top: 12px;   /* antes 15-20px: reduce aire arriba */
+  padding-bottom: 15px;
 }
 
 #infoPaciente h3,
@@ -304,9 +306,11 @@ th {
   font-size: 0.95rem;
   color: var(--azul);
   font-weight: 600;
-  margin-bottom: 4px;
   border-bottom: 2px solid var(--azul);
-  padding-bottom: 2px;
+  margin-top: 0;       /* elimina el margen superior del h3 */
+  padding-top: 0;      /* sin espacio adicional arriba */
+  padding-bottom: 2px; /* deja un pequeño margen bajo la línea */
+  margin-bottom: 4px;  /* separa ligeramente del texto siguiente */
 }
 
 .grid-datos {
