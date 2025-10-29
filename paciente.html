@@ -206,15 +206,17 @@ main {
 
 /* ==== TITULOS DE LAS TABLAS DERECHA ==== */
 .columna h3 {
-  text-align: center;              /* centrado */
+  text-align: center;
   color: var(--azul);
   font-size: 0.95rem;
   font-weight: 600;
-  border-top: 3px solid var(--azul);  /* línea azul superior */
-  padding-top: 6px;                   /* pequeño margen interior */
-  margin-top: 0;
-  margin-bottom: 10px;
+  border-top: none;                    /* quita la raya de arriba */
+  border-bottom: 2px solid var(--azul);/* igual que en los demás contenedores */
+  padding-top: 0;
+  padding-bottom: 4px;                 /* espacio para que respire la línea */
+  margin: 0 0 10px 0;
 }
+
 
 table {
   width: 100%;
