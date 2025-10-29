@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Decisiones AI — MedAI Evolution Ward</title>
+  <title>Decisiones AI | IRIS — Inteligencia para Resúmenes e Informes Sanitarios</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,7 +13,14 @@
       background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.08);
       padding: 14px 40px; display: flex; justify-content: space-between; align-items: center;
     }
-    header span { font-weight: 700; font-size: 1.3rem; color: #1f3b73; display: flex; align-items: center; gap: 10px; }
+    .title-block { display: flex; flex-direction: column; align-items: flex-start; }
+    .title-block span {
+      font-weight: 700; font-size: 1.3rem; color: #1f3b73;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .title-block small {
+      font-size: 0.85rem; color: #555; margin-left: 28px;
+    }
     .columns { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 30px; }
     .col {
       flex: 1; min-width: 420px; background: #fff; border-radius: 10px;
@@ -39,8 +46,15 @@
 
 <body>
   <header>
-    <span><i class="fa-solid fa-user-md"></i> Decisiones AI</span>
-    <button onclick="window.location='index.html'"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+    <div class="title-block">
+      <span><i class="fa-solid fa-eye"></i> IRIS</span>
+      <small>Inteligencia para Resúmenes e Informes Sanitarios</small>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-weight:600;color:#1f3b73;"><i class="fa-solid fa-user-md"></i> Decisiones AI</span>
+      <button onclick="window.location='index.html'"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+    </div>
   </header>
 
   <div class="columns">
@@ -61,14 +75,11 @@
 
     let ocupadas = JSON.parse(localStorage.getItem('habitaciones_ocupadas')) || [];
 
-    // Generador de score determinista (basado en ID)
     function scoreDeterminista(id) {
       let num = parseInt(id.replace(/\D/g, "")) || 0;
       const base = Math.sin(num * 12.345) * 10000;
       const norm = base - Math.floor(base);
-      // IDs bajos: pacientes ya ingresados → score alto o medio
       if (num <= 11) return 0.6 + norm * 0.35;
-      // IDs nuevos → score bajo
       return 0.25 + norm * 0.2;
     }
 
@@ -102,11 +113,9 @@
         }
       });
 
-      // Ordenar por score
       sugerenciasAlta.sort((a,b) => b.score - a.score);
       sugerenciasIngreso.sort((a,b) => a.score - b.score);
 
-      // Render altas
       if (sugerenciasAlta.length > 0) {
         sugerenciasAlta.forEach(p => {
           altasDiv.innerHTML += `
@@ -125,8 +134,6 @@
         altasDiv.innerHTML += `<p>No hay pacientes listos para el alta.</p>`;
       }
 
-      // Render ingresos
-      // Render ingresos
       if (sugerenciasIngreso.length > 0) {
         sugerenciasIngreso.forEach(p => {
           ingresosDiv.innerHTML += `
@@ -174,3 +181,4 @@
   </script>
 </body>
 </html>
+
