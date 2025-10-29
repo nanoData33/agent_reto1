@@ -42,24 +42,41 @@
 
     h1 {
       color: var(--blue-main);
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    p.subtitle {
+    /* Subtítulo principal (nombre largo) */
+    .subtitle-main {
+      font-size: 0.85rem;
+      color: var(--blue-accent);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    /* Subtítulo secundario (mensaje de acceso) */
+    .subtitle-access {
       font-size: 0.9rem;
       color: #666;
       margin-bottom: 25px;
     }
 
-    input {
+    input, button {
       width: 100%;
+      box-sizing: border-box;
       padding: 10px;
-      margin: 8px 0;
       border-radius: var(--radius);
-      border: 1px solid #ccc;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       transition: var(--transition);
+    }
+
+    input {
+      margin: 8px 0;
+      border: 1px solid #ccc;
     }
 
     input:focus {
@@ -69,17 +86,12 @@
     }
 
     button {
-      width: 100%;
-      padding: 10px;
       background: var(--blue-main);
       color: white;
       border: none;
-      border-radius: var(--radius);
       font-weight: 600;
       cursor: pointer;
       margin-top: 10px;
-      font-size: 0.95rem;
-      transition: var(--transition);
     }
 
     button:hover {
@@ -113,15 +125,17 @@
 <body>
   <div class="login-container">
     <h1><i class="fa-solid fa-eye"></i> IRIS</h1>
-    <p class="subtitle">Inteligencia para Resúmenes e Informes Sanitarios</p>
-    <p class="subtitle">Acceso restringido al personal sanitario</p>
+    <p class="subtitle-main">Inteligencia para Resúmenes e Informes Sanitarios</p>
+    <p class="subtitle-access">Acceso restringido al personal sanitario</p>
+
     <input type="email" id="email" placeholder="Correo institucional" autocomplete="username" />
     <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password" />
     <button onclick="login()"><i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión</button>
+
     <p id="error"></p>
   </div>
 
-  <footer>© 2025 Hospital Ficticio — Sistema MedAI Evolution</footer>
+  <footer>© 2025 Hospital Ficticio — Sistema IRIS</footer>
 
   <script type="module">
     import { supabase } from './supabaseClient.js';
@@ -159,8 +173,8 @@
       window.location.href = 'index.html';
     }
   
-    // 🔧 Hacerla visible para el HTML (onclick)
     window.login = login;
   </script>
 </body>
 </html>
+
