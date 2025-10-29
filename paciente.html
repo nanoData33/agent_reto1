@@ -1003,8 +1003,16 @@ async function generarPDF() {
   const { jsPDF } = window.jspdf;
   const contenedor = document.getElementById("panel");
 
+  // 🔹 Ocultar elementos de valoración antes de capturar
+  const valoraciones = document.querySelectorAll(".valoracionIA");
+  valoraciones.forEach(v => v.style.display = "none");
+
+  // Captura del panel
   const canvas = await html2canvas(contenedor, { scale: 2, useCORS: true });
   const imgData = canvas.toDataURL("image/png");
+
+  // Restaurar las valoraciones después de capturar
+  valoraciones.forEach(v => v.style.display = "");
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -1024,22 +1032,18 @@ async function generarPDF() {
     }
   }
 
-  // 🧠 Recuperar el usuario del login
+  // Pie lateral con autor
   const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
   const medicoNombre = usuario.Nombre || usuario.nombre || "Médico desconocido";
   const medicoEmail = usuario.correo_login || usuario.email || "correo no disponible";
-
   const nombrePaciente = document.getElementById("nombre")?.innerText || "resumen_paciente";
   const fechaActual = new Date().toLocaleString();
 
-  // Pie de página con usuario y correo
+  const textoPie = `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`;
+
   pdf.setFontSize(9);
-  pdf.text(
-    `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`,
-    pageWidth / 2,
-    pageHeight - 10,
-    { align: "center" }
-  );
+  pdf.setTextColor(100);
+  pdf.text(textoPie, pageHeight / 2, pageWidth - 8, { angle: 90, align: "center" });
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
