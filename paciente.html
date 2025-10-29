@@ -966,29 +966,22 @@ async function generarPDF() {
     }
   }
 
-  // === Texto lateral ===
+  // 🧠 Recuperar el usuario del login
   const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
   const medicoNombre = usuario.Nombre || usuario.nombre || "Médico desconocido";
   const medicoEmail = usuario.correo_login || usuario.email || "correo no disponible";
+
   const nombrePaciente = document.getElementById("nombre")?.innerText || "resumen_paciente";
   const fechaActual = new Date().toLocaleString();
 
-  const textoPie = `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`;
-
+  // Pie de página con usuario y correo
   pdf.setFontSize(9);
-  pdf.setTextColor(100);
-
-  // Guardar estado actual
-  pdf.saveGraphicsState?.(); // si la versión lo soporta, la usa
-
-  // === Versión compatible con jsPDF 2.5 ===
-  pdf.text(textoPie, pageHeight / 2, 5, {
-    angle: 90,
-    align: "center",
-  });
-
-  // Restaurar estado (si existe el método)
-  pdf.restoreGraphicsState?.();
+  pdf.text(
+    `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`,
+    pageWidth / 2,
+    pageHeight - 10,
+    { align: "center" }
+  );
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
