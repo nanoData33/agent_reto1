@@ -12,7 +12,7 @@
       --blue-main: #1f3b73;
       --blue-accent: #3a6ff8;
       --gray-bg: #f6f8fb;
-      --gray-dark: #2d2d2d;webh
+      --gray-dark: #2d2d2d;
       --gray-mid: #666;
       --radius: 10px;
       --shadow: 0 3px 10px rgba(0,0,0,0.08);
@@ -88,7 +88,6 @@
       cursor: pointer;
       transition: var(--transition);
       border-left: 4px solid transparent;
-      /* --- NUEVO --- */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -255,7 +254,8 @@
 
     <div class="chat-container">
       <div class="chat-messages" id="chat-messages">
-        </div>
+        <!-- El mensaje de bienvenida se añade en renderMensajes si está vacío -->
+      </div>
 
       <div class="chat-input">
         <button id="mic-btn">
@@ -297,41 +297,33 @@
 
     // --- LÓGICA DE CONVERSACIÓN MEJORADA ---
 
-    // 1. Clave de usuario para guardar conversaciones
     const userKey = `conversaciones_${usuario.Nombre}`;
-    
-    // 2. Cargar conversaciones
     let conversaciones = JSON.parse(localStorage.getItem(userKey)) || [];
 
-    // 3. Función de guardado
     function guardarConversaciones() { 
       localStorage.setItem(userKey, JSON.stringify(conversaciones)); 
     }
 
-    // 4. Migración: Asegura que las conversaciones viejas tengan sessionId
     let necesitaGuardar = false;
     conversaciones.forEach(conv => {
       if (!conv.sessionId) {
-        console.warn("Migrando conversación antigua: " + conv.id);
-        conv.sessionId = "session_" + conv.id; // Usa el ID de la conv como base
+        conv.sessionId = "session_" + conv.id; 
         necesitaGuardar = true;
       }
     });
     if (necesitaGuardar) {
-      guardarConversaciones(); // Guarda los cambios de la migración
+      guardarConversaciones();
     }
 
-    // 5. Establecer la conversación activa
-    let convActiva = conversaciones[0]; // Intenta cargar la primera
+    let convActiva = conversaciones[0]; 
 
-    // 6. Si no hay NINGUNA conversación, crear la primera
     if (!convActiva) {
       const primerSessionId = "session_" + Date.now();
       convActiva = { 
         id: Date.now(), 
         titulo: "Conversación 1", 
         mensajes: [], 
-        sessionId: primerSessionId // Asignar sessionId
+        sessionId: primerSessionId 
       };
       conversaciones.push(convActiva);
       guardarConversaciones();
@@ -355,22 +347,22 @@
     function seleccionarConversacion(id) {
       const seleccionada = conversaciones.find(c => c.id === id);
       if (seleccionada) {
-          convActiva = seleccionada; // Cambia la conversación activa
-          renderConversaciones(); // Re-renderiza la lista (para marcar la activa)
-          renderMensajes(); // Re-renderiza los mensajes del chat
+          convActiva = seleccionada; 
+          renderConversaciones(); 
+          renderMensajes(); 
       }
     }
 
     function nuevaConversacion() {
-      const nuevoSessionId = "session_" + Date.now(); // ID único para la memoria
+      const nuevoSessionId = "session_" + Date.now(); 
       const n = { 
-        id: Date.now(), // ID único para la UI
+        id: Date.now(), 
         titulo: "Conversación " + (conversaciones.length + 1), 
         mensajes: [],
-        sessionId: nuevoSessionId // Asignar el nuevo sessionId
+        sessionId: nuevoSessionId 
       };
-      conversaciones.unshift(n); // Añadir al principio
-      convActiva = n; // Establecer como activa
+      conversaciones.unshift(n); 
+      convActiva = n; 
       guardarConversaciones();
       renderConversaciones();
       renderMensajes();
@@ -381,9 +373,8 @@
     const sendBtn = document.getElementById("send-btn");
     const micBtn = document.getElementById("mic-btn");
     const timer = document.getElementById("timer");
-    const micIcon = micBtn.querySelector("i"); // Icono del micrófono
+    const micIcon = micBtn.querySelector("i"); 
 
-    // 💬 render con soporte HTML / Markdown
     function addMessage(text, sender = "bot", save = true) {
       const msg = document.createElement("div");
       msg.className = `message ${sender}`;
@@ -405,7 +396,6 @@
       if (save) {
         if (!convActiva.mensajes) convActiva.mensajes = [];
         convActiva.mensajes.push({ texto: text, emisor: sender });
-        // Actualizar la conversación correcta en el array 'conversaciones'
         const index = conversaciones.findIndex(c => c.id === convActiva.id);
         if (index > -1) {
             conversaciones[index] = convActiva;
@@ -424,8 +414,8 @@
     }
     function removeTyping() { const t = document.getElementById("typing"); if (t) t.remove(); }
 
-    // Función unificada para enviar CUALQUIER payload al webhook
-    async function enviarPayload(payload) {
+    // --- INICIO CAMBIO: Función solo para JSON (Texto) ---
+    async function enviarJsonPayload(payload) {
        try {
         const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
           method: "POST",
@@ -445,11 +435,12 @@
         removeTyping();
         addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
       } catch (err) {
-        console.error("Error al enviar payload:", err);
+        console.error("Error al enviar payload JSON:", err);
         removeTyping();
         addMessage("⚠️ No se pudo conectar con el asistente. Intenta más tarde.", "bot");
       }
     }
+    // --- FIN CAMBIO ---
 
     // Manejador para enviar mensajes de TEXTO
     async function sendMessage() {
@@ -460,29 +451,27 @@
       input.value = "";
       showTyping();
 
-      // Si es el primer mensaje del USUARIO, generar título
       if (convActiva.mensajes.filter(m => m.emisor === 'user').length === 1) { 
         const palabraClave = text.split(" ").slice(0, 4).join(" ");
         convActiva.titulo = palabraClave.charAt(0).toUpperCase() + palabraClave.slice(1);
-        // Actualizar en el array general y guardar
         const index = conversaciones.findIndex(c => c.id === convActiva.id);
         if (index > -1) {
             conversaciones[index].titulo = convActiva.titulo;
         }
         guardarConversaciones();
-        renderConversaciones(); // Actualizar la vista del sidebar
+        renderConversaciones(); 
       }
 
       const payload = {
         type: "text",
-        sessionId: convActiva.sessionId, // <-- USA EL SESSION ID DE LA CONV ACTIVA
+        sessionId: convActiva.sessionId, 
         mensaje: text,
         usuario: usuario.Nombre || usuario.nombre,
         rol: usuario.Rol || usuario.rol,
         especialidad: usuario.Especialidad || usuario.especialidad
       };
 
-      await enviarPayload(payload);
+      await enviarJsonPayload(payload); // --- CAMBIO: Llama a la función de JSON
     }
     
     sendBtn.addEventListener("click", sendMessage);
@@ -530,17 +519,17 @@
           audioChunks.push(event.data);
         };
 
+        // --- INICIO CAMBIO: Modificado onstop ---
         mediaRecorder.onstop = () => {
+          // Crea el Blob binario
           const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const base64Audio = reader.result;
-            sendAudioMessage(base64Audio);
-          };
-          reader.readAsDataURL(audioBlob);
+          
+          // Llama a la nueva función de envío de archivos
+          sendAudioFile(audioBlob); 
           
           stream.getTracks().forEach(track => track.stop());
         };
+        // --- FIN CAMBIO ---
 
         mediaRecorder.start();
         isRecording = true;
@@ -593,42 +582,65 @@
       timer.textContent = "00:00";
     }
 
-    // Manejador para enviar mensajes de AUDIO
-    async function sendAudioMessage(base64Audio) {
+    // --- INICIO CAMBIO: Nueva función para enviar audio como FormData ---
+    async function sendAudioFile(audioBlob) {
       addMessage("🎤 Audio enviado", "user");
       showTyping();
 
-      // Si es el primer mensaje del USUARIO, generar título
+      // Generar título si es el primer mensaje del usuario
       if (convActiva.mensajes.filter(m => m.emisor === 'user').length === 1) { 
         convActiva.titulo = "Grabación de audio";
-        // Actualizar en el array general y guardar
         const index = conversaciones.findIndex(c => c.id === convActiva.id);
         if (index > -1) {
             conversaciones[index].titulo = convActiva.titulo;
         }
         guardarConversaciones();
-        renderConversaciones(); // Actualizar la vista del sidebar
+        renderConversaciones(); 
       }
       
-      const payload = {
-        type: "audio",
-        sessionId: convActiva.sessionId, // <-- USA EL SESSION ID DE LA CONV ACTIVA
-        audioData: base64Audio.split(',')[1],
-        mimeType: base64Audio.split(';')[0].split(':')[1] || 'audio/webm',
-        usuario: usuario.Nombre || usuario.nombre,
-        rol: usuario.Rol || usuario.rol,
-        especialidad: usuario.Especialidad || usuario.especialidad
-      };
+      // Crear FormData y añadir todos los campos
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'audio.webm'); // 'file' es un nombre común, ajústalo si tu backend espera otro
+      formData.append('type', 'audio');
+      formData.append('sessionId', convActiva.sessionId);
+      formData.append('usuario', usuario.Nombre || usuario.nombre);
+      formData.append('rol', usuario.Rol || usuario.rol);
+      formData.append('especialidad', usuario.Especialidad || usuario.especialidad);
 
-      await enviarPayload(payload);
+      // Enviar el FormData
+      try {
+        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/chat-reto1", {
+          method: "POST",
+          // NO se establece 'Content-Type', el navegador lo hace automáticamente
+          // con el 'boundary' correcto para multipart/form-data
+          body: formData 
+        });
+
+        let respuestaTexto = "";
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          const data = await res.json();
+          respuestaTexto = data.respuesta || JSON.stringify(data);
+        } else {
+          respuestaTexto = await res.text();
+        }
+
+        removeTyping();
+        addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
+      
+      } catch (err) {
+        console.error("Error al enviar archivo de audio:", err);
+        removeTyping();
+        addMessage("⚠️ No se pudo conectar con el asistente. Intenta más tarde.", "bot");
+      }
     }
-    // --- FIN: Lógica de Grabación de Audio ---
-
+    // --- FIN CAMBIO ---
 
     // --- Inicialización ---
-    renderConversaciones(); // Dibuja el sidebar
-    renderMensajes(); // Dibuja los mensajes del chat activo
+    renderConversaciones(); 
+    renderMensajes(); 
   }
 </script>
 </body>
 </html>
+
