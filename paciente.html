@@ -179,16 +179,16 @@ main {
 
 /* Uniformizar títulos de los gráficos */
 #zonaGraficos h3 {
-  text-align: center;                 /* todos centrados */
+  text-align: center;
   color: var(--azul);
   font-size: 0.95rem;
   font-weight: 600;
   border-bottom: 2px solid var(--azul);
-  padding-bottom: 4px;
-  margin-bottom: 10px;
+  padding-bottom: 2px;   /* menos espacio debajo */
+  margin-top: 0;         /* evita aire arriba */
+  margin-bottom: 6px;    /* antes 10px */
   width: 100%;
 }
-
 
 #graficoRadar {
   width: 100%;
@@ -782,7 +782,7 @@ function renderConstantes(signos) {
 
   // Crear contenedor del gráfico
   const cont = document.createElement("div");
-  cont.style.marginTop = "20px";
+  cont.style.marginTop = "10px";
 
   // Título con el mismo formato que el del mapa de calor
   // Título con el mismo formato que el del mapa de calor
@@ -826,7 +826,7 @@ function renderHeatmap(signos) {
 
   // Contenedor del gráfico
   const cont = document.createElement("div");
-  cont.style.marginTop = "20px";
+  cont.style.marginTop = "10px";
 
   // Título y canvas
   cont.innerHTML = `
