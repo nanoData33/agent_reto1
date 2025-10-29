@@ -414,12 +414,11 @@ if (!usuario) {
       audioChunks = [];
       mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
       mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-        const reader = new FileReader();
-        reader.onloadend = () => sendAudioMessage(reader.result);
-        reader.readAsDataURL(blob);
-        stream.getTracks().forEach(t => t.stop());
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        sendAudioMessage(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
       };
+
       mediaRecorder.start();
       isRecording = true;
       micBtn.classList.add("recording");
@@ -454,20 +453,33 @@ if (!usuario) {
     timer.textContent = "00:00";
   }
 
-  async function sendAudioMessage(base64Audio) {
+  async function sendAudioMessage(blobAudio) {
     addMessage("🎤 Audio enviado", "user");
     showTyping();
-    const payload = {
-      type: "audio",
-      sessionId,
-      audioData: base64Audio.split(',')[1],
-      mimeType: base64Audio.split(';')[0].split(':')[1] || 'audio/webm',
-      usuario: usuario.Nombre,
-      rol: usuario.Rol,
-      especialidad: usuario.Especialidad
-    };
-    await enviarPayload(payload);
-  }
+
+    const formData = new FormData();
+    // Adjuntamos el archivo como "file"
+    formData.append("file", blobAudio, "grabacion.webm");
+    formData.append("sessionId", sessionId);
+    formData.append("usuario", usuario.Nombre);
+    formData.append("rol", usuario.Rol);
+    formData.append("especialidad", usuario.Especialidad);
+
+    try {
+        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/chat-reto1", {
+            method: "POST",
+            body: formData
+        });
+
+        let respuestaTexto = await res.text();
+        removeTyping();
+        addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
+    } catch (err) {
+        console.error("Error al enviar audio:", err);
+        removeTyping();
+        addMessage("⚠️ No se pudo enviar el audio.", "bot");
+    }
+}
 
   renderConversaciones();
   renderMensajes();
