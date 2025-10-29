@@ -350,6 +350,37 @@ th {
   margin-bottom: 6px;
 }
 
+.valoracionIA {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.estrellas {
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: #ccc;
+  user-select: none;
+  letter-spacing: 3px;
+}
+
+.estrellas.seleccionadas {
+  color: gold;
+}
+
+.btn-enviar {
+  margin-top: 6px;
+  background-color: var(--azul);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-enviar:hover {
+  background-color: var(--azul-acento);
+}
 
 </style>
 </head>
@@ -398,12 +429,31 @@ th {
     <h3>Resumen clínico (IA)</h3>
     <div id="barraProgreso"></div>
     <div id="resumenIA">Cargando análisis...</div>
+    <div class="valoracionIA">
+      <div class="estrellas" data-bloque="IA">
+        ★★★★★
+      </div>
+      <button class="btn-enviar" style="display:none;">Enviar valoración</button>
+      <div class="mensaje-confirmacion" style="display:none; color:var(--azul); margin-top:6px; font-size:0.85rem;">
+        ¡Gracias por tu valoración!
+      </div>
+    </div>
+
   </div>
 
   <div id="bloqueRecomendacion">
     <h3>Recomendaciones clínicas (IA)</h3>
     <div id="barraProgresoRec"></div>
     <div id="resumenRec">Cargando recomendaciones...</div>
+    <div class="valoracionIA">
+      <div class="estrellas" data-bloque="REC">
+        ★★★★★
+      </div>
+      <button class="btn-enviar" style="display:none;">Enviar valoración</button>
+      <div class="mensaje-confirmacion" style="display:none; color:var(--azul); margin-top:6px; font-size:0.85rem;">
+        ¡Gracias por tu valoración!
+      </div>
+    </div>
   </div>
 
   <!-- DOS COLUMNAS -->
@@ -1007,5 +1057,41 @@ if (window['chartjs-chart-matrix']) {
 
 
 cargar();
+
+// === VALORACIÓN DE IA ===
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".estrellas").forEach(div => {
+    div.addEventListener("click", e => {
+      const rect = div.getBoundingClientRect();
+      const ancho = rect.width / 5;
+      const x = e.clientX - rect.left;
+      const n = Math.ceil(x / ancho);
+      div.dataset.valor = n;
+
+      // Actualiza visualmente las estrellas
+      div.innerHTML = "★★★★★"
+        .split("")
+        .map((s, i) => `<span style="color:${i < n ? 'gold' : '#ccc'}">${s}</span>`)
+        .join("");
+
+      const btn = div.nextElementSibling;
+      btn.style.display = "inline-block";
+      const msg = btn.nextElementSibling;
+      msg.style.display = "none";
+    });
+  });
+
+  document.querySelectorAll(".btn-enviar").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const div = btn.previousElementSibling;
+      const valor = div.dataset.valor || 0;
+      console.log(`⭐ Valoración enviada (${div.dataset.bloque}): ${valor}/5`);
+
+      btn.style.display = "none";
+      const msg = btn.nextElementSibling;
+      msg.style.display = "block";
+    });
+  });
+});
 </script>
 </body>
