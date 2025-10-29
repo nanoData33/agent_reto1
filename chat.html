@@ -63,7 +63,6 @@
       overflow: hidden;
     }
 
-    /* Lateral historial */
     .sidebar {
       width: 260px;
       background: #fff;
@@ -88,9 +87,6 @@
       cursor: pointer;
       transition: var(--transition);
       border-left: 4px solid transparent;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .conversation:hover {
@@ -104,7 +100,6 @@
       font-weight: 600;
     }
 
-    /* Chat principal */
     .chat-container {
       flex: 1;
       display: flex;
@@ -174,7 +169,7 @@
       background: var(--blue-main); color: white; border: none;
       border-radius: var(--radius); padding: 0 16px;
       cursor: pointer; font-weight: 600; transition: var(--transition);
-      height: 44px; /* Alineación de altura */
+      height: 44px;
     }
 
     .chat-input button:hover { background: var(--blue-accent); }
@@ -207,17 +202,16 @@
         font-size: 0.8rem; 
         color: white;
         font-weight: 600;
-        display: none; 
-    }
-    
-    #mic-btn.recording #timer {
-        display: block; 
-    }
-    
-    #mic-btn.recording i {
         display: none;
     }
 
+    #mic-btn.recording #timer {
+        display: block;
+    }
+
+    #mic-btn.recording i {
+        display: none;
+    }
 
     @media (max-width: 800px) {
       .sidebar { display: none; }
@@ -235,7 +229,7 @@
         Inteligencia para Resúmenes e Informes Sanitarios
       </small>
     </div>
-  
+
     <div style="display:flex;align-items:center;gap:14px;">
       <span id="user-info" class="user-chip"></span>
       <button onclick="window.location='index.html'" style="background:#1f3b73;border:none;border-radius:8px;padding:8px 12px;color:white;font-weight:600;cursor:pointer;">
@@ -253,9 +247,7 @@
     </aside>
 
     <div class="chat-container">
-      <div class="chat-messages" id="chat-messages">
-        <!-- El mensaje de bienvenida se añade en renderMensajes si está vacío -->
-      </div>
+      <div class="chat-messages" id="chat-messages"></div>
 
       <div class="chat-input">
         <button id="mic-btn">
@@ -267,379 +259,231 @@
       </div>
     </div>
   </div>
+
 <script>
-  let usuario = JSON.parse(localStorage.getItem('usuario'));
-  
-  if (!usuario) {
-    console.log("Usuario no identificado. Intentando redirigir a login...");
-    try {
-      window.location.href = 'login.html';
-    } catch (e) {
-      console.error("Redirección fallida (esperado en sandbox):", e.message);
-      document.querySelector('header').style.display = 'none';
-      document.querySelector('.main').style.display = 'none';
-      document.body.innerHTML = `<div style="font-family: Inter, sans-serif; padding: 40px; text-align: center; color: var(--gray-dark);">
-        <h2>Acceso Denegado</h2>
-        <p>Debes iniciar sesión para usar esta aplicación.</p>
-        <p style="color: #666; font-size: 0.9rem;">(Esta página de chat no se cargará porque no se encontró un 'usuario' en localStorage).</p>
-        </div>`;
-    }
-  } else {
-    // --- El script de la aplicación solo se ejecuta si el usuario está identificado ---
+let usuario = JSON.parse(localStorage.getItem('usuario'));
 
-    const chip = document.getElementById("user-info");
-    if (chip) {
-      const nombre = usuario.Nombre || usuario.nombre || "Usuario";
-      const rol = usuario.Rol || usuario.rol || "—";
-      const esp = usuario.Especialidad || usuario.especialidad || "";
-      chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
-    }
+if (!usuario) {
+  window.location.href = 'login.html';
+} else {
 
-    // --- LÓGICA DE CONVERSACIÓN MEJORADA ---
+  const chip = document.getElementById("user-info");
+  const nombre = usuario.Nombre || usuario.nombre || "Usuario";
+  const rol = usuario.Rol || usuario.rol || "—";
+  const esp = usuario.Especialidad || usuario.especialidad || "";
+  chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
 
-    const userKey = `conversaciones_${usuario.Nombre}`;
-    let conversaciones = JSON.parse(localStorage.getItem(userKey)) || [];
+  let sessionId = localStorage.getItem("sessionId");
+  if (!sessionId) {
+    sessionId = "session_" + Date.now();
+    localStorage.setItem("sessionId", sessionId);
+  }
 
-    function guardarConversaciones() { 
-      localStorage.setItem(userKey, JSON.stringify(conversaciones)); 
-    }
+  const userKey = `conversaciones_${usuario.Nombre}`;
+  let conversaciones = JSON.parse(localStorage.getItem(userKey)) || [];
+  let convActiva = conversaciones[0] || { id: Date.now(), titulo: "Conversación 1", mensajes: [] };
 
-    let necesitaGuardar = false;
-    conversaciones.forEach(conv => {
-      if (!conv.sessionId) {
-        conv.sessionId = "session_" + conv.id; 
-        necesitaGuardar = true;
-      }
+  function guardarConversaciones() { localStorage.setItem(userKey, JSON.stringify(conversaciones)); }
+
+  function renderConversaciones() {
+    const list = document.getElementById("conversations-list");
+    list.innerHTML = "";
+    conversaciones.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "conversation" + (c.id === convActiva.id ? " active" : "");
+      div.textContent = c.titulo;
+      div.onclick = () => seleccionarConversacion(c.id);
+      list.appendChild(div);
     });
-    if (necesitaGuardar) {
+  }
+
+  function seleccionarConversacion(id) {
+    convActiva = conversaciones.find(c => c.id === id);
+    renderConversaciones();
+    renderMensajes();
+  }
+
+  function nuevaConversacion() {
+    const n = { id: Date.now(), titulo: "Conversación " + (conversaciones.length + 1), mensajes: [] };
+    conversaciones.unshift(n);
+    convActiva = n;
+    guardarConversaciones();
+    renderConversaciones();
+    renderMensajes();
+  }
+
+  const chatMessages = document.getElementById("chat-messages");
+  const input = document.getElementById("message-input");
+  const sendBtn = document.getElementById("send-btn");
+  const micBtn = document.getElementById("mic-btn");
+  const timer = document.getElementById("timer");
+  const micIcon = micBtn.querySelector("i");
+
+  function addMessage(text, sender = "bot", save = true) {
+    const msg = document.createElement("div");
+    msg.className = `message ${sender}`;
+    msg.innerHTML = text.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>").replace(/\n/g,"<br>");
+    if (text === "🎤 Audio enviado") msg.innerHTML = "🎤 Audio enviado";
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (save) {
+      if (!convActiva.mensajes) convActiva.mensajes = [];
+      convActiva.mensajes.push({ texto: text, emisor: sender });
       guardarConversaciones();
     }
+  }
 
-    let convActiva = conversaciones[0]; 
+  function showTyping() {
+    const typing = document.createElement("div");
+    typing.className = "message bot typing";
+    typing.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+    typing.id = "typing";
+    chatMessages.appendChild(typing);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
 
-    if (!convActiva) {
-      const primerSessionId = "session_" + Date.now();
-      convActiva = { 
-        id: Date.now(), 
-        titulo: "Conversación 1", 
-        mensajes: [], 
-        sessionId: primerSessionId 
-      };
-      conversaciones.push(convActiva);
-      guardarConversaciones();
-    }
-    
-    // --- FIN LÓGICA DE CONVERSACIÓN ---
+  function removeTyping() {
+    const t = document.getElementById("typing");
+    if (t) t.remove();
+  }
 
-
-    function renderConversaciones() {
-      const list = document.getElementById("conversations-list");
-      list.innerHTML = "";
-      conversaciones.forEach(c => {
-        const div = document.createElement("div");
-        div.className = "conversation" + (c.id === convActiva.id ? " active" : "");
-        div.textContent = c.titulo;
-        div.onclick = () => seleccionarConversacion(c.id);
-        list.appendChild(div);
+  async function enviarPayload(payload) {
+    try {
+      const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/chat-reto1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
-    }
 
-    function seleccionarConversacion(id) {
-      const seleccionada = conversaciones.find(c => c.id === id);
-      if (seleccionada) {
-          convActiva = seleccionada; 
-          renderConversaciones(); 
-          renderMensajes(); 
+      let respuestaTexto = "";
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        respuestaTexto = data.respuesta || JSON.stringify(data);
+      } else {
+        respuestaTexto = await res.text();
       }
-    }
 
-    function nuevaConversacion() {
-      const nuevoSessionId = "session_" + Date.now(); 
-      const n = { 
-        id: Date.now(), 
-        titulo: "Conversación " + (conversaciones.length + 1), 
-        mensajes: [],
-        sessionId: nuevoSessionId 
-      };
-      conversaciones.unshift(n); 
-      convActiva = n; 
+      removeTyping();
+      addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
+    } catch (err) {
+      console.error("Error al enviar payload:", err);
+      removeTyping();
+      addMessage("⚠️ No se pudo conectar con el asistente.", "bot");
+    }
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage(text, "user");
+    input.value = "";
+    showTyping();
+    if (convActiva.mensajes.length === 1) {
+      convActiva.titulo = text.split(" ").slice(0,4).join(" ");
       guardarConversaciones();
       renderConversaciones();
-      renderMensajes();
     }
+    const payload = {
+      type: "text",
+      sessionId,
+      mensaje: text,
+      usuario: usuario.Nombre,
+      rol: usuario.Rol,
+      especialidad: usuario.Especialidad
+    };
+    await enviarPayload(payload);
+  }
 
-    const chatMessages = document.getElementById("chat-messages");
-    const input = document.getElementById("message-input");
-    const sendBtn = document.getElementById("send-btn");
-    const micBtn = document.getElementById("mic-btn");
-    const timer = document.getElementById("timer");
-    const micIcon = micBtn.querySelector("i"); 
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
 
-    function addMessage(text, sender = "bot", save = true) {
-      const msg = document.createElement("div");
-      msg.className = `message ${sender}`;
-      
-      const safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // === AUDIO ===
+  let mediaRecorder, audioChunks = [], isRecording = false, timerInterval, startTime;
+  micBtn.addEventListener("click", toggleRecording);
 
-      msg.innerHTML = safeText
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")     
-        .replace(/\*(.*?)\*/g, "<em>$1</em>")             
-        .replace(/\n/g, "<br>");                           
-        
-      if (text === "🎤 Audio enviado") {
-          msg.innerHTML = "🎤 Audio enviado";
-      }
+  function toggleRecording() {
+    if (isRecording) stopRecording();
+    else startRecording();
+  }
 
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      if (save) {
-        if (!convActiva.mensajes) convActiva.mensajes = [];
-        convActiva.mensajes.push({ texto: text, emisor: sender });
-        const index = conversaciones.findIndex(c => c.id === convActiva.id);
-        if (index > -1) {
-            conversaciones[index] = convActiva;
-        }
-        guardarConversaciones();
-      }
-    }
-
-    function showTyping() {
-      const typing = document.createElement("div");
-      typing.className = "message bot typing";
-      typing.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
-      typing.id = "typing";
-      chatMessages.appendChild(typing);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    function removeTyping() { const t = document.getElementById("typing"); if (t) t.remove(); }
-
-    // --- INICIO CAMBIO: Función solo para JSON (Texto) ---
-    async function enviarJsonPayload(payload) {
-       try {
-        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook-test/chat-reto1", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        let respuestaTexto = "";
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          const data = await res.json();
-          respuestaTexto = data.respuesta || JSON.stringify(data);
-        } else {
-          respuestaTexto = await res.text();
-        }
-
-        removeTyping();
-        addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
-      } catch (err) {
-        console.error("Error al enviar payload JSON:", err);
-        removeTyping();
-        addMessage("⚠️ No se pudo conectar con el asistente. Intenta más tarde.", "bot");
-      }
-    }
-    // --- FIN CAMBIO ---
-
-    // Manejador para enviar mensajes de TEXTO
-    async function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      
-      addMessage(text, "user");
-      input.value = "";
-      showTyping();
-
-      if (convActiva.mensajes.filter(m => m.emisor === 'user').length === 1) { 
-        const palabraClave = text.split(" ").slice(0, 4).join(" ");
-        convActiva.titulo = palabraClave.charAt(0).toUpperCase() + palabraClave.slice(1);
-        const index = conversaciones.findIndex(c => c.id === convActiva.id);
-        if (index > -1) {
-            conversaciones[index].titulo = convActiva.titulo;
-        }
-        guardarConversaciones();
-        renderConversaciones(); 
-      }
-
-      const payload = {
-        type: "text",
-        sessionId: convActiva.sessionId, 
-        mensaje: text,
-        usuario: usuario.Nombre || usuario.nombre,
-        rol: usuario.Rol || usuario.rol,
-        especialidad: usuario.Especialidad || usuario.especialidad
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        sendAudioMessage(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
       };
 
-      await enviarJsonPayload(payload); // --- CAMBIO: Llama a la función de JSON
+      mediaRecorder.start();
+      isRecording = true;
+      micBtn.classList.add("recording");
+      startTimer();
+    } catch(e) {
+      console.error(e);
+      addMessage("⚠️ Error al acceder al micrófono.", "bot", false);
     }
-    
-    sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
+  }
 
-    function renderMensajes() {
-      chatMessages.innerHTML = "";
-      if (!convActiva.mensajes || convActiva.mensajes.length === 0)
-        addMessage("👋 Nueva conversación iniciada. ¿En qué puedo ayudarte?", "bot", false);
-      else
-        convActiva.mensajes.forEach(m => addMessage(m.texto, m.emisor, false));
+  function stopRecording() {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      isRecording = false;
+      micBtn.classList.remove("recording");
+      stopTimer();
     }
-    
-    // --- INICIO: Lógica de Grabación de Audio ---
-    
-    let mediaRecorder;
-    let audioChunks = [];
-    let isRecording = false;
-    let timerInterval;
-    let startTime;
+  }
 
-    micBtn.addEventListener("click", toggleRecording);
+  function startTimer() {
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now()-startTime)/1000);
+      const m = String(Math.floor(elapsed/60)).padStart(2,'0');
+      const s = String(elapsed%60).padStart(2,'0');
+      timer.textContent = `${m}:${s}`;
+    },1000);
+  }
 
-    function toggleRecording() {
-      if (isRecording) {
-        stopRecording();
-      } else {
-        startRecording();
-      }
-    }
+  function stopTimer() {
+    clearInterval(timerInterval);
+    timer.textContent = "00:00";
+  }
 
-    async function startRecording() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          console.error("La API de MediaDevices no es compatible o no se está ejecutando en un contexto seguro (HTTPS).");
-          addMessage("⚠️ La grabación de audio no es compatible en este navegador o entorno (se requiere HTTPS).", "bot", false);
-          return;
-      }
+  async function sendAudioMessage(blobAudio) {
+    addMessage("🎤 Audio enviado", "user");
+    showTyping();
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
+    const formData = new FormData();
+    // Adjuntamos el archivo como "file"
+    formData.append("file", blobAudio, "grabacion.webm");
+    formData.append("sessionId", sessionId);
+    formData.append("usuario", usuario.Nombre);
+    formData.append("rol", usuario.Rol);
+    formData.append("especialidad", usuario.Especialidad);
 
-        mediaRecorder.ondataavailable = event => {
-          audioChunks.push(event.data);
-        };
-
-        // --- INICIO CAMBIO: Modificado onstop ---
-        mediaRecorder.onstop = () => {
-          // Crea el Blob binario
-          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          
-          // Llama a la nueva función de envío de archivos
-          sendAudioFile(audioBlob); 
-          
-          stream.getTracks().forEach(track => track.stop());
-        };
-        // --- FIN CAMBIO ---
-
-        mediaRecorder.start();
-        isRecording = true;
-        updateMicButton(true);
-        startTimer();
-        
-      } catch (err) {
-        console.error("Error al acceder al micrófono:", err);
-        addMessage("⚠️ No se pudo acceder al micrófono. Asegúrate de dar permisos.", "bot", false);
-      }
-    }
-
-    function stopRecording() {
-      if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
-        updateMicButton(false);
-        stopTimer();
-        if (mediaRecorder.stream) {
-            mediaRecorder.stream.getTracks().forEach(track => track.stop());
-        }
-      }
-    }
-
-    function updateMicButton(recording) {
-      if (recording) {
-        micBtn.classList.add("recording");
-        timer.style.display = "block"; 
-        micIcon.style.display = "none"; 
-      } else {
-        micBtn.classList.remove("recording");
-        timer.style.display = "none";
-        micIcon.style.display = "block";
-      }
-    }
-
-    function startTimer() {
-      startTime = Date.now();
-      timer.textContent = "00:00";
-      timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
-        const seconds = String(elapsed % 60).padStart(2, '0');
-        timer.textContent = `${minutes}:${seconds}`;
-      }, 1000);
-    }
-
-    function stopTimer() {
-      clearInterval(timerInterval);
-      timer.textContent = "00:00";
-    }
-
-    // --- INICIO CAMBIO: Nueva función para enviar audio como FormData ---
-    async function sendAudioFile(audioBlob) {
-      addMessage("🎤 Audio enviado", "user");
-      showTyping();
-
-      // Generar título si es el primer mensaje del usuario
-      if (convActiva.mensajes.filter(m => m.emisor === 'user').length === 1) { 
-        convActiva.titulo = "Grabación de audio";
-        const index = conversaciones.findIndex(c => c.id === convActiva.id);
-        if (index > -1) {
-            conversaciones[index].titulo = convActiva.titulo;
-        }
-        guardarConversaciones();
-        renderConversaciones(); 
-      }
-      
-      // Crear FormData y añadir todos los campos
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'audio.webm'); // 'file' es un nombre común, ajústalo si tu backend espera otro
-      formData.append('type', 'audio');
-      formData.append('sessionId', convActiva.sessionId);
-      formData.append('usuario', usuario.Nombre || usuario.nombre);
-      formData.append('rol', usuario.Rol || usuario.rol);
-      formData.append('especialidad', usuario.Especialidad || usuario.especialidad);
-
-      // Enviar el FormData
-      try {
+    try {
         const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/chat-reto1", {
-          method: "POST",
-          // NO se establece 'Content-Type', el navegador lo hace automáticamente
-          // con el 'boundary' correcto para multipart/form-data
-          body: formData 
+            method: "POST",
+            body: formData
         });
 
-        let respuestaTexto = "";
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          const data = await res.json();
-          respuestaTexto = data.respuesta || JSON.stringify(data);
-        } else {
-          respuestaTexto = await res.text();
-        }
-
+        let respuestaTexto = await res.text();
         removeTyping();
         addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
-      
-      } catch (err) {
-        console.error("Error al enviar archivo de audio:", err);
+    } catch (err) {
+        console.error("Error al enviar audio:", err);
         removeTyping();
-        addMessage("⚠️ No se pudo conectar con el asistente. Intenta más tarde.", "bot");
-      }
+        addMessage("⚠️ No se pudo enviar el audio.", "bot");
     }
-    // --- FIN CAMBIO ---
+}
 
-    // --- Inicialización ---
-    renderConversaciones(); 
-    renderMensajes(); 
-  }
+  renderConversaciones();
+  renderMensajes();
+}
 </script>
 </body>
 </html>
