@@ -85,7 +85,7 @@ main {
 /* ==== DATOS PACIENTE ==== */
 #cabecera {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 20px;
   background: var(--gris-panel);           /* mismo gris que los otros paneles */
   border: 1px solid var(--gris-borde);     /* mismo borde gris */
@@ -327,6 +327,21 @@ th {
 #infoConstantes span {
   font-weight: 500;
 }
+
+/* === Centramos los títulos principales (cabecera e IA) === */
+#infoPaciente h3,
+#infoConstantes h3,
+#bloqueIA h3,
+#bloqueRecomendacion h3 {
+  text-align: center;
+  color: var(--azul);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--azul);
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+
 
 </style>
 </head>
