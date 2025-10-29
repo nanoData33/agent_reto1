@@ -2,10 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Riesgo Vital | MedAI Evolution Ward</title>
+  <title>Riesgo Vital | IRIS — Inteligencia para Resúmenes e Informes Sanitarios</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
     body { font-family: "Inter", sans-serif; background: #f8fafc; margin: 0; }
     header { background: #1f3b73; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
@@ -15,9 +17,19 @@
   </style>
 </head>
 <body>
-  <header>
-    <h2>🩸 Riesgo Vital</h2>
-    <button onclick="window.location='index.html'">← Volver</button>
+  <header style="background:#1f3b73;color:white;padding:15px 40px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="display:flex;flex-direction:column;">
+      <span style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.3rem;">
+        <i class="fa-solid fa-eye"></i> IRIS
+      </span>
+      <small style="font-size:0.85rem;color:#d9e2ff;margin-left:26px;">
+        Inteligencia para Resúmenes e Informes Sanitarios
+      </small>
+    </div>
+  
+    <button onclick="window.location='index.html'" style="background:white;border:none;border-radius:6px;padding:6px 14px;font-weight:600;color:#1f3b73;cursor:pointer;">
+      <i class="fa-solid fa-arrow-left"></i> Volver al panel
+    </button>
   </header>
 
   <div class="charts">
