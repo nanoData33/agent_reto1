@@ -978,17 +978,17 @@ async function generarPDF() {
   pdf.setFontSize(9);
   pdf.setTextColor(100);
 
-  // Guardamos el estado gráfico actual
-  pdf.saveGraphicsState();
+  // Guardar estado actual
+  pdf.saveGraphicsState?.(); // si la versión lo soporta, la usa
 
-  // Movemos el origen al lateral izquierdo y rotamos 90 grados
-  pdf.rotate(90, { origin: [5, pageHeight / 2] }); // 5 mm desde el borde izquierdo
+  // === Versión compatible con jsPDF 2.5 ===
+  pdf.text(textoPie, pageHeight / 2, 5, {
+    angle: 90,
+    align: "center",
+  });
 
-  // Escribimos el texto (ahora vertical)
-  pdf.text(textoPie, 0, 0, { align: "center" });
-
-  // Restauramos el estado original
-  pdf.restoreGraphicsState();
+  // Restaurar estado (si existe el método)
+  pdf.restoreGraphicsState?.();
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
