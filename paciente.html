@@ -1043,7 +1043,10 @@ async function generarPDF() {
 
   pdf.setFontSize(9);
   pdf.setTextColor(100);
-  pdf.text(textoPie, pageHeight / 2, pageWidth - 8, { angle: 90, align: "center" });
+  
+  // Colocar texto vertical en el borde izquierdo del PDF
+  pdf.text(textoPie, 5, pageHeight / 2, { angle: 90, align: "center" });
+
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
