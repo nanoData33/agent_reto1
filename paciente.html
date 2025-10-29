@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MedAI Evolution Assistant</title>
+  <title>IRIS — Inteligencia para Resúmenes e Informes Sanitarios</title>
 
   <!-- Fuente -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -387,17 +387,24 @@ th {
 
 <body>
   <header>
-    <h1>MedAI Evolution Assistant</h1>
+  <div style="display:flex;flex-direction:column;align-items:flex-start;">
+    <span style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.3rem;color:var(--azul);">
+      <i class="fa-solid fa-eye"></i> IRIS
+    </span>
+    <small style="font-size:0.85rem;color:#555;margin-left:28px;">
+      Inteligencia para Resúmenes e Informes Sanitarios
+    </small>
+  </div>
 
-    <div class="botones-header">
-      <button class="btn" onclick="window.location.href='index.html'">
-        ← Volver al panel
-      </button>
-      <button class="btn" id="botonPDF" onclick="generarPDF()">
-        <i class="fa-solid fa-file-export"></i> Exportar informe completo en PDF
-      </button>
-    </div>
-  </header>
+  <div class="botones-header">
+    <button class="btn" onclick="window.location.href='index.html'">
+      ← Volver al panel
+    </button>
+    <button class="btn" id="botonPDF" onclick="generarPDF()">
+      <i class="fa-solid fa-file-export"></i> Exportar informe completo en PDF
+    </button>
+  </div>
+</header>
 
 <main id="panel">
   <!-- CABECERA DEL PACIENTE -->
