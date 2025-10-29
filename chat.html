@@ -266,24 +266,30 @@ let usuario = JSON.parse(localStorage.getItem('usuario'));
 if (!usuario) {
   window.location.href = 'login.html';
 } else {
-
   const chip = document.getElementById("user-info");
   const nombre = usuario.Nombre || usuario.nombre || "Usuario";
   const rol = usuario.Rol || usuario.rol || "—";
   const esp = usuario.Especialidad || usuario.especialidad || "";
   chip.textContent = `${nombre} (${rol}${esp ? " · " + esp : ""})`;
 
-  let sessionId = localStorage.getItem("sessionId");
-  if (!sessionId) {
-    sessionId = "session_" + Date.now();
-    localStorage.setItem("sessionId", sessionId);
-  }
-
   const userKey = `conversaciones_${usuario.Nombre}`;
   let conversaciones = JSON.parse(localStorage.getItem(userKey)) || [];
-  let convActiva = conversaciones[0] || { id: Date.now(), titulo: "Conversación 1", mensajes: [] };
 
-  function guardarConversaciones() { localStorage.setItem(userKey, JSON.stringify(conversaciones)); }
+  // Si no hay conversaciones, creamos una por defecto
+  if (conversaciones.length === 0) {
+    conversaciones.push({
+      id: Date.now(),
+      titulo: "Conversación 1",
+      mensajes: [],
+      sessionId: "session_" + Date.now()
+    });
+  }
+
+  let convActiva = conversaciones[0];
+
+  function guardarConversaciones() {
+    localStorage.setItem(userKey, JSON.stringify(conversaciones));
+  }
 
   function renderConversaciones() {
     const list = document.getElementById("conversations-list");
@@ -304,7 +310,12 @@ if (!usuario) {
   }
 
   function nuevaConversacion() {
-    const n = { id: Date.now(), titulo: "Conversación " + (conversaciones.length + 1), mensajes: [] };
+    const n = {
+      id: Date.now(),
+      titulo: "Conversación " + (conversaciones.length + 1),
+      mensajes: [],
+      sessionId: "session_" + Date.now()
+    };
     conversaciones.unshift(n);
     convActiva = n;
     guardarConversaciones();
@@ -320,12 +331,16 @@ if (!usuario) {
   const micIcon = micBtn.querySelector("i");
 
   function addMessage(text, sender = "bot", save = true) {
-    const msg = document.createElement("div");
-    msg.className = `message ${sender}`;
-    msg.innerHTML = text.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>").replace(/\n/g,"<br>");
-    if (text === "🎤 Audio enviado") msg.innerHTML = "🎤 Audio enviado";
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    const msg = document.createElement("div");
+    msg.className = `message ${sender}`;
+    msg.innerHTML = text.replace(/</g,"&lt;").replace(/>/g,"&gt;")
+                        .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+                        .replace(/\*(.*?)\*/g,"<em>$1</em>")
+                        .replace(/\n/g,"<br>");
+    if (text === "🎤 Audio enviado") msg.innerHTML = "🎤 Audio enviado";
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
     if (save) {
       if (!convActiva.mensajes) convActiva.mensajes = [];
       convActiva.mensajes.push({ texto: text, emisor: sender });
@@ -351,8 +366,8 @@ if (!usuario) {
     try {
       const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/chat-reto1", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        headers: payload instanceof FormData ? {} : { "Content-Type": "application/json" },
+        body: payload instanceof FormData ? payload : JSON.stringify(payload)
       });
 
       let respuestaTexto = "";
@@ -379,19 +394,22 @@ if (!usuario) {
     addMessage(text, "user");
     input.value = "";
     showTyping();
+
     if (convActiva.mensajes.length === 1) {
       convActiva.titulo = text.split(" ").slice(0,4).join(" ");
       guardarConversaciones();
       renderConversaciones();
     }
+
     const payload = {
       type: "text",
-      sessionId,
+      sessionId: convActiva.sessionId,
       mensaje: text,
       usuario: usuario.Nombre,
       rol: usuario.Rol,
       especialidad: usuario.Especialidad
     };
+
     await enviarPayload(payload);
   }
 
@@ -458,28 +476,22 @@ if (!usuario) {
     showTyping();
 
     const formData = new FormData();
-    // Adjuntamos el archivo como "file"
     formData.append("file", blobAudio, "grabacion.webm");
-    formData.append("sessionId", sessionId);
+    formData.append("sessionId", convActiva.sessionId);
     formData.append("usuario", usuario.Nombre);
     formData.append("rol", usuario.Rol);
     formData.append("especialidad", usuario.Especialidad);
 
-    try {
-        const res = await fetch("https://rubaseval.app.n8n.cloud/webhook/chat-reto1", {
-            method: "POST",
-            body: formData
-        });
+    await enviarPayload(formData);
+  }
 
-        let respuestaTexto = await res.text();
-        removeTyping();
-        addMessage(respuestaTexto.trim() || "🤖 (sin respuesta recibida)", "bot");
-    } catch (err) {
-        console.error("Error al enviar audio:", err);
-        removeTyping();
-        addMessage("⚠️ No se pudo enviar el audio.", "bot");
-    }
-}
+  function renderMensajes() {
+    chatMessages.innerHTML = "";
+    if (!convActiva.mensajes || convActiva.mensajes.length === 0)
+      addMessage("👋 Nueva conversación iniciada. ¿En qué puedo ayudarte?", "bot", false);
+    else
+      convActiva.mensajes.forEach(m => addMessage(m.texto, m.emisor, false));
+  }
 
   renderConversaciones();
   renderMensajes();
