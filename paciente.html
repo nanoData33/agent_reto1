@@ -966,26 +966,29 @@ async function generarPDF() {
     }
   }
 
-  // === Pie de página ===
+  // === Texto lateral ===
   const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
   const medicoNombre = usuario.Nombre || usuario.nombre || "Médico desconocido";
   const medicoEmail = usuario.correo_login || usuario.email || "correo no disponible";
   const nombrePaciente = document.getElementById("nombre")?.innerText || "resumen_paciente";
   const fechaActual = new Date().toLocaleString();
 
+  const textoPie = `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`;
+
   pdf.setFontSize(9);
+  pdf.setTextColor(100);
 
-  // Capa blanca de fondo para evitar solapamiento
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(0, pageHeight - 12, pageWidth, 12, "F");
+  // Guardamos el estado gráfico actual
+  pdf.saveGraphicsState();
 
-  // Texto del pie
-  pdf.text(
-    `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`,
-    pageWidth / 2,
-    pageHeight - 5,
-    { align: "center" }
-  );
+  // Movemos el origen al lateral izquierdo y rotamos 90 grados
+  pdf.rotate(90, { origin: [5, pageHeight / 2] }); // 5 mm desde el borde izquierdo
+
+  // Escribimos el texto (ahora vertical)
+  pdf.text(textoPie, 0, 0, { align: "center" });
+
+  // Restauramos el estado original
+  pdf.restoreGraphicsState();
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
