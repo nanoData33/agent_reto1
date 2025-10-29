@@ -126,6 +126,7 @@
       }
 
       // Render ingresos
+      // Render ingresos
       if (sugerenciasIngreso.length > 0) {
         sugerenciasIngreso.forEach(p => {
           ingresosDiv.innerHTML += `
@@ -135,7 +136,9 @@
               <div class="reason">Deterioro clínico detectado. Requiere ingreso para observación.<br>
               <b>Score IA:</b> ${(p.score*100).toFixed(1)}%</div>
               <div class="actions">
-                <button onclick="verDetalles('${p.PacienteID}')"><i class="fa-solid fa-notes-medical"></i> Ver resumen</button>
+                <button disabled style="background:#ccc; cursor:not-allowed;">
+                  <i class="fa-solid fa-ban"></i> Resumen no disponible
+                </button>
                 <button onclick="ingresar('${p.PacienteID}')"><i class="fa-solid fa-bed-pulse"></i> Ingresar</button>
               </div>
             </div>`;
