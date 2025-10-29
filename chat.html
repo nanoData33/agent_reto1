@@ -320,12 +320,12 @@ if (!usuario) {
   const micIcon = micBtn.querySelector("i");
 
   function addMessage(text, sender = "bot", save = true) {
-    const msg = document.createElement("div");
-    msg.className = `message ${sender}`;
-    msg.innerHTML = text.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
-    if (text === "🎤 Audio enviado") msg.innerHTML = "🎤 Audio enviado";
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    const msg = document.createElement("div");
+    msg.className = `message ${sender}`;
+    msg.innerHTML = text.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>").replace(/\n/g,"<br>");
+    if (text === "🎤 Audio enviado") msg.innerHTML = "🎤 Audio enviado";
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
     if (save) {
       if (!convActiva.mensajes) convActiva.mensajes = [];
       convActiva.mensajes.push({ texto: text, emisor: sender });
