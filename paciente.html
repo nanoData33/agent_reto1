@@ -1041,12 +1041,10 @@ async function generarPDF() {
 
   const textoPie = `Generado por: ${medicoNombre} (${medicoEmail}) — ${fechaActual}`;
 
+  // Pie inferior con autor (en horizontal)
   pdf.setFontSize(9);
   pdf.setTextColor(100);
-  
-  // Colocar texto vertical en el borde izquierdo del PDF
-  pdf.text(textoPie, 5, pageHeight / 2, { angle: 90, align: "center" });
-
+  pdf.text(textoPie, 10, pageHeight - 10); // X = 10mm, Y = 10mm desde abajo
 
   pdf.save(`${nombrePaciente}_informe.pdf`);
 }
