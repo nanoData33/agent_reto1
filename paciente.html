@@ -105,12 +105,25 @@ main {
 #paciente p, #constantes p { margin: 3px 0; }
 
 /* ==== RESUMEN ==== */
-#bloqueIA {
+#bloqueIA,
+#bloqueRecomendacion {
   background: var(--gris-panel);
-  border: 1px solid var(--borde);
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 18px;
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Uniformar encabezados de esos bloques */
+#bloqueIA h3,
+#bloqueRecomendacion h3 {
+  color: var(--azul);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--azul);
+  padding-bottom: 4px;
+  margin-bottom: 10px;
 }
 
 #barraProgreso {
@@ -120,13 +133,7 @@ main {
   border-radius: 4px;
   transition: width 0.4s;
 }
-#bloqueRecomendacion {
-  background: var(--gris-panel);
-  border: 1px solid var(--borde);
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 18px;
-}
+
 #barraProgresoRec {
   height: 6px;
   width: 0;
