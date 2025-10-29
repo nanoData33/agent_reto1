@@ -26,15 +26,16 @@
 
 <style>
 :root {
-  --azul: #1f3b73;           /* azul institucional */
-  --azul-acento: #3a6ff8;    /* azul más brillante para hover */
-  --gris-fondo: #f4f7fc;     /* fondo general */
-  --gris-panel: #ffffff;     /* paneles */
-  --gris-borde: #d8dee9;     /* bordes suaves */
-  --verde: #27ae60;          /* verde positivo */
-  --rojo: #e74c3c;           /* rojo alerta */
+  --azul: #1f3b73;
+  --azul-acento: #3a6ff8;
+  --gris-fondo: #eef2f7;    /* fondo general del body */
+  --gris-panel: #f9fafb;    /* fondo de todos los bloques */
+  --gris-borde: #d8dee9;
+  --verde: #27ae60;
+  --rojo: #e74c3c;
   --sombra: 0 3px 10px rgba(0,0,0,0.08);
 }
+
 body {
   font-family: 'Poppins', sans-serif;
   background: var(--gris-fondo);
@@ -95,7 +96,7 @@ main {
 
 #paciente, #constantes {
   width: 48%;
-  background: #f9fafb;
+  background: var(--gris-panel);
   border-radius: 8px;
   border: 1px solid var(--borde);
   padding: 10px 15px;
@@ -105,7 +106,7 @@ main {
 
 /* ==== RESUMEN ==== */
 #bloqueIA {
-  background: #f9fafb;
+  background: var(--gris-panel);
   border: 1px solid var(--borde);
   padding: 10px 15px;
   border-radius: 8px;
@@ -120,7 +121,7 @@ main {
   transition: width 0.4s;
 }
 #bloqueRecomendacion {
-  background: #f9fafb;
+  background: var(--gris-panel);
   border: 1px solid var(--borde);
   padding: 10px 15px;
   border-radius: 8px;
@@ -153,7 +154,7 @@ main {
 
 /* ==== GRAFICOS ==== */
 #zonaGraficos {
-  background: #f9fafb;
+  background: var(--gris-panel);
   border: 1px solid var(--borde);
   border-radius: 8px;
   padding: 10px 15px;
